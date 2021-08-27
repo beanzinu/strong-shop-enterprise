@@ -1,13 +1,22 @@
 import React from 'react' ;
 import styled from 'styled-components';
 import { Appbar , BottomNavigation , Text } from 'react-native-paper';
+import { createStackNavigator  } from '@react-navigation/stack';
+import { NavigationContainer } from '@react-navigation/native';
 
 // pages 
 import BidPage from './BidPage';
 import ChatPage from './ChatPage';
 import HomePage from './HomePage';
+import PostPage from './PostPage';
+import InfoRegister from './Register/InfoRegister';
+import PostRegister from './Register/PostRegister';
+import PostPageRegister from './Register/PostPageRegister';
+
 
 const View = styled.SafeAreaView``;
+
+const Stack = createStackNavigator() ;
 
 const styles = {
     bottom : {
@@ -19,7 +28,19 @@ const styles = {
     }
 } ; 
 
-const homeRoute = () => <HomePage/>
+const homeRoute = () => {
+    return(
+    <NavigationContainer>
+        <Stack.Navigator>
+            <Stack.Screen name='Home' component={HomePage}  options={{ headerShown : false }}/>
+            <Stack.Screen name='Post' component={PostPage} />
+            <Stack.Screen name='InfoRegister' component={InfoRegister} options={{ title: '업체 소개' }} />
+            <Stack.Screen name='PostPageRegister' component={PostPageRegister} options={{ title: '작업갤러리 등록' }}/>
+            <Stack.Screen name='PostRegister' component={PostRegister} options={{ title: '작업갤러리 상세등록' }} />
+        </Stack.Navigator>
+    </NavigationContainer>
+    );
+}
 
 
 const bidRoute = () => <BidPage/>

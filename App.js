@@ -1,21 +1,8 @@
 import React from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
-import { Alert } from 'react-native';
-import Icon  from "react-native-vector-icons/Ionicons";
-import Register from './pages/shop/Register';
 import MainPage from './pages/shop/MainPage' ;
-
+import Register from './pages/shop/Register';
 //test
 import messaging from '@react-native-firebase/messaging';
-import firebase from '@react-native-firebase/app';
 
 
 
@@ -50,8 +37,8 @@ function App (props) {
   // } , [] ) ;
 
   return (
-    // <Register />
-    <MainPage />
+    <Register />
+    // <MainPage />
   );
 };
 

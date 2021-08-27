@@ -10,6 +10,7 @@ import {
     Button ,
 } 
 from 'react-native-paper';
+import { Alert } from 'react-native';
 const View = styled.SafeAreaView``;
 
 const styles = {
@@ -27,11 +28,13 @@ const styles = {
 
 export default function() {
     const [shopName,setShopName] = React.useState('');
-    const [serialNum,setSerialNum] = React.useState('');
-    const [represent,setRepresent] = React.useState('');
-    const [date,setDate] = React.useState('');
+    const [serialNum,setSerialNum] = React.useState('1654300769');
+    const [represent,setRepresent] = React.useState('주윤혜');
+    const [date,setDate] = React.useState('20210331');
     const [verify,setVerify] = React.useState(false);
 
+
+    const [phoneNum,setPhoneNum] = React.useState('');
     const [address,setAddress] = React.useState('');
     const [detailAddress,setDetailAddress] = React.useState('');
     // modal
@@ -42,25 +45,40 @@ export default function() {
     
     const test = () =>  {
         if (verify) return;
+
         axios({
             method: 'post' ,
-            url :  'https://api.odcloud.kr/api/nts-businessman/v1/status?serviceKey=Te7HPGFjEojhi4%2B4sRjikWXlBCD1Bg%2FAVQzCa9A4gUihNPh%2FRxaFkxk2IJ670MBNRDarlpFsPX67kda7XMXaLA%3D%3D' ,
+            url :  'https://api.odcloud.kr/api/nts-businessman/v1/validate?serviceKey=Te7HPGFjEojhi4%2B4sRjikWXlBCD1Bg%2FAVQzCa9A4gUihNPh%2FRxaFkxk2IJ670MBNRDarlpFsPX67kda7XMXaLA%3D%3D' ,
             data : {
-                b_no : [serialNum]
+                businesses : [
+                    {
+                        b_no : serialNum ,
+                        start_dt : date ,
+                        p_nm : represent ,
+                        p_nm2 : '' ,
+                        b_nm : '' ,
+                        corp_no : '' ,
+                        b_sector : '' ,
+                        b_type : '' ,
+                    }
+                ]
             }
         })
         .then( res =>   { 
-            console.log(res.data.data);
-            if(res.data.data[0].b_stt_cd === '01') setVerify(true) 
-            else alert('유효하지 않은 번호입니다.')
+
+            if(res.data.data[0].valid === '01')  {
+                setVerify(true) 
+                Alert.alert('인증완료');
+            }
+            else Alert.alert('유효하지 않은 번호입니다.','다시 한번 확인해주세요.');
         }) 
         .catch(e => console.log(e) ) ;
     }
 
     return(
         <Provider>
+        <View>
         <KeyboardAwareScrollView>
-            <View>
             <Portal>
                 <Modal 
                     visible={visible} 
@@ -97,6 +115,23 @@ export default function() {
                     mode='outlined'
                     placeholder='10자리를 입력하세요.( - 없이 입력 )'
                 />
+                <TextInput 
+                    style={styles.TextInput}
+                    value={date} 
+                    onChangeText= { value => {setDate(value)} } 
+                    keyboardType='number-pad'
+                    label='개업일자'
+                    mode='outlined'
+                    placeholder='YYYYMMDD형식으로 입력하세요.'
+                />
+                <TextInput 
+                    style={styles.TextInput}
+                    value={represent} 
+                    onChangeText= { value => {setRepresent(value)} } 
+                    label='대표자성명'
+                    mode='outlined'
+                    placeholder='홍길동'
+                />
                 {/* <TextInput 
                     style={styles.TextInput}
                     value={represent} 
@@ -125,11 +160,20 @@ export default function() {
                 </Button>
                 <TextInput
                     style={styles.TextInput}
+                    label='전화번호'
+                    mode='outlined'
+                    value ={phoneNum} 
+                    onChangeText = { value => setPhoneNum(value) }
+                    keyboardType='number-pad'
+                    onFocus={() => { }}
+                />
+                <TextInput
+                    style={styles.TextInput}
                     label='주소를 검색하세요.'
                     mode='outlined'
                     value ={address}
-                    right= {<TextInput.Icon name='magnify' onPress={ () => showModal() }/>}
                     editable={false}
+                    right= {<TextInput.Icon name='magnify' onPress={ () => showModal() }/>}
                     onFocus={() => { }}
                 />
                 <TextInput 
@@ -149,8 +193,8 @@ export default function() {
             >
             등록하기
             </Button>
-            </View>
         </KeyboardAwareScrollView>
+        </View>
         </Provider>
     );
 }
