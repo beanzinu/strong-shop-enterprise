@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { FlatList } from 'react-native';
 import { Button  } from 'react-native-paper';
 import { Image } from 'react-native';
+import colors from '../../../color/colors';
 
 const postData = [
     {
@@ -68,23 +69,29 @@ export default function( props ) {
 
   // 1개의 게시물 
   const RenderItem = ({ item }) =>  {
-    return(
-    <PostButton onPress= { () =>  { props.navigation.navigate('Post',{ data: props.data  , uri : item.uri }) }}>
-        <Image source= { { uri: item.uri }  } style={{ width: '100%' , height: '100%' }} />
-    </PostButton>    
-    );
-}
+        return(
+        <PostButton onPress= { () =>  { props.navigation.navigate('Post',{ data: props.data  , uri : item.uri }) }}>
+            <Image source= { { uri: item.uri }  } style={{ width: '100%' , height: '100%' }} />
+        </PostButton>    
+        );
+    }
+
+    handleScroll = function( event ) {
+        props.setScroll(event.nativeEvent.contentOffset.y);
+    } ;
 
 
     return (
         <>  
         <Button icon='pencil-plus-outline' 
             style={ styles.button }
+            color={ colors.main }
             onPress={ () =>  { props.navigation.navigate('PostPageRegister', { data : props.data }) }}
         >
             작성하기
         </Button>
          <FlatList
+             onScrollEndDrag={this.handleScroll}
              data={ postData } 
              renderItem = {RenderItem}
              horizontal={false}

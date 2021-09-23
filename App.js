@@ -15,6 +15,7 @@ async function requestUserPermission() {
   if (enabled) {
     console.log('Authorization status:', authStatus);
   }
+
 }
 
 function App (props) {
@@ -37,8 +38,8 @@ function App (props) {
   // } , [] ) ;
 
   return (
-    <Register />
-    // <MainPage />
+    // <Register />
+    <MainPage />
   );
 };
 

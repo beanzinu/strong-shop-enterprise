@@ -1,19 +1,35 @@
 import React from 'react';
-import { DataTable , Title , Card , Button } from 'react-native-paper';
+import { DataTable , Title , Card , Button , IconButton , FAB } from 'react-native-paper';
 import styled from 'styled-components';
 import { ScrollView } from 'react-native-gesture-handler';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Collapsible from 'react-native-collapsible';
+import colors from '../../../color/colors';
+import { FlatList } from 'react-native';
+import { random } from 'lodash';
 
 const styles = {
     title : {
         fontWeight: 'bold' ,
-        color : 'rgb(89,13,229)' ,
+        color : colors.main ,
+        padding: 10 ,
+        fontFamily : 'DoHyeon-Regular' ,
+        fontSize : 30
     } ,
     button : {
-        alignSelf: 'flex-end' , 
-        padding : 5 ,
+        alignSelf: 'center' , 
         height: 45 ,
+        borderWidth : 1 ,
+        borderColor : 'lightgray' ,
+        margin : 5 , 
+        flex : 1
+    } ,
+    fab : {
+        position: 'absolute' ,
+        margin: 16 ,
+        right: 0 ,
+        bottom: 0 ,
+        backgroundColor : colors.main
     }
 } ;
 
@@ -29,13 +45,16 @@ const SubText = styled.Text`
     border : 1px lightgray;
 `;
 
-const data = {
-    name : '솔라가드 NR SMOKE 5' ,
-    cost : 150000 ,
-    description : ' 가시광선 투과율 : 3% / 자외선 차단율 : 99% / 총 태양에너지 차단율 : 64% ' 
-}
+const TouchableOpacity = styled.TouchableOpacity`
+    width: 56px; 
+    height: 56px;
+    background-color: ${colors.main}; 
+`;
+
+
+const View = styled.View``;
   
-const tmp = [
+const DATA = [
     {
        name : '솔라가드 NR SMOKE 5' ,
        price : 150000 ,
@@ -78,84 +97,135 @@ const tmp = [
     } ,
 ] ;
 
-export default function() {
-    const [test,setTest] = React.useState(false);
-    const [value,setValue] = React.useState(1);
+function ProductItem( {item} ) {
+    const [visible,setVisible] = React.useState(false) ;
+    return (
+        <Card>
+        <Card.Content>
+            <Row style= {{ alignItems: 'center' }}>
+                <Text>{item.name}</Text>
+                <IconButton icon={ visible ? 'chevron-up' : 'chevron-down'  } 
+                    color='black'
+                    size={20}
+                    onPress={ () => setVisible(!visible) } 
+                />
+            </Row>
+            {
+                visible && (
+                    <SubText  >{item.description}</SubText>
+                )
+            }
+            <Text>가격 :  {item.price}만원~ </Text>                         
+        </Card.Content>
+        </Card>
+    )
+}
 
-    const [tinting,setTinting] = React.useState([]);
-    loadList = ( value ) =>  {
-      
-         // 로드 후 
-         setTinting(tmp) ;
-
+function Product() {
+    // FlatList의 각 항목
+    const RenderItem = ({item}) =>  {
+        return (
+                <ProductItem item ={item} />
+            )
     }
-    React.useEffect( () =>  {
-        setTinting(tmp) ;
-    })
+ // function 의 리턴
+    return(
+        <>
+        <FlatList
+        nestedScrollEnabled={true}
+        onScrollEndDrag={ this.handleScroll }
+        data={ DATA } 
+        renderItem = {RenderItem}
+        horizontal={false}
+        keyExtractor={(item) => {random()%1000}}
+        onMomentumScrollEnd={() => {
+            DATA.push(
+                {
+                    name : '데이터 끝나면 추가' ,
+                    price : 320000 ,
+                    description : '가시광선 투과율 : 3% / 자외선 차단율 : 99% ...'
+                 } ,
+            ) ;
+        }
+        }
+        />
+        </>
+    )
+
+
+}
+
+
+
+export default function( props ) {
+    const [value,setValue] = React.useState(1);
+       
+    handleScroll = function( event ) {
+        props.setScroll(event.nativeEvent.contentOffset.y);
+    } ;
 
     return(
-        <KeyboardAwareScrollView>
-        
-         <ScrollView horizontal={true} style={{ height: 50 }}>
-         <Button icon='car-cog' style={ styles.button }
-                onPress={ () => { loadList() , setValue(1) }}
-                mode= { value == 1 && 'contained' }
-         >
-         틴팅
-         </Button>
-         <Button icon='car-cog' style={ styles.button }
-                 onPress={ () => { setValue(2) }}
-                 mode= { value == 2 && 'contained' }
-         >
-         블랙박스      
-         </Button>
-         <Button icon='car-cog' style={ styles.button }
-                onPress={ () => { setValue(3) }}
-                mode= { value == 3 && 'contained' }
-         >
-         PPF       
-         </Button>
-         <Button icon='car-cog' style={ styles.button }
-                 onPress={ () => { setValue(4) }}
-                 mode= { value == 4 && 'contained' }
-         >
-         유리막코팅      
-         </Button>
+        <>
+         <ScrollView horizontal={true} style={{ height : 120  }} showsHorizontalScrollIndicator={false}>
+            <Button icon='car-cog' style={ styles.button }
+                    color={ colors.main }
+                    onPress={ () => {  setValue(1) }}
+                    mode= { value == 1 && 'contained' }
+            >
+            틴팅
+            </Button>
+            <Button icon='car-cog' style={ styles.button }
+                    color={ colors.main }
+                    onPress={ () => { setValue(2) }}
+                    mode= { value == 2 && 'contained' }
+            >
+            블랙박스      
+            </Button>
+            <Button icon='car-cog' style={ styles.button }
+                    color={ colors.main }
+                    onPress={ () => { setValue(3) }}
+                    mode= { value == 3 && 'contained' }
+            >
+            PPF       
+            </Button>
+            <Button icon='car-cog' style={ styles.button }
+                    color={ colors.main }
+                    onPress={ () => { setValue(4) }}
+                    mode= { value == 4 && 'contained' }
+            >
+            유리막코팅      
+            </Button>
          </ScrollView>
-         <Button icon='hammer' style={ styles.button } color='gray'
-                 onPress={ () => {  }}
-         >
-         수정하기
-         </Button>
+        
          {/* 틴팅 */}
          {
              value == 1 && (
-                 <>
-                <Card.Title title = '틴팅' titleStyle={ styles.title }></Card.Title>
-                { tinting.length != 0 &&
-                tinting.map( data => {
-                    return (
-                    <Card>
-                    <Card.Content>
-                        <Row>
-                            <Text>{data.name}</Text>
-                            <Button icon={ test ? 'chevron-up' : 'chevron-down'  } 
-                                style={{ alignSelf: 'flex-end'}} 
-                                onPress={ () => setTest(!test) } 
-                            />
-                        </Row>
-                        <SubText  >{data.description}</SubText>
-                        <Text>가격 :  {data.price}만원~ </Text>                         
-                    </Card.Content>
-                    </Card>
-                    )
-                } )
-                }
-                    
-                </>
+                 <Product/>
              )
          }
-       
-        </KeyboardAwareScrollView>    
+        {/* 블랙박스 */}
+        {
+            value == 2 && (
+                <Product/>
+            )
+        }
+        {/* PPF */}
+        {
+             value == 3 && (
+                 <Product/>
+             )
+         }
+        {/* 유리막코팅 */}
+        {
+             value == 4 && (
+                 <Product/>
+             )
+         }
+
+         <FAB style={styles.fab} icon='pencil' color='white' 
+            onPress={ () => { props.navigation.navigate('ProductRegister',{ data : DATA}) }}
+         />
+
+        </>    
     );
 }

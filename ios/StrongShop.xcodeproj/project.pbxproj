@@ -14,6 +14,9 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		2D4C9FCB97A122302AEAF01D /* libPods-StrongShop-StrongShopTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B58D1C7129E3C4375862C0C2 /* libPods-StrongShop-StrongShopTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		FCBC4A4F26E78E7C00CAFE68 /* EastSeaDokdo-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FCBC4A4E26E78E7C00CAFE68 /* EastSeaDokdo-Regular.ttf */; };
+		FCBC4A5126E7912D00CAFE68 /* SongMyung-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FCBC4A5026E7912D00CAFE68 /* SongMyung-Regular.ttf */; };
+		FCBC4A5326E794DE00CAFE68 /* DoHyeon-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FCBC4A5226E794DE00CAFE68 /* DoHyeon-Regular.ttf */; };
 		FCDA7BF126CCE88F002CCBEA /* FontAwesome.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FC91417126C424930077FF86 /* FontAwesome.ttf */; };
 		FCDA7BF226CCE88F002CCBEA /* FontAwesome5_Solid.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FC91417326C424930077FF86 /* FontAwesome5_Solid.ttf */; };
 		FCDA7BF326CCE88F002CCBEA /* Feather.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FC91417526C424930077FF86 /* Feather.ttf */; };
@@ -77,6 +80,9 @@
 		FC91417926C424930077FF86 /* Octicons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Octicons.ttf; sourceTree = "<group>"; };
 		FC91417A26C424930077FF86 /* Foundation.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Foundation.ttf; sourceTree = "<group>"; };
 		FC91417B26C424930077FF86 /* EvilIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = EvilIcons.ttf; sourceTree = "<group>"; };
+		FCBC4A4E26E78E7C00CAFE68 /* EastSeaDokdo-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "EastSeaDokdo-Regular.ttf"; path = "Fonts/EastSeaDokdo-Regular.ttf"; sourceTree = "<group>"; };
+		FCBC4A5026E7912D00CAFE68 /* SongMyung-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SongMyung-Regular.ttf"; sourceTree = "<group>"; };
+		FCBC4A5226E794DE00CAFE68 /* DoHyeon-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "DoHyeon-Regular.ttf"; sourceTree = "<group>"; };
 		FCDA7BEE26CCD5BF002CCBEA /* StrongShop.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = StrongShop.entitlements; path = StrongShop/StrongShop.entitlements; sourceTree = "<group>"; };
 		FCDA7C0126CCEA1C002CCBEA /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -164,6 +170,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				FCBC4A4E26E78E7C00CAFE68 /* EastSeaDokdo-Regular.ttf */,
 				FC91416B26C424720077FF86 /* Fonts */,
 				13B07FAE1A68108700A75B9A /* StrongShop */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
@@ -189,6 +196,8 @@
 		FC91416B26C424720077FF86 /* Fonts */ = {
 			isa = PBXGroup;
 			children = (
+				FCBC4A5226E794DE00CAFE68 /* DoHyeon-Regular.ttf */,
+				FCBC4A5026E7912D00CAFE68 /* SongMyung-Regular.ttf */,
 				FC91417026C424930077FF86 /* AntDesign.ttf */,
 				FC91417226C424930077FF86 /* Entypo.ttf */,
 				FC91417B26C424930077FF86 /* EvilIcons.ttf */,
@@ -306,14 +315,17 @@
 			files = (
 				FCDA7BF226CCE88F002CCBEA /* FontAwesome5_Solid.ttf in Resources */,
 				FCDA7BFD26CCE88F002CCBEA /* Foundation.ttf in Resources */,
+				FCBC4A5326E794DE00CAFE68 /* DoHyeon-Regular.ttf in Resources */,
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				FCDA7BF526CCE88F002CCBEA /* Ionicons.ttf in Resources */,
 				FCDA7BF826CCE88F002CCBEA /* FontAwesome5_Regular.ttf in Resources */,
 				FCDA7BF926CCE88F002CCBEA /* Zocial.ttf in Resources */,
 				FCDA7BFB26CCE88F002CCBEA /* FontAwesome5_Brands.ttf in Resources */,
 				FCDA7BF326CCE88F002CCBEA /* Feather.ttf in Resources */,
+				FCBC4A5126E7912D00CAFE68 /* SongMyung-Regular.ttf in Resources */,
 				FCDA7BF726CCE88F002CCBEA /* AntDesign.ttf in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				FCBC4A4F26E78E7C00CAFE68 /* EastSeaDokdo-Regular.ttf in Resources */,
 				FCDA7C0026CCE88F002CCBEA /* Fontisto.ttf in Resources */,
 				FCDA7C0226CCEA1C002CCBEA /* GoogleService-Info.plist in Resources */,
 				FCDA7BFC26CCE88F002CCBEA /* Octicons.ttf in Resources */,
@@ -577,6 +589,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = StrongShop/StrongShop.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 48H79F9F8A;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = StrongShop/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -604,6 +617,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = StrongShop/StrongShop.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 48H79F9F8A;
 				INFOPLIST_FILE = StrongShop/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

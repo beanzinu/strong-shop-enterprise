@@ -7,6 +7,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 // pages 
 import ChatDetailPage from './ChatDetailPage';
+import ProgressPage from './ProgressPage/ProgressPage';
+import colors from '../../color/colors';
 const styles = {
     Button : {
         flex: 1
@@ -47,10 +49,10 @@ const ChatView = ( props ) =>   {
             return (
                 <Card 
                     key = {i} // key로 구분
-                    onPress={ () => { props.navigation.navigate('ChatDetail' , { name : chat.name })  } }>
+                    onPress={ () => { props.navigation.navigate('ProgressPage' , { name : chat.name })  } }>
                     <Card.Title title={`${chat.name} 고객`} subtitle={chat.lastMessage} 
-                                left={ props => <Avatar.Icon {...props} icon="account" /> } 
-                                right={ props => <Avatar.Text {...props} label={chat.unRead} style={{ marginRight: 10 }} /> }
+                                left={ props => <Avatar.Icon {...props} icon="account" style={{ backgroundColor : colors.main}} /> } 
+                                right={ props => <Avatar.Text {...props} label={chat.unRead} style={{ marginRight: 10  , backgroundColor : colors.main }} /> }
                     />
                 </Card>
             );
@@ -68,6 +70,7 @@ export default function() {
     <NavigationContainer>
         <Stack.Navigator>
             <Stack.Screen name='ChatList' component={ChatView} options={{ title: '채팅' }}/>
+            <Stack.Screen name='ProgressPage' component={ProgressPage} options = {{ headerShown : false }}/>
             <Stack.Screen name='ChatDetail' component = {ChatDetailPage} options={{ headerShown : false }} />
         </Stack.Navigator>
    </NavigationContainer>

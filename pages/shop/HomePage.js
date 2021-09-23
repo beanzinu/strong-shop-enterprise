@@ -1,14 +1,15 @@
 import React from 'react' ;
 import styled from 'styled-components';
 import { Appbar , Card , ToggleButton ,
-    Button , Title , Avatar , DataTable
+    Button , Title , Avatar , DataTable , FAB
 } from 'react-native-paper';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import axios from 'axios';
 import { Image } from 'react-native';
 import Accordion from 'react-native-collapsible/Accordion';
 import Collapsible from 'react-native-collapsible';
-
+import colors from '../../color/colors';
+import Swiper from 'react-native-swiper';
 // Pages
 import InfoPage from './HomePageTap/InfoPage';
 import PostGalleryPage from './HomePageTap/PostGalleryPage';
@@ -22,7 +23,10 @@ const Row = styled.View`
 const MenuButton = styled.TouchableOpacity`
     flex: 1 ;
     border-bottom-width: 5px ;
-    padding: 5px;
+    height: 50px ;
+
+    align-items: center;
+    justify-content: center;
 `;
 const Text = styled.Text`
     align-self: center;
@@ -39,44 +43,45 @@ const data = {
 const styles = {
     card : {
         padding: 20 , 
-        backgroundColor : 'rgb(89,13,229)' , 
+        backgroundColor : colors.main , 
         borderRadius: 0 ,
-        height : 250 ,
+        height : 200 ,
     } ,
     cover : {
         height: 150 ,
-    }
+    } 
 }
 
 export default function( props  ) {
     // 1.  정보  2. 작업갤러리 3. 취급상품 4. 리뷰
-    const [value, setValue] = React.useState(4);
+    const [value, setValue] = React.useState(3);
     const [scroll,setScroll] = React.useState(0);
 
-    handleScroll = function( event ) {
-        setScroll(event.nativeEvent.contentOffset.y);
-    } ;
+
     
 
     return (
         <>
-        <Appbar.Header>
-        <Appbar.Content title="최강샵" titleStyle={{ alignSelf: 'center'}} />
+        <Appbar.Header style={{ backgroundColor: colors.main }}>
+        <Appbar.Content title={data.shopName} titleStyle={{  fontFamily : 'DoHyeon-Regular' , fontSize: 30 }} />
         <Appbar.Action icon="bell-outline" onPress={() => {}} />
         <Appbar.Action icon="cog-outline" onPress={() => {}} />
         </Appbar.Header>  
         
-        <Collapsible collapsed={ value == 3 && scroll > 0  ? true : false }
+        {/* 커버사진 */}
+        <Collapsible collapsed={ scroll > 0  ? true : false }
             collapsedHeight={0}
             duration={1000}
         >
 
         <Card style={ styles.card }>
-                <Card.Cover source={{ uri : 'https://picsum.photos/0' }} style={ styles.cover }/>
-                <Card.Title title={data.shopName} subtitle={data.location}  
-                            titleStyle={{ color: 'white' }} subtitleStyle={{ color: 'white' }}>
-                    {data.shopName}
-                </Card.Title>
+
+                <Swiper autoplay={true}>
+                    <Card.Cover source = {{ uri : 'https://picsum.photos/0' }} style={ styles.cover }/>
+                    <Card.Cover source = {{ uri : 'https://picsum.photos/0' }} style={ styles.cover }/>
+                    <Card.Cover source = {{ uri : 'https://picsum.photos/0' }} style={ styles.cover }/>
+                </Swiper>
+
         </Card>
  
         </Collapsible>
@@ -85,61 +90,57 @@ export default function( props  ) {
        
         <Row>
             <MenuButton 
-                style={{ borderBottomColor : value === 1 ? 'purple' : 'white' }} 
-                onPress = { () => setValue(1) }>
+                style={{ borderBottomColor : value === 1 ? colors.main : 'white' }} 
+                onPress = { () => {setValue(1) , setScroll(0) } }>
                 <Text> 정보 </Text>
             </MenuButton>
             <MenuButton 
-                style={{ borderBottomColor : value === 2 ? 'purple' : 'white' }} 
-                onPress = { () => setValue(2) }>
+                style={{ borderBottomColor : value === 2 ? colors.main  : 'white' }} 
+                onPress = { () => {setValue(2) , setScroll(0)} }>
                 <Text> 작업갤러리 </Text>
             </MenuButton>
             <MenuButton 
-                style={{ borderBottomColor : value === 3 ? 'purple' : 'white' }} 
-                onPress = { () => setValue(3) }>
+                style={{ borderBottomColor : value === 3 ? colors.main  : 'white' }} 
+                onPress = { () => {setValue(3) , setScroll(0)} }>
                 <Text> 취급상품 </Text>
             </MenuButton>
             <MenuButton 
-                style={{ borderBottomColor : value === 4 ? 'purple' : 'white' }} 
-                onPress = { () => setValue(4) }>
+                style={{ borderBottomColor : value === 4 ? colors.main  : 'white' }} 
+                onPress = { () => {setValue(4) , setScroll(0)} }>
                 <Text> 리뷰 </Text>
             </MenuButton>
         </Row>
 
-       <>
+       
            {/* 정보 화면 */}
            {
                value === 1 && (
                     <>
-                    <InfoPage data={data} navigation={props.navigation}  />
+                    <InfoPage data={data} navigation={props.navigation} setScroll={setScroll} />
                     </>
                 )
            }
            {/* 작업갤러리 화면 */}
            {
                value === 2  && (
-                   <PostGalleryPage navigation={props.navigation}  data ={data} />
+                   <PostGalleryPage navigation={props.navigation}  data ={data} setScroll={setScroll}  />
                )
            }
            {/* 취급상품 화면 */}
            {
                value === 3 && (
-                    
-                <KeyboardAwareScrollView
-                    onScroll={this.handleScroll}
-                >
-                  <ProductPage/>
-                </KeyboardAwareScrollView>    
+                  <ProductPage navigation={props.navigation} setScroll={setScroll} />
                )
            }
            {/* 리뷰 화면 */}
            {
                value === 4 && (
-                   <ReviewPage/>
+                   <ReviewPage setScroll={setScroll} />
                )
            }
-        </>
+        
 
+        
         </>
     );
 }

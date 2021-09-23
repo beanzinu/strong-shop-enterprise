@@ -1,6 +1,5 @@
 #import <Firebase.h>
 #import "AppDelegate.h"
-
 #import <React/RCTBridge.h>
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
@@ -24,6 +23,7 @@ static void InitializeFlipper(UIApplication *application) {
   [client start];
 }
 #endif
+
 
 @implementation AppDelegate
 

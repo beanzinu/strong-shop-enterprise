@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import Postcode from '@actbase/react-daum-postcode';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import axios from 'axios';
+import auth from '@react-native-firebase/auth' ;
 // components
 import { 
     Title , Divider , TextInput ,
@@ -28,11 +29,17 @@ const styles = {
 
 export default function() {
     const [shopName,setShopName] = React.useState('');
-    const [serialNum,setSerialNum] = React.useState('1654300769');
-    const [represent,setRepresent] = React.useState('주윤혜');
-    const [date,setDate] = React.useState('20210331');
+    const [serialNum,setSerialNum] = React.useState('');
+    const [represent,setRepresent] = React.useState('');
+    const [date,setDate] = React.useState('');
+    // const [serialNum,setSerialNum] = React.useState('1654300769');
+    // const [represent,setRepresent] = React.useState('주윤혜');
+    // const [date,setDate] = React.useState('20210331');
     const [verify,setVerify] = React.useState(false);
 
+    const [showVerify,setShowVerify] = React.useState(false) ;
+    const [verifyCode,setVerifyCode] = React.useState('');
+    const [confirm,setConfirm] = React.useState('') ;
 
     const [phoneNum,setPhoneNum] = React.useState('');
     const [address,setAddress] = React.useState('');
@@ -74,6 +81,35 @@ export default function() {
         }) 
         .catch(e => console.log(e) ) ;
     }
+
+    //test
+ // Handle the button press
+  async function signInWithPhoneNumber(phoneNumber) {
+
+    try {
+       const confirmation = await auth().signInWithPhoneNumber(phoneNumber) ;
+       if ( confirmation != null ) {
+           setConfirm(confirmation) ;
+           setShowVerify(true);
+       }
+    }
+    catch (e) {
+        console.log(e) ;
+    }
+
+
+
+
+  }
+
+  async function confirmCode(code) {
+    try {
+      await confirm.confirm(code);
+      alert('yes');
+    } catch (error) {
+      console.log('Invalid code.');
+    }
+  }
 
     return(
         <Provider>
@@ -166,7 +202,23 @@ export default function() {
                     onChangeText = { value => setPhoneNum(value) }
                     keyboardType='number-pad'
                     onFocus={() => { }}
+                    onEndEditing={ () => { signInWithPhoneNumber(phoneNum) }}
                 />
+                {
+                    showVerify && (
+                        <TextInput
+                        style={styles.TextInput}
+                        label='인증번호'
+                        mode='outlined'
+                        value ={verifyCode} 
+                        onChangeText = { value => setVerifyCode(value) }
+                        keyboardType='number-pad'
+                        onFocus={() => { }}
+                        onEndEditing={ () => { confirmCode(verifyCode) }}
+                        />
+                    )
+                }
+              
                 <TextInput
                     style={styles.TextInput}
                     label='주소를 검색하세요.'
