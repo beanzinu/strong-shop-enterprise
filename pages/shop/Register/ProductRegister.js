@@ -1,11 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
 import { ScrollView } from 'react-native-gesture-handler';
-import { Button , Avatar , Card , IconButton , Menu , Provider } from 'react-native-paper';
+import { Button , Avatar , Card , IconButton , Menu , Provider , Drawer } from 'react-native-paper';
 import colors from '../../../color/colors';
-import { FlatList } from 'react-native';
+import { Alert, FlatList } from 'react-native';
 import { random } from 'lodash';
-import BottomSheet from '@gorhom/bottom-sheet';
+import {
+    BottomSheetModal,
+    BottomSheetModalProvider,
+  } from '@gorhom/bottom-sheet';
 
 const Row = styled.View`
     flex-direction: row;
@@ -43,13 +46,28 @@ const styles = {
         borderColor : 'lightgray' ,
         margin : 5 , 
         flex : 1
-    } 
+    }  , 
+    modalButton : {
+        height: 50 ,
+        width: '100%',
+    }
 } ;
 
 
 export default function( props ){
     const[value,setValue] = React.useState(1);
     const[data,setData] = React.useState([]);
+    const[currentData,setCurrentData] = React.useState({});
+
+    const snapPoints = React.useMemo(() => ['25%'], []);
+
+    const bottomSheetModalRef = React.useRef(null);
+    const handlePresentModalPress = React.useCallback(() => {
+        bottomSheetModalRef.current?.present();
+      }, []);
+    const handleDismissModalPress = React.useCallback(() => {
+        bottomSheetModalRef.current?.dismiss();
+    }, []);  
 
     // FlatList Item
     const RenderItem= ({item}) =>  {
@@ -62,10 +80,12 @@ export default function( props ){
                             color='black'
                             size={24}
                             style={{ position: 'absolute' , right: 0}}
-                            onPress={ () => { }} 
+                            onPress={() => {
+                                handlePresentModalPress();
+                                setCurrentData({ name : item.name , description: item.description});
+                            }} 
                         />
                     </Row>
-                    <SubText>가격 :  {item.price}만원~ </SubText>                         
                 </Card.Content>
                 </Card>
         )
@@ -80,6 +100,7 @@ export default function( props ){
     }
 
     return(
+        <BottomSheetModalProvider>
         <View>
         <ScrollView horizontal={true} style={{ height : 70}} showsHorizontalScrollIndicator={false}>
             <Button icon='car-cog' style={ styles.button }
@@ -119,11 +140,49 @@ export default function( props ){
             renderItem={RenderItem}
             keyExtractor={(item) => {random()%1000} }
          />
-         <BottomSheet index={1}>
-             <View>
+         
+        <BottomSheetModal
+            ref={bottomSheetModalRef}
+            snapPoints={snapPoints}
+            backgroundStyle={{ backgroundColor: 'rgb(240,240,240)'}}
+        >
+            <View>
+                    <Button style={styles.modalButton} color='black'
+                        labelStyle={{ fontSize: 20 }}
+                        contentStyle={{ justifyContent: 'flex-start' , paddingTop: 10}}
+                        onPress={ () => { 
+                            props.navigation.navigate('ProductDetailRegister',{ data : currentData})
+                            handleDismissModalPress()
+                        }}
+                    >
+                        🔧    수정
+                    </Button>
+                    <Button style={styles.modalButton} color='black'
+                        labelStyle={{ fontSize: 20 }}
+                        contentStyle={{ justifyContent: 'flex-start' , paddingTop: 10 }}
+                        onPress={() => { Alert.alert('삭제하시겠습니까?','',
+                        [
+                            {
+                                text : '확인' ,
+                                onPress : () =>  {
+                                    handleDismissModalPress()
+                                 }
+                            } ,
+                            {
+                                text : '취소' ,
+                                onPress : () =>  {
+                                    handleDismissModalPress()
+                                }
+                            }
+                        ]
+                        ) }}
+                    >
+                        ❌    삭제
+                    </Button>                
+            </View>
+        </BottomSheetModal>
 
-             </View>
-         </BottomSheet>
         </View>
+        </BottomSheetModalProvider>
     )
 }

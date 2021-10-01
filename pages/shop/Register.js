@@ -79,7 +79,7 @@ export default function() {
             }
             else Alert.alert('유효하지 않은 번호입니다.','다시 한번 확인해주세요.');
         }) 
-        .catch(e => console.log(e) ) ;
+        .catch(e => Alert.alert('필수사항을 입력해주세요.') ) ;
     }
 
     //test

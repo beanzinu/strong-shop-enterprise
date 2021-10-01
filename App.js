@@ -1,8 +1,11 @@
 import React from 'react';
 import MainPage from './pages/shop/MainPage' ;
 import Register from './pages/shop/Register';
+import NewRegister from './pages/shop/NewRegister';
+
 //test
 import messaging from '@react-native-firebase/messaging';
+import TestMain from './pages/shop/Test/MainTest';
 
 
 
@@ -39,7 +42,9 @@ function App (props) {
 
   return (
     // <Register />
-    <MainPage />
+    // <NewRegister />
+    // <MainPage />
+    <TestMain />
   );
 };
 

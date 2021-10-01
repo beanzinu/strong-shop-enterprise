@@ -1,47 +1,47 @@
 import React from 'react';
 import styled from 'styled-components';
 import { FlatList } from 'react-native';
-import { Button  } from 'react-native-paper';
+import { Button  , Avatar , Title } from 'react-native-paper';
 import { Image } from 'react-native';
 import colors from '../../../color/colors';
 
 const postData = [
-    {
-        uri : 'https://picsum.photos/0'
-    } ,
-    {
-        uri : 'https://picsum.photos/100'
-    } ,
-    {
-        uri : 'https://picsum.photos/200'
-    } ,
-    {
-        uri : 'https://picsum.photos/300'
-    } ,
-    {
-        uri : 'https://picsum.photos/0'
-    } ,
-    {
-        uri : 'https://picsum.photos/100'
-    } ,
-    {
-        uri : 'https://picsum.photos/200'
-    } ,
-    {
-        uri : 'https://picsum.photos/300'
-    } ,
-    {
-        uri : 'https://picsum.photos/0'
-    } ,
-    {
-        uri : 'https://picsum.photos/100'
-    } ,
-    {
-        uri : 'https://picsum.photos/200'
-    } ,
-    {
-        uri : 'https://picsum.photos/300'
-    } ,
+    // {
+    //     uri : 'https://picsum.photos/0'
+    // } ,
+    // {
+    //     uri : 'https://picsum.photos/100'
+    // } ,
+    // {
+    //     uri : 'https://picsum.photos/200'
+    // } ,
+    // {
+    //     uri : 'https://picsum.photos/300'
+    // } ,
+    // {
+    //     uri : 'https://picsum.photos/0'
+    // } ,
+    // {
+    //     uri : 'https://picsum.photos/100'
+    // } ,
+    // {
+    //     uri : 'https://picsum.photos/200'
+    // } ,
+    // {
+    //     uri : 'https://picsum.photos/300'
+    // } ,
+    // {
+    //     uri : 'https://picsum.photos/0'
+    // } ,
+    // {
+    //     uri : 'https://picsum.photos/100'
+    // } ,
+    // {
+    //     uri : 'https://picsum.photos/200'
+    // } ,
+    // {
+    //     uri : 'https://picsum.photos/300'
+    // } ,
 
 ];
 
@@ -57,6 +57,7 @@ const PostButton = styled.TouchableOpacity`
     justify-content: center;
     align-items: center;
 `;
+const View= styled.View``;
 
 const styles = {
     button : {
@@ -86,19 +87,29 @@ export default function( props ) {
         <Button icon='pencil-plus-outline' 
             style={ styles.button }
             color={ colors.main }
-            onPress={ () =>  { props.navigation.navigate('PostPageRegister', { data : props.data }) }}
+            onPress={ () =>  { props.navigation.navigate('PostRegister', { data : props.data }) }}
         >
             작성하기
         </Button>
-         <FlatList
-             onScrollEndDrag={this.handleScroll}
-             data={ postData } 
-             renderItem = {RenderItem}
-             horizontal={false}
-             numColumns={3}
-             keyExtractor={(item) => item.uri}
-             
-         />
+        {
+            postData.length == 0 ? (
+                <View style={{ backgroundColor: 'white' , justifyContent: 'center' , alignItems: 'center' , flex: 1}}>
+                    <Avatar.Icon icon='camera-plus' style={{ backgroundColor: 'transparent'}} color={colors.main}/>
+                    <Title>시공사진을 등록해보세요.</Title>
+                </View>
+            ) :
+            (
+                <FlatList
+                onScrollEndDrag={this.handleScroll}
+                data={ postData } 
+                renderItem = {RenderItem}
+                horizontal={false}
+                numColumns={3}
+                keyExtractor={(item) => item.uri}
+                />
+            )
+        }
+        
         </>       
 
     );

@@ -5857,10 +5857,10 @@
   "resolved" "https://registry.npmjs.org/react-native-push-notification/-/react-native-push-notification-7.4.0.tgz"
   "version" "7.4.0"
 
-"react-native-reanimated@^2.2.2", "react-native-reanimated@>=2.0.0-rc.0", "react-native-reanimated@>=2.2.0":
-  "integrity" "sha512-Lfv4ogbNLU9x3DqhXUFza9pnzyTvPrw5xGC1wWA6aGXqZgyaikNLgC5dNWzxVbfEwRdOuLPFsai3LAcIM92TCg=="
-  "resolved" "https://registry.npmjs.org/react-native-reanimated/-/react-native-reanimated-2.2.2.tgz"
-  "version" "2.2.2"
+"react-native-reanimated@^2.0.0", "react-native-reanimated@>=2.0.0-rc.0", "react-native-reanimated@>=2.2.0":
+  "integrity" "sha512-kIrdBoXSky7DQ62SOgosgimKM+Lt+SzAaM+ovVpCLBcwUK2aYRfLxa9ffgvKjeH9/n7dONlwEMjbKssGkuyq2Q=="
+  "resolved" "https://registry.npmjs.org/react-native-reanimated/-/react-native-reanimated-2.0.0.tgz"
+  "version" "2.0.0"
   dependencies:
     "@babel/plugin-transform-object-assign" "^7.10.4"
     "fbjs" "^3.0.0"

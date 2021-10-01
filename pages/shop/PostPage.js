@@ -2,6 +2,7 @@ import React from 'react';
 import { Avatar, Card , Text } from 'react-native-paper';
 import Swiper from 'react-native-swiper';
 import { Image } from 'react-native';
+import colors from '../../color/colors';
 import styled from 'styled-components';
 
 
@@ -33,7 +34,7 @@ export default function( props ) {
                 <Card.Title 
                     titleStyle={ styles.title }
                     title= {props.route.params.data.shopName} 
-                    left = { (props)=>  <Avatar.Icon {...props} icon='account' size={24}/>  }
+                    left = { (props)=>  <Avatar.Icon {...props} icon='account' size={24} style={{ backgroundColor: colors.main}} />  }
                 />
             </Card>
             <ImageView>

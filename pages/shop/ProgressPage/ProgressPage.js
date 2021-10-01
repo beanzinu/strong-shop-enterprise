@@ -92,7 +92,7 @@ export default function( props ) {
              <Appbar.Header style={{ backgroundColor: colors.main }}>
             <Appbar.BackAction onPress={() => { props.navigation.goBack() }} />
             <Appbar.Content title={`${props.route.params.name} 고객님`} titleStyle={{ fontFamily : 'DoHyeon-Regular' , fontSize: 30}} />
-            <Appbar.Action icon="chat" onPress={() => {}} />
+            <Appbar.Action icon="chat" onPress={() => { props.navigation.navigate('ChatDetail') }} />
             </Appbar.Header>  
             <ProgressBar style={styles.progress} progress={state/4} color='red' 
                 theme = {{ animation : { scale : 10 } }}

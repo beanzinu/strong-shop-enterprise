@@ -54,7 +54,7 @@ const styles = {
 
 export default function( props  ) {
     // 1.  정보  2. 작업갤러리 3. 취급상품 4. 리뷰
-    const [value, setValue] = React.useState(3);
+    const [value, setValue] = React.useState(1);
     const [scroll,setScroll] = React.useState(0);
 
 
@@ -63,9 +63,9 @@ export default function( props  ) {
     return (
         <>
         <Appbar.Header style={{ backgroundColor: colors.main }}>
-        <Appbar.Content title={data.shopName} titleStyle={{  fontFamily : 'DoHyeon-Regular' , fontSize: 30 }} />
+        <Appbar.Content onPress={()=> {setScroll(0)}} title={data.shopName} titleStyle={{  fontFamily : 'DoHyeon-Regular' , fontSize: 30 }} />
         <Appbar.Action icon="bell-outline" onPress={() => {}} />
-        <Appbar.Action icon="cog-outline" onPress={() => {}} />
+        <Appbar.Action icon="cog-outline" onPress={() => { props.navigation.navigate('MyPage')}} />
         </Appbar.Header>  
         
         {/* 커버사진 */}
@@ -92,22 +92,22 @@ export default function( props  ) {
             <MenuButton 
                 style={{ borderBottomColor : value === 1 ? colors.main : 'white' }} 
                 onPress = { () => {setValue(1) , setScroll(0) } }>
-                <Text> 정보 </Text>
+                <Text style={{ color : value === 1 ? colors.main : 'gray'}}> 정보 </Text>
             </MenuButton>
             <MenuButton 
                 style={{ borderBottomColor : value === 2 ? colors.main  : 'white' }} 
                 onPress = { () => {setValue(2) , setScroll(0)} }>
-                <Text> 작업갤러리 </Text>
+                <Text style={{ color : value === 2 ? colors.main : 'gray'}}> 작업갤러리 </Text>
             </MenuButton>
             <MenuButton 
                 style={{ borderBottomColor : value === 3 ? colors.main  : 'white' }} 
                 onPress = { () => {setValue(3) , setScroll(0)} }>
-                <Text> 취급상품 </Text>
+                <Text style={{ color : value === 3 ? colors.main : 'gray'}}> 취급상품 </Text>
             </MenuButton>
             <MenuButton 
                 style={{ borderBottomColor : value === 4 ? colors.main  : 'white' }} 
                 onPress = { () => {setValue(4) , setScroll(0)} }>
-                <Text> 리뷰 </Text>
+                <Text style={{ color : value === 4 ? colors.main : 'gray'}}> 리뷰 </Text>
             </MenuButton>
         </Row>
 

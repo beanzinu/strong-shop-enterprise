@@ -4,8 +4,9 @@ import styled from 'styled-components';
 import Swiper from 'react-native-swiper';
 import ImagePicker from 'react-native-image-crop-picker';
 import { Image } from 'react-native';
-import { Card , Avatar , Title } from 'react-native-paper';
+import { Card , Avatar , Title , Button } from 'react-native-paper';
 import InputScrollView from 'react-native-input-scroll-view';
+import colors from '../../../color/colors';
 const PictureButton = styled.TouchableOpacity`
     flex: 1 ;
     border: 1px lightgray;
@@ -20,11 +21,12 @@ const SwiperView = styled.View`
 const Text = styled.Text`
     font-size: 18px;
     font-weight: bold ;
-    color: 'rgb(89,13,229)';
+    color: ${colors.main};
 `;
 const TextInput = styled.TextInput`
     border: 2px lightgray;
-    height: 100px;
+    height: 150px;
+    padding: 10px;
 `;
 
 
@@ -80,7 +82,7 @@ export default function( props ) {
                 <Card.Title 
                     titleStyle={ styles.title }
                     title= {props.route.params.data.shopName} 
-                    left = { (props)=>  <Avatar.Icon {...props} icon='account' size={24}/>  }
+                    left = { (props)=>  <Avatar.Icon {...props} icon='account' size={24} style={{ backgroundColor: colors.main}}/>  }
                 />
             </Card>
             <SwiperView>
@@ -88,7 +90,7 @@ export default function( props ) {
                                 !loading ? (
                                     <SwiperView>
                                         <PictureButton onPress={ () => { loadImage(1) } }>
-                                            <Avatar.Icon icon='image' size={30} style= {{ margin: 10 }}/>
+                                            <Avatar.Icon icon='image' size={30} style= {{ margin: 10 }} style={{ backgroundColor: colors.main}}/>
                                             <Text>여기를 눌러 사진을 추가하세요.</Text>
                                         </PictureButton>
                                     </SwiperView>
@@ -118,7 +120,7 @@ export default function( props ) {
                     onChangeText={value => setText(value) }  
                     multiline={true}/>
             </InputScrollView>
-            
+            <Button>추가하기</Button>
             </KeyboardAwareScrollView>
     );
 }

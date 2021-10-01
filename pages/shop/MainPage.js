@@ -16,6 +16,7 @@ import PostRegister from './Register/PostRegister';
 import PostPageRegister from './Register/PostPageRegister';
 import ProductRegister from './Register/ProductRegister';
 import ProductDetailRegister from './Register/ProductDetailRegister';
+import MyPage from './MyPage';
 
 const View = styled.SafeAreaView``;
 
@@ -37,6 +38,7 @@ const homeRoute = () => {
     <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerLeft : props => ( <IconButton {...props} icon='chevron-left' size={24} /> ) }}>
             <Stack.Screen name='Home' component={HomePage}  options={{ headerShown : false }}/>
+            <Stack.Screen name='MyPage' component={MyPage}  options={{ headerShown : false }}/>
             <Stack.Screen name='Post' component={PostPage} />
             <Stack.Screen name='InfoRegister' component={InfoRegister} options={{ title: '업체 소개' }} />
             <Stack.Screen name='PostPageRegister' component={PostPageRegister} options={{ title: '작업갤러리 등록' }}/>
@@ -61,7 +63,7 @@ const bidRoute = () => {
 }
 
 // 문의 및 채팅
-const chatRoute = () => <ChatDetailPage/>
+const chatRoute = () => <ChatPage/>
 
 export default function() {
     const [index, setIndex] = React.useState(0);
