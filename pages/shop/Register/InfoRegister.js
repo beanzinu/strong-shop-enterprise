@@ -1,9 +1,11 @@
 import React from 'react' ;
 import styled from 'styled-components';
-import { Title , TextInput , Button , Avatar } from 'react-native-paper';
+import { Title , TextInput , Button , Avatar , Provider , Portal , Modal} from 'react-native-paper';
 import colors from '../../../color/colors';
 import { Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import Postcode from '@actbase/react-daum-postcode';
+// Async
 import store from '../../../storage/store';
 
 const Input = styled.TextInput`
@@ -39,20 +41,25 @@ export default function( props ) {
     const [blogUrl,setBlogUrl] = React.useState('');
     const [siteUrl,setSiteUrl] = React.useState('');
     const [snsUrl,setSnsUrl] = React.useState('');
+    const [address,setAddress] = React.useState('');
+    const [detailAddress,setDetailAddress] = React.useState('');
+
+    const [visible,setVisible] = React.useState(false) ;
 
     const addInfo = async () => {
         data = {
             info : info ,
             blogUrl : blogUrl ,
             siteUrl : siteUrl ,
-            snsUrl : snsUrl
+            snsUrl : snsUrl ,
+            address : address ,
+            detailAddress : detailAddress ,
         } ;
         // 서버에게 전달
 
         // 캐시 
         try {
             store('Info',data) ;
-            props.route.params.data = data;
             props.navigation.goBack();
         }
         catch {
@@ -63,16 +70,32 @@ export default function( props ) {
 
     }
 
-
+    // 기존 정보를 수정
     React.useEffect( () => { 
-        setInfo(props.route.params.data.info) ;
-        setBlogUrl(props.route.params.data.blogUrl) ;
-        setSiteUrl(props.route.params.data.siteUrl) ;
-        setSnsUrl(props.route.params.data.snsUrl) ;
+        setInfo(props.route.params?.data?.info) ;
+        setBlogUrl(props.route.params?.data?.blogUrl) ;
+        setSiteUrl(props.route.params?.data?.siteUrl) ;
+        setSnsUrl(props.route.params?.data?.snsUrl) ;
+        setAddress(props.route.params?.data?.address);
+        setDetailAddress(props.route.params?.data?.detailAddress);
     },[]);
 
     return(
+        <Provider>
         <KeyboardAwareScrollView>
+            <Portal>
+                <Modal 
+                    visible={visible} 
+                    onDismiss={ () => {setVisible(false)}}
+                    style= {{ alignItems : 'center' , justifyContent: 'center'  }}
+                >
+                    <Postcode
+                    style={{ width : 300 , height: 500 }}
+                    jsOptions={{ animated: true }}
+                    onSelected={data => {setAddress(data.roadAddress) , setVisible(false) } }
+                    />
+                </Modal>
+            </Portal>
             <Row>
                 <Title style={ styles.title }> 업체 소개를 해주세요.</Title>
                 <Button color='red' 
@@ -116,6 +139,20 @@ export default function( props ) {
                 value={snsUrl}
                 onChangeText={ value=> setSnsUrl(value) }
             />
+            <TextInput  left={<TextInput.Icon icon='home' size={24}/>}
+                placeholder='주소를 선택하세요'
+                theme={{ colors: { primary: colors.main , background: 'white' }}}
+                editable={false}
+                right= {<TextInput.Icon name='magnify' onPress={ () => { setVisible(true) } }/>}
+                value={address}
+                onChangeText={ value=> setAddress(value)}
+            />
+            <TextInput  
+                placeholder='상세주소'
+                theme={{ colors: { primary: colors.main , background: 'white' }}}
+                value={detailAddress}
+                onChangeText={ value=> setDetailAddress(value) }
+            />
 
             <Button onPress={ () => { addInfo() }} mode='outlined'
                 color = { colors.main }
@@ -125,5 +162,6 @@ export default function( props ) {
                 수정하기
             </Button>
         </KeyboardAwareScrollView> 
+        </Provider>
     );
 }

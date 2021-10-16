@@ -25,7 +25,8 @@ const Row = styled.View`
 const data = [
     {
         carName: '제네시스 G80' ,
-        tinting : {
+        tinting: true ,
+        detailTinting : {
             select : true , // 틴팅 시공 선택
             solarguard : true ,
             rayno : false ,
@@ -40,7 +41,8 @@ const data = [
     } ,
     {
         carName: '기아 레이' ,
-        tinting : {
+        tinting: true ,
+        detailTinting : {
             select : true , // 틴팅 시공 선택
             solarguard : true ,
             rayno : false ,
@@ -55,7 +57,8 @@ const data = [
     } ,
     {
         carName: '쌍용 티볼리' ,
-        tinting : {
+        tinting: true ,
+        detailTinting : {
             select : true , // 틴팅 시공 선택
             solarguard : true ,
             rayno : false ,
@@ -78,17 +81,20 @@ const styles = {
         padding : 20 ,
     }  ,
     chipStyle : {
-        backgroundColor: colors.main ,
+        backgroundColor: 'rgb(200,200,200)',
         margin : 3
     } ,
     chipTextStyle : {
-        color: 'white'
     } , 
     title : {
         fontWeight: 'bold' , 
-        fontSize: 35 , 
+        fontSize: 25 , 
         padding: 5 ,
-        fontFamily : 'DoHyeon-Regular' ,
+        fontFamily : 'DoHyeon-Regular' , 
+    } ,
+    listStyle : {
+        fontWeight: 'bold',
+        fontSize: 17 , 
     }
 
 }
@@ -106,20 +112,30 @@ function Item ( {i , item , navigation , ModalPress } ) {
                             description='자세한 정보를 확인하세요.'
                             left={props => <List.Icon {...props} icon="car-hatchback" color='red' />}
                            >
-                            { item.tinting.select && 
+                            <View>
+                            { item.tinting && 
                                 <>
-                                    <List.Item titleStyle={{ fontWeight: 'bold' , fontSize: 20}} title ='틴팅' left={props => <List.Icon {...props} icon='clipboard-check-outline'/>} />
+                                    <List.Item titleStyle={styles.listStyle} title ='틴팅'  />
                                     <Row>
-                                        { item.tinting.solarguard && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>솔라가드</Chip>}
-                                        { item.tinting.rayno && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>레이노</Chip>}
-                                        { item.tinting.llumar && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>루마</Chip>}
-                                        { item.tinting.rainbow && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>레인보우</Chip>}
+                                        { item.detailTinting.solarguard && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>솔라가드</Chip>}
+                                        { item.detailTinting.rayno && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>레이노</Chip>}
+                                        { item.detailTinting.llumar && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>루마</Chip>}
+                                        { item.detailTinting.rainbow && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>레인보우</Chip>}
                                     </Row>
                                 </> }
-                            {item.blackbox && <List.Item titleStyle={{ fontWeight: 'bold' , fontSize: 20}}  title ='블랙박스' left={props => <List.Icon {...props} icon='clipboard-check-outline'/>} />}
-                            {item.ppf && <List.Item titleStyle={{ fontWeight: 'bold' , fontSize: 20}}  title ='PPF' left={props => <List.Icon {...props} icon='clipboard-check-outline'/>} />}
-                            {item.glass && <List.Item titleStyle={{ fontWeight: 'bold' , fontSize: 20}}  title ='유리막코팅' left={props => <List.Icon {...props} icon='clipboard-check-outline'/>} />} 
-                            {item.seat && <List.Item titleStyle={{ fontWeight: 'bold' , fontSize: 20}}  title ='가죽코팅' left={props => <List.Icon {...props} icon='clipboard-check-outline'/>} />}
+                            {item.blackbox && 
+                                <>
+                                    <List.Item titleStyle={styles.listStyle}  title ='블랙박스' />
+                                    <Row>
+                                        { item.detailTinting.solarguard && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>솔라가드</Chip>}
+                                        { item.detailTinting.rayno && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>레이노</Chip>}
+                                        { item.detailTinting.llumar && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>루마</Chip>}
+                                        { item.detailTinting.rainbow && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>레인보우</Chip>}
+                                    </Row>
+                                </>}
+                            {item.ppf && <><List.Item titleStyle={styles.listStyle}  title ='PPF'  /></>}
+                            {item.glass && <><List.Item titleStyle={styles.listStyle}  title ='유리막코팅'  /></>} 
+                            {item.seat && <><List.Item titleStyle={styles.listStyle}  title ='가죽코팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} color={colors.main}/>} /></>}
                             <Divider/>
                             <List.Item 
                                 right={(props) => 
@@ -130,7 +146,8 @@ function Item ( {i , item , navigation , ModalPress } ) {
                                     입찰하기
                                 </Button>}
                                 titleStyle={{ fontWeight: 'bold' }}
-                                title='요청사항:' description={item.etc} left={props => <List.Icon {...props} icon='clipboard-check-outline'/>}  />
+                                title='요청사항:' description={item.etc} />
+                            </View>
                           </List.Accordion>
                     </List.Section>
     )
@@ -161,14 +178,12 @@ export default function ( props ) {
             <Appbar.Action icon="bell-outline" onPress={() => {}} />
             <Appbar.Action icon="cog-outline" onPress={() => {}} />
         </Appbar.Header>   
-        <Row style={{ marginTop: 20 }}>
+        <Row style={{ marginTop: 20 , marginBottom: 20 }}>
             <Title style={styles.title}>현재</Title>
-            <Title style={{...styles.title , color: 'red' }}>{data.length}</Title>
-            <Title style={styles.title}>건의</Title>
+            <Title style={{...styles.title , color: 'red' , fontSize: 35 }}>{data.length}</Title>
+            <Title style={styles.title}>건의 입찰요청이 있습니다.</Title>
         </Row>
-        <Title style={styles.title}>
-            입찰요청이 있습니다.
-        </Title>
+
         <Divider/>
         {
             data.map( (item,i) => {

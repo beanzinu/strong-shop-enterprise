@@ -1,24 +1,32 @@
 import React from 'react' ;
-import messaging from '@react-native-firebase/messaging';
 import { Button } from 'react-native-paper';
 import styled from 'styled-components';
+import PushNotificationIOS from '@react-native-community/push-notification-ios';
+
 const Container = styled.SafeAreaView``;
 
 export default function() {
 
     async function request() {
-        const auth = await messaging().requestPermission();
-
-        if (auth) {
-            console.log('Permission Status:', auth);
-        }
-
-        // Register background handler
-        messaging().setBackgroundMessageHandler(async remoteMessage => {
-        console.log('Message handled in the background!', remoteMessage);
-    });
+        
     }
 
+    const [permissions, setPermissions] = React.useState({});
+
+    React.useEffect(() => {
+      PushNotificationIOS.addEventListener('notification', onRemoteNotification);
+    });
+
+    const onRemoteNotification = (notification) => {
+        const isClicked = notification.getData().userInteraction === 1;
+    
+        if (isClicked) {
+          // Navigate user to another screen
+            alert('ok');
+        } else {
+          // Do something else with push notification
+        }
+      };
 
     return(
         <Container>

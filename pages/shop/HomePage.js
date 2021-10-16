@@ -16,6 +16,7 @@ import PostGalleryPage from './HomePageTap/PostGalleryPage';
 import ProductPage from './HomePageTap/ProductPage';
 import ReviewPage from './HomePageTap/ReviewPage';
 
+
 const Row = styled.View`
     flex-direction: row;
     background-color: white;
@@ -45,7 +46,7 @@ const styles = {
         padding: 20 , 
         backgroundColor : colors.main , 
         borderRadius: 0 ,
-        height : 200 ,
+        height : 150 ,
     } ,
     cover : {
         height: 150 ,
@@ -57,13 +58,12 @@ export default function( props  ) {
     const [value, setValue] = React.useState(1);
     const [scroll,setScroll] = React.useState(0);
 
-
-    
-
     return (
         <>
         <Appbar.Header style={{ backgroundColor: colors.main }}>
-        <Appbar.Content onPress={()=> {setScroll(0)}} title={data.shopName} titleStyle={{  fontFamily : 'DoHyeon-Regular' , fontSize: 30 }} />
+        <Appbar.Content onPress={()=> {setScroll(0)}} title={data.shopName} titleStyle={{  fontFamily : 'DoHyeon-Regular' , fontSize: 30 }}  />
+        
+        <Appbar.Action icon="chevron-down" onPress={() => {}} style={{ marginRight: 150 }}/>
         <Appbar.Action icon="bell-outline" onPress={() => {}} />
         <Appbar.Action icon="cog-outline" onPress={() => { props.navigation.navigate('MyPage')}} />
         </Appbar.Header>  

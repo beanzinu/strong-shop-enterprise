@@ -7,6 +7,7 @@ import axios from 'axios';
 import colors from '../../../color/colors';
 import { Linking } from 'react-native';
 import { RefreshControl } from 'react-native';
+import _ from 'lodash';
 // storage
 import fetch from '../../../storage/fetch';
 import store from '../../../storage/store';
@@ -36,23 +37,39 @@ const styles = {
     }
 }
 
-let DATA = {
-    company_id : 2 ,
-    longitude : '' ,
-    latitude : '' ,
-    introduction : '업체에 대해 간단한 소개를 해주세요.' ,
-    blogUrl : 'http://www.naver.com/blog/strongshop' ,
-    siteUrl : 'http://www.naver.com' ,
-    snsUrl : 'http://instgram.com'
-}
+// let DATA = {
+//     company_id : 2 ,
+//     longitude : '' ,
+//     latitude : '' ,
+//     introduction : '업체에 대해 간단한 소개를 해주세요.' ,
+//     blogUrl : 'http://www.naver.com/blog/strongshop' ,
+//     siteUrl : 'http://www.naver.com' ,
+//     snsUrl : 'http://instgram.com'
+// }
 
 export default function( props ) {
     const [coord,setCoord] = React.useState(0);
-    const [data,setData] = React.useState(DATA);
+    const [data,setData] = React.useState({});
     const [refreshing,setRefreshing] = React.useState(false);
 
     const wait = (timeout) => {
         return new Promise(resolve => setTimeout(resolve, timeout));
+    }
+
+    function getCoord(address){
+        axios({
+            method: 'GET' ,
+            url : `https://api.vworld.kr/req/address?service=address&request=getCoord&key=98C4A0B1-90CD-30F6-B7D0-9F5A0DC9F18B&address=${address}&type=ROAD` ,
+        })
+        .then(res => {
+            const point = res.data.response.result.point ;
+            setCoord({latitude: Number(point.y) , longitude : Number(point.x) });
+            // 캐시 저장
+            store('map',point);
+
+        }
+        )
+        .catch(e => console.log(e) ) ;
     }
 
     React.useEffect( async () =>  {
@@ -66,9 +83,6 @@ export default function( props ) {
             axios({
                 method: 'GET' ,
                 url : 'https://api.vworld.kr/req/address?service=address&request=getCoord&key=98C4A0B1-90CD-30F6-B7D0-9F5A0DC9F18B&address=서울시 관악구 복은 10길 19&type=ROAD' ,
-                data : {
-                    loginToken : 'AABCADSAD'
-                }
             })
             .then(res => {
                 const point = res.data.response.result.point ;
@@ -83,9 +97,12 @@ export default function( props ) {
             .catch(e => console.log(e) ) ;
         });
 
+        let tmp ;
+
         await fetch('Info')
-        .then( res => {
-            setData(res)
+        .then( (res) => {
+            setData(res);
+            tmp = res ;
         })
         .catch(e => {
 
@@ -97,23 +114,21 @@ export default function( props ) {
                 wait(2000).then(async ()=>{
                 await fetch('Info')
                 .then(res=>{
-        
-                    const newData = {
-                        ...data ,
-                        info : res.info ,
-                        blogUrl : res.blogUrl ,
-                        siteUrl : res.siteUrl,
-                        snsUrl : res.snsUrl
-                    }
+                    
+                    // 주소의 변화가 있을 때
+                    if ( tmp.address != res.address ) getCoord(res.address);
+
                     // 데이터의 변화가 있을 시
-                    if ( JSON.stringify(data) != JSON.stringify(newData) ) {
+                    if ( !_.isEqual( tmp,res ) ) {
                         setRefreshing(true);
                         setData({
                             ...data,
                             info : res.info ,
                             blogUrl : res.blogUrl ,
                             siteUrl : res.siteUrl,
-                            snsUrl : res.snsUrl
+                            snsUrl : res.snsUrl ,
+                            address : res.address ,
+                            detailAddress : res.detailAddress
                         });
                         wait(1000).then(()=>setRefreshing(false));
                     }
@@ -150,21 +165,22 @@ export default function( props ) {
                 수정하기
             </Button>
             <Title style= { styles.title }> 업체 소개 </Title>
-            <Text>{data.info}</Text>
+            <Text>{data?.info}</Text>
             <Row>
                 <Avatar.Icon icon='link' style={{ backgroundColor: 'transparent' , marginLeft: 10 }} color={colors.main} size={30} />
-                <Button uppercase={false} color={colors.main} onPress={()=> { Linking.openURL(data.blogUrl)}}>{data.blogUrl}</Button>
+                <Button uppercase={false} color={colors.main} onPress={()=> { Linking.openURL(data.blogUrl)}}>{data?.blogUrl}</Button>
             </Row>
             <Row>
                 <Avatar.Icon icon='web' style={{ backgroundColor: 'transparent' , marginLeft: 10 }} color={colors.main} size={30} />
-                <Button uppercase={false} color={colors.main} onPress={()=> { Linking.openURL(data.siteUrl) }}>{data.siteUrl}</Button>
+                <Button uppercase={false} color={colors.main} onPress={()=> { Linking.openURL(data.siteUrl) }}>{data?.siteUrl}</Button>
             </Row>
             <Row>
                 <Avatar.Icon icon='instagram' style={{ backgroundColor: 'transparent' , marginLeft: 10 }} color={colors.main} size={30} />
-                <Button uppercase={false} color={colors.main} onPress={()=> { Linking.openURL(data.snsUrl) }}>{data.snsUrl}</Button>
+                <Button uppercase={false} color={colors.main} onPress={()=> { Linking.openURL(data.snsUrl) }}>{data?.snsUrl}</Button>
             </Row>
             <Title style= { styles.title }> 위치 </Title>
-            <Text style={{ marginBottom: 10 }}>주소: {props.data.location}</Text>
+            <Text>주소: {data?.address}</Text>
+            <Text style={{ marginBottom: 10 }}>{data?.detailAddress}</Text>
             <NaverMapView style={{width: '80%', height: 300 , alignSelf : 'center' }}
             showsMyLocationButton={true}
             center={{...coord, zoom: 13 }}

@@ -5,6 +5,7 @@ import { FlatList } from 'react-native';
 import colors from '../../../color/colors';
 import { Image } from 'react-native';
 import _ from 'lodash';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 const Container = styled.SafeAreaView``;
 const Row = styled.View`
@@ -86,13 +87,13 @@ export default function( props ) {
             </CButton>
         )
     }
-
+asdasdsadasdasd
     return(
-        <>
-             <Appbar.Header style={{ backgroundColor: colors.main }}>
+        <KeyboardAwareScrollView>
+            <Appbar.Header style={{ backgroundColor: colors.main }}>
             <Appbar.BackAction onPress={() => { props.navigation.goBack() }} />
             <Appbar.Content title={`${props.route.params.name} 고객님`} titleStyle={{ fontFamily : 'DoHyeon-Regular' , fontSize: 30}} />
-            <Appbar.Action icon="chat" onPress={() => { props.navigation.navigate('ChatDetail') }} />
+            <Appbar.Action icon="chat" onPress={() => { props.navigation.navigate('ChatDetail',{ name : props.route.params.name }) }} />
             </Appbar.Header>  
             <ProgressBar style={styles.progress} progress={state/4} color='red' 
                 theme = {{ animation : { scale : 10 } }}
@@ -128,6 +129,6 @@ export default function( props ) {
                     )
                 })
             }
-        </>
+        </KeyboardAwareScrollView>
     );
 }

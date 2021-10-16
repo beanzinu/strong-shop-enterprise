@@ -9,6 +9,7 @@ import { FlatList } from 'react-native';
 import { random } from 'lodash';
 // async
 import fetch from '../../../storage/fetch';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const styles = {
     title : {
@@ -57,51 +58,11 @@ const TouchableOpacity = styled.TouchableOpacity`
 
 const View = styled.View``;
   
-// const DATA = [
-//     {
-//        name : '솔라가드 NR SMOKE 5' ,
-//        price : 150000 ,
-//        description : '가시광선 투과율 : 3% / 자외선 차단율 : 99% 가시광선 투과율 : 3% / 자외선 차단율 : 99% ...'
-//     } ,
-//     {
-//        name : '솔라가드 NR SMOKE 7' ,
-//        price : 320000 ,
-//        description : '가시광선 투과율 : 3% / 자외선 차단율 : 99% ...'
-//     } ,
-//     {
-//        name : '솔라가드 NR SMOKE 5' ,
-//        price : 150000 ,
-//        description : '가시광선 투과율 : 3% / 자외선 차단율 : 99% 가시광선 투과율 : 3% / 자외선 차단율 : 99% ...'
-//     } ,
-//     {
-//        name : '솔라가드 NR SMOKE 7' ,
-//        price : 320000 ,
-//        description : '가시광선 투과율 : 3% / 자외선 차단율 : 99% ...'
-//     } ,
-//     {
-//        name : '솔라가드 NR SMOKE 5' ,
-//        price : 150000 ,
-//        description : '가시광선 투과율 : 3% / 자외선 차단율 : 99% 가시광선 투과율 : 3% / 자외선 차단율 : 99% ...'
-//     } ,
-//     {
-//        name : '솔라가드 NR SMOKE 7' ,
-//        price : 320000 ,
-//        description : '가시광선 투과율 : 3% / 자외선 차단율 : 99% ...'
-//     } ,
-//     {
-//        name : '솔라가드 NR SMOKE 5' ,
-//        price : 150000 ,
-//        description : '가시광선 투과율 : 3% / 자외선 차단율 : 99% 가시광선 투과율 : 3% / 자외선 차단율 : 99% ...'
-//     } ,
-//     {
-//        name : '솔라가드 NR SMOKE 7' ,
-//        price : 320000 ,
-//        description : '가시광선 투과율 : 3% / 자외선 차단율 : 99% ...'
-//     } ,
-// ] ;
+
 
 function ProductItem( {item} ) {
     const [visible,setVisible] = React.useState(false) ;
+
     return (
         <Card>
         <Card.Content>
@@ -134,7 +95,7 @@ function Product( {DATA} ) {
     return(
         <>
         {
-            DATA.length == 0 ? (
+            DATA == null || DATA.length == 0 ? (
                 <View style={{ backgroundColor: 'white' , justifyContent: 'center' , alignItems: 'center' , flex: 1}}>
                     <Avatar.Icon icon='note-plus' style={{ backgroundColor: 'transparent'}} color={colors.main}/>
                     <Title>취급상품을 등록해보세요.</Title>
@@ -142,22 +103,11 @@ function Product( {DATA} ) {
             ) :
             (
             <FlatList
-            nestedScrollEnabled={true}
-            onScrollEndDrag={ this.handleScroll }
-            data={ DATA } 
-            renderItem = {RenderItem}
-            horizontal={false}
-            keyExtractor={(item) => {random()%1000}}
-            // onMomentumScrollEnd={() => {
-            //     DATA.push(
-            //         {
-            //             name : '데이터 끝나면 추가' ,
-            //             price : 320000 ,
-            //             description : '가시광선 투과율 : 3% / 자외선 차단율 : 99% ...'
-            //         } ,
-            //     ) ;
-            // }
-            // }
+                onScrollEndDrag={ this.handleScroll }
+                data={ DATA } 
+                renderItem = {RenderItem}
+                horizontal={false}
+                keyExtractor={(item) => {item.name}}
             /> 
             )
         }
@@ -168,20 +118,31 @@ function Product( {DATA} ) {
 }
 
 
+const options = [
+    { name : '틴팅'} ,
+    { name : 'PPF'} ,
+    { name : '블랙박스'} ,
+    { name : '보조배터리'} ,
+    { name : '애프터블로우'} ,
+    { name : '방음'} ,
+    { name : '랩핑'} ,
+    { name : '유리막코팅'} ,
+    { name : '언더코팅'} ,
+    { name : '기타'} ,
+];
 
 export default function( props ) {
-    const [value,setValue] = React.useState(0);
+    const [value,setValue] = React.useState(1);
     const [DATA,setDATA] = React.useState(null);
 
     React.useEffect( async ()=>{
         await fetch('Product')
         .then( res => {
-            setDATA(res.tinting);
+            console.log("취급상품 데이터 : " , res);
+            setDATA(res);
             setValue(1);
         })
         .catch(e=>{ console.log(e) }) ;
-
-        console.log('loading');
 
     },[]);
 
@@ -195,61 +156,27 @@ export default function( props ) {
         
          <View style={{ height: 70 }}> 
          <ScrollView horizontal={true}  style={{ height : 70  , backgroundColor: 'white'  }} showsHorizontalScrollIndicator={false}>
-            <Button icon='car-cog' style={ styles.button }
-                    color={ colors.main }
-                    onPress={ () => {  setValue(1) }}
-                    mode= { value == 1 && 'contained' }
-            >
-            틴팅
-            </Button>
-            <Button icon='car-cog' style={ styles.button }
-                    color={ colors.main }
-                    onPress={ () => { setValue(2) }}
-                    mode= { value == 2 && 'contained' }
-            >
-            블랙박스      
-            </Button>
-            <Button icon='car-cog' style={ styles.button }
-                    color={ colors.main }
-                    onPress={ () => { setValue(3) }}
-                    mode= { value == 3 && 'contained' }
-            >
-            PPF       
-            </Button>
-            <Button icon='car-cog' style={ styles.button }
-                    color={ colors.main }
-                    onPress={ () => { setValue(4) }}
-                    mode= { value == 4 && 'contained' }
-            >
-            유리막코팅      
-            </Button>
+            {
+                options.map((item,i)=>{
+                    return(
+                        <Button key={i} style={styles.button} color={colors.main} onPress={ () => { setValue(i+1) }} mode = { value == i+1 && 'contained'}>
+                            {item.name}
+                        </Button>
+                    )
+                })
+            }
          </ScrollView>
          </View>
-        
-         {/* 틴팅 */}
-         {
-             value == 1 && (
-                 <Product DATA = { DATA} />
-             )
-         }
-        {/* 블랙박스 */}
-        {
-            value == 2 && (
-                <Product DATA = { DATA} />
-            )
-        }
-        {/* PPF */}
-        {
-             value == 3 && (
-                <Product DATA = { DATA} />
-             )
-         }
-        {/* 유리막코팅 */}
-        {
-             value == 4 && (
-                <Product DATA = { DATA} />
-             )
-         }
+        { value == 1 && <Product DATA={DATA?.tinting}/> }
+        { value == 2 && <Product DATA={DATA?.ppf}/> }
+        { value == 3 && <Product DATA={DATA?.blackbox}/> }
+        { value == 4 && <Product DATA={DATA?.battery}/> }
+        { value == 5 && <Product DATA={DATA?.afterblow}/> }
+        { value == 6 && <Product DATA={DATA?.deafening}/> }
+        { value == 7 && <Product DATA={DATA?.wrapping}/> }
+        { value == 8 && <Product DATA={DATA?.glasscoating}/> }
+        { value == 9 && <Product DATA={DATA?.undercoating}/> }
+        { value == 10 && <Product DATA={DATA?.etc}/> }
 
          <FAB style={styles.fab} icon='pencil' color='white' 
             onPress={ () => { props.navigation.navigate('ProductRegister',{ data : DATA}) }}
