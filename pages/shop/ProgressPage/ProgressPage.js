@@ -87,7 +87,7 @@ export default function( props ) {
             </CButton>
         )
     }
-asdasdsadasdasd
+
     return(
         <KeyboardAwareScrollView>
             <Appbar.Header style={{ backgroundColor: colors.main }}>

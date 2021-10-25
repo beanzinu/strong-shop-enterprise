@@ -37,16 +37,6 @@ const styles = {
     }
 }
 
-// let DATA = {
-//     company_id : 2 ,
-//     longitude : '' ,
-//     latitude : '' ,
-//     introduction : '업체에 대해 간단한 소개를 해주세요.' ,
-//     blogUrl : 'http://www.naver.com/blog/strongshop' ,
-//     siteUrl : 'http://www.naver.com' ,
-//     snsUrl : 'http://instgram.com'
-// }
-
 export default function( props ) {
     const [coord,setCoord] = React.useState(0);
     const [data,setData] = React.useState({});
@@ -56,6 +46,8 @@ export default function( props ) {
         return new Promise(resolve => setTimeout(resolve, timeout));
     }
 
+    // API Request
+    // 도로명 주소 -> 좌표로 변환
     function getCoord(address){
         axios({
             method: 'GET' ,
@@ -74,69 +66,61 @@ export default function( props ) {
 
     React.useEffect( async () =>  {
 
-        // 저장된 캐시가 있을 때
+        // 저장된 좌표정보가 있을 때
         await fetch('map')
         .then( res =>  {
             setCoord({latitude: Number(res.y) , longitude : Number(res.x) });
         })
-        .catch ( e =>  { 
-            axios({
-                method: 'GET' ,
-                url : 'https://api.vworld.kr/req/address?service=address&request=getCoord&key=98C4A0B1-90CD-30F6-B7D0-9F5A0DC9F18B&address=서울시 관악구 복은 10길 19&type=ROAD' ,
-            })
-            .then(res => {
-                const point = res.data.response.result.point ;
-                setCoord({latitude: Number(point.y) , longitude : Number(point.x) });
-                // 캐시 저장
-                
-                store('map',point);
-    
-            }
-            )
-    
-            .catch(e => console.log(e) ) ;
+        .catch (async(e) =>  { 
+            // 1. 서버에게 요청하여 Info 정보 받아옴.
+            // 2. Info 정보의 address를 좌표로 설정  ( setCoord() , getCoord() )
+            // 3. 캐시에 저장 ( store('map',point) )
         });
 
-        let tmp ;
+        let tmp ; // 다시 Focus 되었을 때 변경사항이 있는지 확인
 
+        // 저장된 Info정보 확인 
         await fetch('Info')
         .then( (res) => {
             setData(res);
             tmp = res ;
         })
         .catch(e => {
+            // 1. 서버에게 요청하여 Info 정보 받아옴.
+            // 2. Info 정보를 setData()
 
         });
 
-        // Info 캐시정보
+        // InfoPage가 다시 Focus 되었을 때
+        // 1. Info 정보가 바뀌었는지 확인한다. 
         const unsubscribe = props.navigation.addListener('focus',async () => {
             
                 wait(2000).then(async ()=>{
-                await fetch('Info')
-                .then(res=>{
-                    
-                    // 주소의 변화가 있을 때
-                    if ( tmp.address != res.address ) getCoord(res.address);
+                    await fetch('Info')
+                    .then(res=>{
+                        
+                        // 주소의 변화가 있을 때
+                        if ( tmp.address != res.address ) getCoord(res.address);
 
-                    // 데이터의 변화가 있을 시
-                    if ( !_.isEqual( tmp,res ) ) {
-                        setRefreshing(true);
-                        setData({
-                            ...data,
-                            info : res.info ,
-                            blogUrl : res.blogUrl ,
-                            siteUrl : res.siteUrl,
-                            snsUrl : res.snsUrl ,
-                            address : res.address ,
-                            detailAddress : res.detailAddress
-                        });
-                        wait(1000).then(()=>setRefreshing(false));
-                    }
-                })
-                .catch(e=>{
-                    console.log('Info 캐시 불러오기 에러')
-                })
-                });
+                        // 데이터의 변화가 있을 시
+                        if ( !_.isEqual( tmp,res ) ) {
+                            setRefreshing(true);
+                            setData({
+                                ...data,
+                                info : res.info ,
+                                blogUrl : res.blogUrl ,
+                                siteUrl : res.siteUrl,
+                                snsUrl : res.snsUrl ,
+                                address : res.address ,
+                                detailAddress : res.detailAddress
+                            });
+                            wait(1000).then(()=>setRefreshing(false));
+                        }
+                    })
+                    .catch(e=>{
+                        //
+                    })
+                    });
           });
           
           return unsubscribe;
@@ -181,7 +165,7 @@ export default function( props ) {
             <Title style= { styles.title }> 위치 </Title>
             <Text>주소: {data?.address}</Text>
             <Text style={{ marginBottom: 10 }}>{data?.detailAddress}</Text>
-            <NaverMapView style={{width: '80%', height: 300 , alignSelf : 'center' }}
+            <NaverMapView style={{width: '80%', height: 300 , alignSelf : 'center' , borderWidth: 5 , borderColor: 'lightgray' }}
             showsMyLocationButton={true}
             center={{...coord, zoom: 13 }}
             showsMyLocationButton={false}

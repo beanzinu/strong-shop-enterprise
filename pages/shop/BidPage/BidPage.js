@@ -37,6 +37,55 @@ const data = [
         ppf : true ,
         glass : false ,
         seat : false ,
+        //  요청사항 30자 정도로 제한 
+        etc : '가성비로 맞추고 싶어요!가성비로 맞추고 싶어요!가성비로 맞추고 싶어요!' ,
+    } ,
+    {
+        carName: '기아 레이' ,
+        tinting: true ,
+        detailTinting : {
+            select : true , // 틴팅 시공 선택
+            solarguard : true ,
+            rayno : false ,
+            llumar : false ,
+            rainbow : true ,
+        } ,
+        blackbox : true ,
+        ppf : true ,
+        glass : true ,
+        seat : false ,
+        etc : '100만원 안쪽으로 부탁드려요.' ,
+    } ,
+    {
+        carName: '쌍용 티볼리' ,
+        tinting: true ,
+        detailTinting : {
+            select : true , // 틴팅 시공 선택
+            solarguard : true ,
+            rayno : false ,
+            llumar : false ,
+            rainbow : true ,
+        } ,
+        blackbox : false ,
+        ppf : true ,
+        glass : true ,
+        seat : false ,
+        etc : '',
+    } ,
+    {
+        carName: '제네시스 G80' ,
+        tinting: true ,
+        detailTinting : {
+            select : true , // 틴팅 시공 선택
+            solarguard : true ,
+            rayno : false ,
+            llumar : false ,
+            rainbow : true ,
+        } ,
+        blackbox : true ,
+        ppf : true ,
+        glass : false ,
+        seat : false ,
         etc : '가성비로 맞추고 싶어요!' ,
     } ,
     {
@@ -81,7 +130,7 @@ const styles = {
         padding : 20 ,
     }  ,
     chipStyle : {
-        backgroundColor: 'rgb(200,200,200)',
+        backgroundColor: 'rgb(220,220,220)',
         margin : 3
     } ,
     chipTextStyle : {
@@ -115,7 +164,7 @@ function Item ( {i , item , navigation , ModalPress } ) {
                             <View>
                             { item.tinting && 
                                 <>
-                                    <List.Item titleStyle={styles.listStyle} title ='틴팅'  />
+                                    <List.Item titleStyle={styles.listStyle} title ='틴팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} color={colors.main}/>} />
                                     <Row>
                                         { item.detailTinting.solarguard && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>솔라가드</Chip>}
                                         { item.detailTinting.rayno && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>레이노</Chip>}
@@ -125,7 +174,7 @@ function Item ( {i , item , navigation , ModalPress } ) {
                                 </> }
                             {item.blackbox && 
                                 <>
-                                    <List.Item titleStyle={styles.listStyle}  title ='블랙박스' />
+                                    <List.Item titleStyle={styles.listStyle}  title ='블랙박스' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} color={colors.main}/>} />
                                     <Row>
                                         { item.detailTinting.solarguard && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>솔라가드</Chip>}
                                         { item.detailTinting.rayno && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>레이노</Chip>}
@@ -133,20 +182,24 @@ function Item ( {i , item , navigation , ModalPress } ) {
                                         { item.detailTinting.rainbow && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>레인보우</Chip>}
                                     </Row>
                                 </>}
-                            {item.ppf && <><List.Item titleStyle={styles.listStyle}  title ='PPF'  /></>}
-                            {item.glass && <><List.Item titleStyle={styles.listStyle}  title ='유리막코팅'  /></>} 
+                            {item.ppf && <><List.Item titleStyle={styles.listStyle}  title ='PPF' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} color={colors.main}/>} /></>}
+                            {item.glass && <><List.Item titleStyle={styles.listStyle}  title ='유리막코팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} color={colors.main}/>} /></>} 
                             {item.seat && <><List.Item titleStyle={styles.listStyle}  title ='가죽코팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} color={colors.main}/>} /></>}
                             <Divider/>
                             <List.Item 
-                                right={(props) => 
-                                <Button icon='account-cash' mode='outlined' color={colors.main}
-                                mode='contained' 
-                                onPress={ () => { navigation.navigate('BidRegister',{ data : item }) } }
-                                style={{ height : '100%' , borderColor: 'white', padding: 10 }} labelStyle={{ fontSize: 15 }} >
-                                    입찰하기
-                                </Button>}
+                                style={{ borderWidth: 1 , margin: 3 , borderColor: 'lightgray'}}
                                 titleStyle={{ fontWeight: 'bold' }}
+                                descriptionStyle={{ paddingTop: 3 }}
                                 title='요청사항:' description={item.etc} />
+                            <Button 
+                                    icon='account-cash' 
+                                    mode='outlined' 
+                                    color={colors.main}
+                                    mode='contained' 
+                                    onPress={ () => { navigation.navigate('BidRegister',{ data : item }) } }
+                                    style={{ margin: 3 , marginTop: 20 }} labelStyle={{  fontSize: 17 }} >
+                                입찰하기
+                            </Button>
                             </View>
                           </List.Accordion>
                     </List.Section>
@@ -156,15 +209,15 @@ function Item ( {i , item , navigation , ModalPress } ) {
 
 export default function ( props ) {
 
-    const snapPoints = React.useMemo(() => ['25%','75%'], []);
+    // const snapPoints = React.useMemo(() => ['25%','75%'], []);
 
-    const bottomSheetModalRef = React.useRef(null);
-    const handlePresentModalPress = React.useCallback(() => {
-        bottomSheetModalRef.current?.present();
-      }, []);
-    const handleDismissModalPress = React.useCallback(() => {
-        bottomSheetModalRef.current?.dismiss();
-    }, []);  
+    // const bottomSheetModalRef = React.useRef(null);
+    // const handlePresentModalPress = React.useCallback(() => {
+    //     bottomSheetModalRef.current?.present();
+    //   }, []);
+    // const handleDismissModalPress = React.useCallback(() => {
+    //     bottomSheetModalRef.current?.dismiss();
+    // }, []);  
 
     React.useEffect(() => {
         // bottomSheetModalRef.current?.present();
@@ -188,13 +241,13 @@ export default function ( props ) {
         {
             data.map( (item,i) => {
                     return (
-                    <Item item={item} i={i} navigation={props.navigation} ModalPress={handlePresentModalPress} />
+                    <Item item={item} i={i} navigation={props.navigation}/>
                     )
                 }
             )
         }
         
-         <BottomSheetModal
+        {/* <BottomSheetModal
             ref={bottomSheetModalRef}
             snapPoints={snapPoints}
             index = {1}
@@ -203,7 +256,7 @@ export default function ( props ) {
                 <IconButton icon='close' style={{ alignSelf : 'flex-end' }} color='red' onPress={handleDismissModalPress}/>
                 <Title style={{ padding: 10 , fontWeight: 'bold' }}>💰  입찰은 어떻게 진행되나요?</Title>
             </ScrollView>
-        </BottomSheetModal>
+        </BottomSheetModal> */}
 
     </KeyboardAwareScrollView>  
     </BottomSheetModalProvider>

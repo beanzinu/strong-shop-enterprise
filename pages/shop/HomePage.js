@@ -55,21 +55,23 @@ const styles = {
 
 export default function( props  ) {
     // 1.  정보  2. 작업갤러리 3. 취급상품 4. 리뷰
-    const [value, setValue] = React.useState(1);
+    const [value, setValue] = React.useState(2);
     const [scroll,setScroll] = React.useState(0);
-
+    const [collapsed,setCollapsed] = React.useState(true);
     return (
         <>
         <Appbar.Header style={{ backgroundColor: colors.main }}>
-        <Appbar.Content onPress={()=> {setScroll(0)}} title={data.shopName} titleStyle={{  fontFamily : 'DoHyeon-Regular' , fontSize: 30 }}  />
+        <Appbar.Content onPress={()=> { setCollapsed(!collapsed) }} title={data.shopName} titleStyle={{  fontFamily : 'DoHyeon-Regular' , fontSize: 30 }}  />
         
-        <Appbar.Action icon="chevron-down" onPress={() => {}} style={{ marginRight: 150 }}/>
+        <Appbar.Action icon={ collapsed ? 'chevron-down' : 'chevron-up' } onPress={() => { setCollapsed(!collapsed)}} style={{ marginRight: 150 }}/>
         <Appbar.Action icon="bell-outline" onPress={() => {}} />
         <Appbar.Action icon="cog-outline" onPress={() => { props.navigation.navigate('MyPage')}} />
         </Appbar.Header>  
         
         {/* 커버사진 */}
-        <Collapsible collapsed={ scroll > 0  ? true : false }
+        <Collapsible 
+            collapsed={collapsed}
+            // collapsed={ scroll > 0  ? true : false }
             collapsedHeight={0}
             duration={1000}
         >

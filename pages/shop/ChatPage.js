@@ -5,6 +5,7 @@ import { Avatar , Card , Title ,
 import {  GiftedChat } from 'react-native-gifted-chat';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
+import database from '@react-native-firebase/database';
 // pages 
 import ChatDetailPage from './ChatDetailPage';
 import ProgressPage from './ProgressPage/ProgressPage';
@@ -42,6 +43,15 @@ const chatData = [
 ] ;
 
 const ChatView = ( props ) =>   {
+    const [temp,setTemp] = React.useState({});
+    React.useEffect( () => {
+        database().goOnline();
+        database().ref('chat').orderByKey('createdAt').limitToLast(1).once('value',snapshot=>{
+            record = Object.values(snapshot.val())[0];
+            setTemp(record);
+        });
+    },[]);
+
     return(
     <View>
         {
@@ -50,7 +60,7 @@ const ChatView = ( props ) =>   {
                 <Card 
                     key = {i} // key로 구분
                     onPress={ () => { props.navigation.navigate('ProgressPage' , { name : chat.name })  } }>
-                    <Card.Title title={`${chat.name} 고객`} subtitle={chat.lastMessage} 
+                    <Card.Title title={`${chat.name} 고객`} subtitle={temp.text} 
                                 left={ props => <Avatar.Icon {...props} icon="account" style={{ backgroundColor : colors.main}} /> } 
                                 right={ props => <Avatar.Text {...props} label={chat.unRead} style={{ marginRight: 10  , backgroundColor : colors.main }} /> }
                     />

@@ -5,51 +5,6 @@ import { Button  , Avatar , Title } from 'react-native-paper';
 import { Image } from 'react-native';
 import colors from '../../../color/colors';
 
-const postData = [
-    // {
-    //     uri : 'https://picsum.photos/0'
-    // } ,
-    // {
-    //     uri : 'https://picsum.photos/100'
-    // } ,
-    // {
-    //     uri : 'https://picsum.photos/200'
-    // } ,
-    // {
-    //     uri : 'https://picsum.photos/300'
-    // } ,
-    // {
-    //     uri : 'https://picsum.photos/0'
-    // } ,
-    // {
-    //     uri : 'https://picsum.photos/100'
-    // } ,
-    // {
-    //     uri : 'https://picsum.photos/200'
-    // } ,
-    // {
-    //     uri : 'https://picsum.photos/300'
-    // } ,
-    // {
-    //     uri : 'https://picsum.photos/0'
-    // } ,
-    // {
-    //     uri : 'https://picsum.photos/100'
-    // } ,
-    // {
-    //     uri : 'https://picsum.photos/200'
-    // } ,
-    // {
-    //     uri : 'https://picsum.photos/300'
-    // } ,
-
-];
-
-const PostRow = styled.View`
-    width: 100%;
-    height: 100px;
-    flex-direction: row;
-`;
 const PostButton = styled.TouchableOpacity`
     width: 33.3%;
     height: 100px;
@@ -66,8 +21,9 @@ const styles = {
     }
 }
 
-export default function( props ) {
 
+export default function( props ) {
+   const postData = [];
   // 1개의 게시물 
   const RenderItem = ({ item }) =>  {
         return(
