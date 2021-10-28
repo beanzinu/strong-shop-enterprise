@@ -80,7 +80,8 @@ export default function() {
 
     return(
         <BottomNavigation
-            barStyle= {{ backgroundColor: colors.main }}
+            barStyle= {{ backgroundColor: 'white' }}
+            activeColor={colors.main}
             navigationState={{ index, routes }}
             onIndexChange={setIndex}
             renderScene={renderScene}

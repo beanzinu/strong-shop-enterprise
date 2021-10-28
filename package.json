@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@actbase/react-daum-postcode": "^1.0.0",
+    "@baronha/react-native-multiple-image-picker": "^0.4.6",
     "@gorhom/bottom-sheet": "^4.0.3",
     "@react-native-async-storage/async-storage": "^1.15.6",
     "@react-native-community/push-notification-ios": "^1.10.1",

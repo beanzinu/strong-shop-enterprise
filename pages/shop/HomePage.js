@@ -44,26 +44,29 @@ const data = {
 const styles = {
     card : {
         padding: 20 , 
-        backgroundColor : colors.main , 
+        // backgroundColor : colors.main , 
+        borderWidth: 1 ,
+        borderColor: 'lightgray' ,
         borderRadius: 0 ,
-        height : 150 ,
+        height : 300 ,
     } ,
     cover : {
-        height: 150 ,
+        height: 300 ,
     } 
 }
 
 export default function( props  ) {
     // 1.  정보  2. 작업갤러리 3. 취급상품 4. 리뷰
-    const [value, setValue] = React.useState(2);
+    const [value, setValue] = React.useState(3);
     const [scroll,setScroll] = React.useState(0);
     const [collapsed,setCollapsed] = React.useState(true);
     return (
         <>
-        <Appbar.Header style={{ backgroundColor: colors.main }}>
-        <Appbar.Content onPress={()=> { setCollapsed(!collapsed) }} title={data.shopName} titleStyle={{  fontFamily : 'DoHyeon-Regular' , fontSize: 30 }}  />
+        <Appbar.Header style={{ backgroundColor: 'white' , borderColor: 'lightgray' , borderBottomWidth: 1 }}>
+        <Appbar.Content onPress={()=> { setCollapsed(!collapsed) }} title={data.shopName} titleStyle={{  fontFamily : 'DoHyeon-Regular' , fontSize: 25 }}  />
+        <Appbar.Action icon={ collapsed ? 'chevron-down' : 'chevron-up' } onPress={() => { setCollapsed(!collapsed)}} style={{ padding: 0   }}/>
+        <Appbar.Action  style={{ flex: 2 }}/>
         
-        <Appbar.Action icon={ collapsed ? 'chevron-down' : 'chevron-up' } onPress={() => { setCollapsed(!collapsed)}} style={{ marginRight: 150 }}/>
         <Appbar.Action icon="bell-outline" onPress={() => {}} />
         <Appbar.Action icon="cog-outline" onPress={() => { props.navigation.navigate('MyPage')}} />
         </Appbar.Header>  

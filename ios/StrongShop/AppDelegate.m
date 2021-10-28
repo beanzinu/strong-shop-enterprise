@@ -3,6 +3,10 @@
 #import <React/RCTBridge.h>
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
+#import "React/RCTBridgeModule.h"
+#if RCT_DEV
+#import <React/RCTDevLoadingView.h>
+#endif
 ///
 #import <UserNotifications/UserNotifications.h>
 #import <RNCPushNotificationIOS.h>
@@ -63,6 +67,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 
 //
 
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
   if ([FIRApp defaultApp] == nil) {
@@ -71,8 +76,12 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 #ifdef FB_SONARKIT_ENABLED
   InitializeFlipper(application);
 #endif
+// Add this
 
   RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
+  #if RCT_DEV
+   [bridge moduleForClass:[RCTDevLoadingView class]];
+  #endif
   RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge
                                                    moduleName:@"StrongShop"
                                             initialProperties:nil];

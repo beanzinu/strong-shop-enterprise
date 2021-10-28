@@ -39,7 +39,7 @@ export default function( props ) {
 
 
     return (
-        <>  
+        <View style={{ backgroundColor: 'white' , flex: 1}}>  
         <Button icon='pencil-plus-outline' 
             style={ styles.button }
             color={ colors.main }
@@ -66,7 +66,7 @@ export default function( props ) {
             )
         }
         
-        </>       
+        </View>       
 
     );
 }

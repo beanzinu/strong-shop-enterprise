@@ -1,4 +1,4 @@
 export default {
-    // main : 'rgb(50,78,147)'
+    // main : '#002777'
     main : '#162741'
 }

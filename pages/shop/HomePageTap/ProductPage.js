@@ -24,6 +24,7 @@ const styles = {
         height: 45 ,
         borderWidth : 1 ,
         borderColor : 'lightgray' ,
+        borderRadius: 20,
         margin : 5 , 
         flex : 1 , 
         padding : 5
@@ -138,7 +139,6 @@ export default function( props ) {
     React.useEffect( async ()=>{
         await fetch('Product')
         .then( res => {
-            console.log("취급상품 데이터 : " , res);
             setDATA(res);
             setValue(1);
         })
@@ -159,7 +159,7 @@ export default function( props ) {
             {
                 options.map((item,i)=>{
                     return(
-                        <Button key={i} style={styles.button} color={colors.main} onPress={ () => { setValue(i+1) }} mode = { value == i+1 && 'contained'}>
+                        <Button key={i} style={{ ...styles.button }} color={colors.main} onPress={ () => { setValue(i+1) }} mode = { value == i+1 && 'contained'}>
                             {item.name}
                         </Button>
                     )

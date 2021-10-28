@@ -8,12 +8,7 @@ import {
 from 'react-native-paper';
 import { ScrollView } from 'react-native-gesture-handler';
 import colors from '../../../color/colors';
-import {
-    BottomSheetModal,
-    BottomSheetModalProvider,
-  } from '@gorhom/bottom-sheet';
-// Pages
-import BidRegister from './BidRegister';
+import { SafeAreaView } from 'react-native';
 
 const View = styled.SafeAreaView``;
 const Row = styled.View`
@@ -35,8 +30,8 @@ const data = [
         } ,
         blackbox : true ,
         ppf : true ,
-        glass : false ,
-        seat : false ,
+        glass : true ,
+        seat : true ,
         //  요청사항 30자 정도로 제한 
         etc : '가성비로 맞추고 싶어요!가성비로 맞추고 싶어요!가성비로 맞추고 싶어요!' ,
     } ,
@@ -142,64 +137,76 @@ const styles = {
         fontFamily : 'DoHyeon-Regular' , 
     } ,
     listStyle : {
-        fontWeight: 'bold',
+        // fontWeight: 'bold',
         fontSize: 17 , 
+    } ,
+    listAccordionStyle : {
+        backgroundColor: 'white' ,
+        borderTopWidth: 1 ,
+        borderTopColor: 'lightgray'        
     }
 
 }
 
 function Item ( {i , item , navigation , ModalPress } ) {
     const [expanded,setExpanded] = React.useState(false) ;
+
+    React.useEffect(() =>  {
+        // 서버
+        // 1. 서버로부터 나의 지역에 있는 입찰내역들을 불러온다.
+    },[]);
+
     return( 
-                    <List.Section key={i} >
+                    <List.Section key={i}>
                           <List.Accordion
                             title={item.carName}
-                            style={{ borderWidth: 1 , borderColor : 'lightgray' }}
+                            style={styles.listAccordionStyle}
                             titleStyle= {{ fontWeight : 'bold' , fontFamily: 'DoHyeon-Regular' , fontSize: 20 , color :  expanded ? 'red' : 'black'   }}
                             expanded={expanded}
                             onPress={()=>{setExpanded(!expanded)}}
                             description='자세한 정보를 확인하세요.'
-                            left={props => <List.Icon {...props} icon="car-hatchback" color='red' />}
+                            
+                            // left={props => <List.Icon {...props} icon="car-hatchback" color={'black'}  />}
                            >
-                            <View>
-                            { item.tinting && 
-                                <>
-                                    <List.Item titleStyle={styles.listStyle} title ='틴팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} color={colors.main}/>} />
-                                    <Row>
-                                        { item.detailTinting.solarguard && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>솔라가드</Chip>}
-                                        { item.detailTinting.rayno && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>레이노</Chip>}
-                                        { item.detailTinting.llumar && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>루마</Chip>}
-                                        { item.detailTinting.rainbow && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>레인보우</Chip>}
-                                    </Row>
-                                </> }
-                            {item.blackbox && 
-                                <>
-                                    <List.Item titleStyle={styles.listStyle}  title ='블랙박스' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} color={colors.main}/>} />
-                                    <Row>
-                                        { item.detailTinting.solarguard && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>솔라가드</Chip>}
-                                        { item.detailTinting.rayno && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>레이노</Chip>}
-                                        { item.detailTinting.llumar && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>루마</Chip>}
-                                        { item.detailTinting.rainbow && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>레인보우</Chip>}
-                                    </Row>
-                                </>}
-                            {item.ppf && <><List.Item titleStyle={styles.listStyle}  title ='PPF' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} color={colors.main}/>} /></>}
-                            {item.glass && <><List.Item titleStyle={styles.listStyle}  title ='유리막코팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} color={colors.main}/>} /></>} 
-                            {item.seat && <><List.Item titleStyle={styles.listStyle}  title ='가죽코팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} color={colors.main}/>} /></>}
-                            <Divider/>
-                            <List.Item 
-                                style={{ borderWidth: 1 , margin: 3 , borderColor: 'lightgray'}}
-                                titleStyle={{ fontWeight: 'bold' }}
-                                descriptionStyle={{ paddingTop: 3 }}
-                                title='요청사항:' description={item.etc} />
-                            <Button 
-                                    icon='account-cash' 
-                                    mode='outlined' 
-                                    color={colors.main}
-                                    mode='contained' 
-                                    onPress={ () => { navigation.navigate('BidRegister',{ data : item }) } }
-                                    style={{ margin: 3 , marginTop: 20 }} labelStyle={{  fontSize: 17 }} >
-                                입찰하기
-                            </Button>
+                            <View style={{ backgroundColor: 'rgb(250,250,250)' , margin: 10 , borderWidth: 1 , borderRadius: 10 , borderColor: 'lightgray' }}>
+                                { item.tinting && 
+                                    <>
+                                        <List.Item titleStyle={styles.listStyle} title ='틴팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                                        <Row>
+                                            { item.detailTinting.solarguard && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>솔라가드</Chip>}
+                                            { item.detailTinting.rayno && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>레이노</Chip>}
+                                            { item.detailTinting.llumar && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>루마</Chip>}
+                                            { item.detailTinting.rainbow && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>레인보우</Chip>}
+                                        </Row>
+                                    </> }
+                                {item.blackbox && 
+                                    <>
+                                        <List.Item titleStyle={styles.listStyle}  title ='블랙박스' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10}/>} />
+                                        <Row>
+                                            { item.detailTinting.solarguard && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>솔라가드</Chip>}
+                                            { item.detailTinting.rayno && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>레이노</Chip>}
+                                            { item.detailTinting.llumar && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>루마</Chip>}
+                                            { item.detailTinting.rainbow && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>레인보우</Chip>}
+                                        </Row>
+                                    </>}
+                                {item.ppf && <><List.Item titleStyle={styles.listStyle}  title ='PPF' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} /></>}
+                                {item.glass && <><List.Item titleStyle={styles.listStyle}  title ='유리막코팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} /></>} 
+                                {item.seat && <><List.Item titleStyle={styles.listStyle}  title ='가죽코팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} /></>}
+                                <Divider/>
+                                <List.Item 
+                                    // style={{ borderWidth: 1 ,borderColor: 'lightgray'}}
+                                    titleStyle={{  fontWeight: 'bold' }} 
+                                    descriptionStyle={{ paddingTop: 3 , fontWeight: 'bold' }}
+                                    title='요청사항:' description={item.etc} />
+                                <Button 
+                                        icon='account-cash' 
+                                        mode='outlined' 
+                                        color={colors.main}
+                                        mode='contained' 
+                                        onPress={ () => { navigation.navigate('BidRegister',{ data : item }) } }
+                                        style={{ margin: 3 , marginTop: 20 }} labelStyle={{  fontSize: 17 }} >
+                                    입찰하기
+                                </Button>
                             </View>
                           </List.Accordion>
                     </List.Section>
@@ -209,35 +216,26 @@ function Item ( {i , item , navigation , ModalPress } ) {
 
 export default function ( props ) {
 
-    // const snapPoints = React.useMemo(() => ['25%','75%'], []);
-
-    // const bottomSheetModalRef = React.useRef(null);
-    // const handlePresentModalPress = React.useCallback(() => {
-    //     bottomSheetModalRef.current?.present();
-    //   }, []);
-    // const handleDismissModalPress = React.useCallback(() => {
-    //     bottomSheetModalRef.current?.dismiss();
-    // }, []);  
-
     React.useEffect(() => {
-        // bottomSheetModalRef.current?.present();
+        // 서버
+        //  1. 서버로부터 현재 나의 지역에 대한 입찰을 가져온다.
+        // *1-1) 내가 이미 입찰한 건들?
+        
     },[]);
 
     return (
-    <BottomSheetModalProvider>
-    <KeyboardAwareScrollView>    
-        <Appbar.Header style={{ backgroundColor: colors.main }}>
-            <Appbar.Content title="최강샵" titleStyle={{ fontFamily : 'DoHyeon-Regular' , fontSize: 30}} />
-            <Appbar.Action icon="bell-outline" onPress={() => {}} />
-            <Appbar.Action icon="cog-outline" onPress={() => {}} />
+    <KeyboardAwareScrollView style={{ backgroundColor: 'white' }}> 
+        <SafeAreaView>
+        <Appbar.Header style={{ backgroundColor: 'transparent' , elevation: 0 }}>
+            <Appbar.Content title="최강샵" titleStyle={{ fontFamily : 'DoHyeon-Regular' , fontSize: 30 , color: 'gray'  }} />
+            <Appbar.Action icon="bell-outline" color='gray' onPress={() => {}} />
+            <Appbar.Action icon="cog-outline" color='gray' onPress={() => {}} />
         </Appbar.Header>   
-        <Row style={{ marginTop: 20 , marginBottom: 20 }}>
+        {/* <Row style={{ marginTop: 20 , marginBottom: 20 , borderWidth: 1 , padding: 20 , borderColor: 'lightgray'  , backgroundColor: 'white'  }}>
             <Title style={styles.title}>현재</Title>
             <Title style={{...styles.title , color: 'red' , fontSize: 35 }}>{data.length}</Title>
             <Title style={styles.title}>건의 입찰요청이 있습니다.</Title>
-        </Row>
-
-        <Divider/>
+        </Row> */}
         {
             data.map( (item,i) => {
                     return (
@@ -246,19 +244,7 @@ export default function ( props ) {
                 }
             )
         }
-        
-        {/* <BottomSheetModal
-            ref={bottomSheetModalRef}
-            snapPoints={snapPoints}
-            index = {1}
-        >
-            <ScrollView>
-                <IconButton icon='close' style={{ alignSelf : 'flex-end' }} color='red' onPress={handleDismissModalPress}/>
-                <Title style={{ padding: 10 , fontWeight: 'bold' }}>💰  입찰은 어떻게 진행되나요?</Title>
-            </ScrollView>
-        </BottomSheetModal> */}
-
+        </SafeAreaView>
     </KeyboardAwareScrollView>  
-    </BottomSheetModalProvider>
     );
 }

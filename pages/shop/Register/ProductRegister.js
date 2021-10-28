@@ -13,17 +13,16 @@ import fetch from '../../../storage/fetch';
 const Row = styled.View`
     flex-direction: row;
 `;
-const View = styled.SafeAreaView`
+const View = styled.View`
 `;
 
 const AddButton = styled.TouchableOpacity`
     width: 100px;
-    height: 50px;
+    height: 40px;
     border:1px ${colors.main};
     border-radius: 10px;
     margin: 10px;
     background-color: ${colors.main};
-
     align-self: flex-end;
     align-items: center;
     justify-content: center;
@@ -43,9 +42,11 @@ const styles = {
         alignSelf: 'flex-start' , 
         height: 45 ,
         borderWidth : 1 ,
+        borderRadius: 20 ,
         borderColor : 'lightgray' ,
         margin : 5 , 
-        flex : 1
+        flex : 1 ,
+        justifyContent: 'center'
     }  , 
     modalButton : {
         height: 50 ,
@@ -123,7 +124,7 @@ export default function( props ){
         
     },[]);
 
-    const add = (data) =>  {
+    const add = (num) =>  {
         let option = 'tinting' ;
         if ( value == 1 ) option='tinting' ;
         else if ( value == 2 ) option='ppf' ;
@@ -136,14 +137,16 @@ export default function( props ){
         else if ( value == 9 ) option='undercoating' ;
         else if ( value == 10 ) option='etc' ;
         
-        props.navigation.navigate('ProductDetailRegister',{ data : currentData , option : option , reload : reload });
+        if ( num == 1 ) props.navigation.navigate('ProductDetailRegister',{ option: option , itemOption: 'add' });
+        else props.navigation.navigate('ProductDetailRegister',{ data : currentData , option : option , reload : reload , itemOption: 'fix'});
     }
 
    
 
     return(
         <BottomSheetModalProvider>
-        <View>
+        <View style={{ flex: 1 , backgroundColor: 'white' }}>
+            <View style={{  height: 50  }}>
             <ScrollView horizontal={true} style={{ height : 70}} showsHorizontalScrollIndicator={false}>
                 {
                     options.map((item,i)=>{
@@ -154,18 +157,20 @@ export default function( props ){
                         )
                     })
                 }
-            </ScrollView>    
+            </ScrollView> 
+            </View>   
             
-            <AddButton onPress={add}>
+            <AddButton onPress={() => {  add(1); } }>
                 <Text style={{ color: 'white' }}>추가하기</Text>
             </AddButton>  
-
             {/* 1. 틴팅 ~ 10. 기타 */}
             { value ==1 && 
                 <FlatList
                     data={data?.tinting}
                     renderItem={RenderItem}
                     keyExtractor={(item) => {item.name}}
+                    snapToEnd={false}
+                    scrollToOverflowEnabled={true}
                 />
             }
             { value ==2 && 
@@ -222,6 +227,7 @@ export default function( props ){
                     data={data?.undercoating}
                     renderItem={RenderItem}
                     keyExtractor={(item) => {item.name} }
+                    snapToEnd={false}
                 />
             }
             { value ==10 && 
@@ -231,8 +237,6 @@ export default function( props ){
                     keyExtractor={(item) => {item.name} }
                 />
             }
-            
-            
             <BottomSheetModal
                 ref={bottomSheetModalRef}
                 snapPoints={snapPoints}

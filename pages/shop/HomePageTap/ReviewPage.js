@@ -96,14 +96,14 @@ handleScroll = function( event ) {
 } ;
 
 // 사장님 답변 컴포넌트
-function Reply({item}) {
+function Reply({item,index}) {
     const [reply,setReply]  = React.useState('');
     const [editable,setEditable] = React.useState(false) ;
     const [inputHeight,setInputHeight] = React.useState(100);
     
     React.useEffect( () => {
         setReply(item.reply);
-        if( item.reply.length == 0 ) {
+        if( item.reply?.length == 0 ) {
             setEditable(true)
             
         }
@@ -112,7 +112,7 @@ function Reply({item}) {
     return(
         <>
         {
-            item.reply.length != 0 ? (
+            item.reply?.length != 0 ? (
                 <View style={styles.reviewText}>
                     <Text style={{ fontSize: 17 }}>{reply}</Text>
                 </View>
@@ -127,8 +127,7 @@ function Reply({item}) {
                     if ( e.nativeEvent.contentSize.height > inputHeight ) setInputHeight(inputHeight+50);
                 }}
                 onPressIn = {() => { 
-                    // this.flatList.scrollToIndex({index: item.id });
-                    // this.flatList.scrollToOffset({offset :  })
+                    this.flatList.scrollToIndex({ index: index+0.5 });
                 } }
                 />
             )
@@ -137,7 +136,8 @@ function Reply({item}) {
     )
 }
 
-const RenderItem =  ({item}) => {
+const RenderItem =  ({index,item}) => {
+    if (item.text == null) return <View style={{ height: 300 }}></View>
     return(
         <Card style= {{ margin: 20 }}>
         <Card.Content>
@@ -154,11 +154,11 @@ const RenderItem =  ({item}) => {
                 <Avatar.Icon size={24} icon='account' style={{ backgroundColor: colors.main }} />
                 <Text style={styles.userName}>사장님</Text>
             </Row>
-            <Reply item = {item} />
+            <Reply item = {item} index={index}/>
         </Card.Content>
         <Card.Actions>
             {
-                item.reply.length == 0 && (
+                item.reply?.length == 0 && (
                     <View style={{ alignItems: 'flex-end' ,width: '100%' }}>
                         <Button icon='pencil' color={colors.main} 
                                 onPress={ () => { Alert.alert('답글 다시겠습니까?') }}> 
@@ -174,7 +174,6 @@ const RenderItem =  ({item}) => {
 }
 
 export default function( props ) {
-    const [scroll,setScroll] = React.useState(0);
     return(
         <>
             <FlatList
@@ -185,19 +184,11 @@ export default function( props ) {
              renderItem = {RenderItem}
              horizontal={false}
              keyExtractor={(item) => item.id}
-            //  onEndReached={() => {
-            //      DATA.push(
-            //         {
-            //             id : random(1,1000) ,
-            //             avatar : 'https://picsum.photos/200' ,
-            //             userName : '스크롤 끝났을때 추가' ,
-            //             uri : 'https://picsum.photos/300' ,
-            //             text : '친절하십니다.' ,
-            //             reply : ''
-            //         } 
-            //      ) ;
-            //   }
-            // }
+             onScrollToIndexFailed={() => {
+                 DATA.push({
+                 });
+                 this.flatList.scrollToEnd();
+             }}
             />
         </>
     );

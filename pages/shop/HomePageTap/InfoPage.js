@@ -75,6 +75,7 @@ export default function( props ) {
             // 1. 서버에게 요청하여 Info 정보 받아옴.
             // 2. Info 정보의 address를 좌표로 설정  ( setCoord() , getCoord() )
             // 3. 캐시에 저장 ( store('map',point) )
+            getCoord('서울 광진구 뚝섬로33길 6');
         });
 
         let tmp ; // 다시 Focus 되었을 때 변경사항이 있는지 확인
@@ -140,6 +141,7 @@ export default function( props ) {
             coord == 0 ? ( <ActivityIndicator size='large' color={colors.main} style={{ marginTop: 20 }}/> ) : (
             <KeyboardAwareScrollView 
                 onScrollEndDrag={ this.handleScroll } refreshControl
+                style={{ backgroundColor: 'white' }}
                 refreshControl={<RefreshControl refreshing={refreshing} />}
             >
             <Button icon='hammer' style={ styles.button }
@@ -163,9 +165,8 @@ export default function( props ) {
                 <Button uppercase={false} color={colors.main} onPress={()=> { Linking.openURL(data.snsUrl) }}>{data?.snsUrl}</Button>
             </Row>
             <Title style= { styles.title }> 위치 </Title>
-            <Text>주소: {data?.address}</Text>
-            <Text style={{ marginBottom: 10 }}>{data?.detailAddress}</Text>
-            <NaverMapView style={{width: '80%', height: 300 , alignSelf : 'center' , borderWidth: 5 , borderColor: 'lightgray' }}
+            <Text style={{ marginBottom: 20 }}>{data?.address+'\n'+data?.detailAddress}</Text>
+            <NaverMapView style={{width: '80%', height: 300 , alignSelf : 'center' , borderWidth: 2 , borderColor: 'lightgray' , marginBottom: 20 }}
             showsMyLocationButton={true}
             center={{...coord, zoom: 13 }}
             showsMyLocationButton={false}

@@ -13,6 +13,14 @@ import {
 } from '@gorhom/bottom-sheet';
 import DraggableFlatList , {ScaleDecorator} from 'react-native-draggable-flatlist';
 import axios from 'axios';
+import { LogBox } from 'react-native';
+import MultipleImagePicker from '@baronha/react-native-multiple-image-picker';
+
+// Warning 메시지 무시 
+// library 내부 Component 문제
+LogBox.ignoreLogs([
+  'ReactNativeFiberHostComponent: Calling getNode() on the ref of an Animated component is no longer necessary. You can now directly use the ref instead. This method will be removed in a future release.',
+]);
 const PictureButton = styled.TouchableOpacity`
     flex: 1 ;
     border: 1px lightgray;
@@ -79,6 +87,27 @@ export default function( props ) {
     const [inputHeight,setInputHeight] = React.useState(120);
     const ModalRef = React.useRef(null);
     
+    openNew = async () => {
+        request(PERMISSIONS.IOS.PHOTO_LIBRARY);
+        await MultipleImagePicker.openPicker({
+            mediaType: 'image', 
+            // selectedAssets: pictures,
+            doneTitle: "완료",
+            selectedColor: "#162741",
+        })
+        .then(res => {
+           url = [] ;
+           res.map(file =>  {
+            //    newPath = file.path.replace('file://','').replace('file:///','file://');
+               newPath = file.path ;
+               url.push(newPath);
+           });
+           console.log(url);
+           setPictures(url)
+        }) 
+        .catch(e => { });
+       
+    }
     openLibrary = async () =>  {
         ModalRef.current?.dismiss();
         check(PERMISSIONS.IOS.PHOTO_LIBRARY)
@@ -188,7 +217,7 @@ export default function( props ) {
             body.append('image',photo);
         })
         //test
-        console.log(body?._parts[0][1]);
+        console.log(body?._parts);
         // 서버에게 전송
         // axios.post('serverUrl',body,{
         //     headers: {'content-type': 'multipart/form-data'}
@@ -223,7 +252,7 @@ export default function( props ) {
                 <OptionView onPress={() => openCamera() }>
                     <IconButton icon='camera-plus' />
                 </OptionView>
-                <OptionView onPress={() => openLibrary() }>
+                <OptionView onPress={() => openNew() }>
                     <IconButton icon='image-plus' />
                 </OptionView>
                 {
@@ -243,7 +272,7 @@ export default function( props ) {
                             pictures.map((picture) =>{
                                return(
                                     <SwiperView>
-                                        <Image source={{ uri: picture.uri }} style={{ flex: 1 }}/>
+                                        <Image source={{ uri: picture }} style={{ flex: 1 }}/>
                                     </SwiperView>
                                 )
                             })
