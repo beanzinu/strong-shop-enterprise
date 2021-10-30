@@ -88,12 +88,14 @@ export default function( props ) {
                     visible={visible} 
                     onDismiss={ () => {setVisible(false)}}
                     style= {{ alignItems : 'center' , justifyContent: 'center'  }}
-                >
-                    <Postcode
-                    style={{ width : 300 , height: 500 }}
-                    jsOptions={{ animated: true }}
-                    onSelected={data => {setAddress(data.roadAddress) , setVisible(false) } }
-                    />
+                    >
+                    <KeyboardAwareScrollView>
+                        <Postcode
+                        style={{ width : 300 , height: 500 }}
+                        jsOptions={{ animated: true }}
+                        onSelected={data => {setAddress(data.roadAddress) , setVisible(false)  } }
+                        />
+                    </KeyboardAwareScrollView>
                 </Modal>
             </Portal>
             <Row>

@@ -6,14 +6,12 @@ import NewRegister from './pages/shop/NewRegister';
 
 
 //test
-import messaging from '@react-native-firebase/messaging';
-import TestMain from './pages/shop/Test/MainTest';
+// import messaging from '@react-native-firebase/messaging';
+// import TestMain from './pages/shop/Test/MainTest';
 
 
 function App (props) {
-
   const [mainVisible,setMainVisible] = React.useState(false);
-  
   return (
       // mainVisible ? <MainPage /> : <NewRegister getMain={setMainVisible} />
     // <NewRegister />
