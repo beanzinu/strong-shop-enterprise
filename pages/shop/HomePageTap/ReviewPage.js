@@ -1,17 +1,14 @@
-import React from 'react' ;
-import styled from 'styled-components';
-import { Avatar, Card, List , Button , Divider , FAB  } from 'react-native-paper';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { Alert, FlatList, InteractionManager } from 'react-native';
-import { random } from 'lodash';
-import colors from '../../../color/colors';
-import { Dimensions } from 'react-native';
+import styled from "styled-components";
+import colors from "../../../color/colors";
+import React from "react";
+// import { FlatList } from "react-native-gesture-handler";
+import { FlatList } from "react-native";
+import { Card , Avatar , Divider , Button } from "react-native-paper";
+import { Alert } from "react-native";
 const Row = styled.View`
     flex-direction: row;
     height: 50px ;
-
     align-items: center;
-
 `;
 const Text = styled.Text``;
 const View = styled.View``;
@@ -174,21 +171,26 @@ const RenderItem =  ({index,item}) => {
 }
 
 export default function( props ) {
+
+    React.useEffect(() => {
+            this.flatList.scrollToOffset({ offset : 0 });      
+    },[props.listControl]);
+
+
     return(
         <>
             <FlatList
-             onScrollEndDrag={this.handleScroll}
-             ref={ref => (this.flatList = ref)}
-             refreshControl={true}
-             data={ DATA } 
-             renderItem = {RenderItem}
-             horizontal={false}
-             keyExtractor={(item) => item.id}
-             onScrollToIndexFailed={() => {
-                 DATA.push({
-                 });
-                 this.flatList.scrollToEnd();
-             }}
+                ref = { ref => this.flatList = ref }
+                data = { DATA }
+                renderItem = { RenderItem }
+                horizontal= {false}
+                keyExtractor= { (item) => item.id }
+                onScrollToIndexFailed={() => {
+                    DATA.push({
+                        id : 'new'
+                    });
+                    this.flatList.scrollToEnd();
+                }}
             />
         </>
     );

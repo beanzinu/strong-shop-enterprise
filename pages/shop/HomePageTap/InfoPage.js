@@ -98,24 +98,21 @@ export default function( props ) {
             
                 wait(2000).then(async ()=>{
                     await fetch('Info')
-                    .then(res=>{
-                        
+                    .then((res)=>{
                         // 주소의 변화가 있을 때
                         if ( tmp.address != res.address ) getCoord(res.address);
-
+                        
+                        console.log(tmp);
                         // 데이터의 변화가 있을 시
                         if ( !_.isEqual( tmp,res ) ) {
                             setRefreshing(true);
+                            console.log(res);
                             setData({
                                 ...data,
-                                info : res.info ,
-                                blogUrl : res.blogUrl ,
-                                siteUrl : res.siteUrl,
-                                snsUrl : res.snsUrl ,
-                                address : res.address ,
-                                detailAddress : res.detailAddress
+                                ...res
                             });
-                            wait(1000).then(()=>setRefreshing(false));
+                            wait(2000).then(()=>setRefreshing(false));
+                            console.log(data);
                         }
                     })
                     .catch(e=>{
@@ -151,7 +148,7 @@ export default function( props ) {
                 수정하기
             </Button>
             <Title style= { styles.title }> 업체 소개 </Title>
-            <Text>{data?.info}</Text>
+            <Text>{data?.info == null ? '업체 소개를 해주세요.' : data?.info }</Text>
             <Row>
                 <Avatar.Icon icon='link' style={{ backgroundColor: 'transparent' , marginLeft: 10 }} color={colors.main} size={30} />
                 <Button uppercase={false} color={colors.main} onPress={()=> { Linking.openURL(data.blogUrl)}}>{data?.blogUrl}</Button>
@@ -165,13 +162,13 @@ export default function( props ) {
                 <Button uppercase={false} color={colors.main} onPress={()=> { Linking.openURL(data.snsUrl) }}>{data?.snsUrl}</Button>
             </Row>
             <Title style= { styles.title }> 위치 </Title>
-            <Text style={{ marginBottom: 20 }}>{data?.address+'\n'+data?.detailAddress}</Text>
+            <Text style={{ marginBottom: 20 }}>{data?.address == null ? '위치를 등록해주세요.' : data.address +'\n'+ data?.detailAddress == null ? '' :  data?.detailAddress }</Text>
             <NaverMapView style={{width: '80%', height: 300 , alignSelf : 'center' , borderWidth: 2 , borderColor: 'lightgray' , marginBottom: 20 }}
             showsMyLocationButton={true}
             center={{...coord, zoom: 13 }}
             showsMyLocationButton={false}
             >
-            <Marker coordinate={coord} onClick={() => console.warn('onClick! p0')}/>
+            <Marker coordinate={coord} />
             </NaverMapView>
             </KeyboardAwareScrollView>
             )

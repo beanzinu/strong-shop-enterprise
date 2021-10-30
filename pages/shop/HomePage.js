@@ -57,8 +57,9 @@ const styles = {
 
 export default function( props  ) {
     // 1.  정보  2. 작업갤러리 3. 취급상품 4. 리뷰
-    const [value, setValue] = React.useState(3);
+    const [value, setValue] = React.useState(1);
     const [scroll,setScroll] = React.useState(0);
+    const [listControl,setListControl] = React.useState(false);
     const [collapsed,setCollapsed] = React.useState(true);
     return (
         <>
@@ -111,7 +112,7 @@ export default function( props  ) {
             </MenuButton>
             <MenuButton 
                 style={{ borderBottomColor : value === 4 ? colors.main  : 'white' }} 
-                onPress = { () => {setValue(4) , setScroll(0)} }>
+                onPress = { () => {setValue(4) , setListControl(!listControl) } }>
                 <Text style={{ color : value === 4 ? colors.main : 'gray'}}> 리뷰 </Text>
             </MenuButton>
         </Row>
@@ -140,7 +141,7 @@ export default function( props  ) {
            {/* 리뷰 화면 */}
            {
                value === 4 && (
-                   <ReviewPage setScroll={setScroll} />
+                   <ReviewPage setScroll={setScroll} listControl = {listControl} />
                )
            }
         
