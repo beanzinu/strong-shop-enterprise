@@ -1,15 +1,11 @@
 import React from 'react' ;
 import styled from 'styled-components';
-import { Appbar , Card , ToggleButton ,
-    Button , Title , Avatar , DataTable , FAB
-} from 'react-native-paper';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import axios from 'axios';
-import { Image } from 'react-native';
-import Accordion from 'react-native-collapsible/Accordion';
+import { Appbar , Card } from 'react-native-paper';
+import { SafeAreaView } from 'react-native';
 import Collapsible from 'react-native-collapsible';
 import colors from '../../color/colors';
 import Swiper from 'react-native-swiper';
+import { getStatusBarHeight } from 'react-native-status-bar-height';
 // Pages
 import InfoPage from './HomePageTap/InfoPage';
 import PostGalleryPage from './HomePageTap/PostGalleryPage';
@@ -63,8 +59,8 @@ export default function( props  ) {
     const [collapsed,setCollapsed] = React.useState(true);
     return (
         <>
-        <Appbar.Header style={{ backgroundColor: 'white' , borderColor: 'lightgray' , borderBottomWidth: 1 }}>
-        <Appbar.Content onPress={()=> { setCollapsed(!collapsed) }}  title={data.shopName} titleStyle={{  fontFamily : 'DoHyeon-Regular' , fontSize: 25 , padding: 3 }}  />
+        <Appbar.Header style={{ backgroundColor: 'white' , borderColor: 'lightgray' , borderWidth: 1  }}>
+        <Appbar.Content onPress={()=> { setCollapsed(!collapsed) }}  title={data.shopName} titleStyle={{  fontFamily : 'DoHyeon-Regular' , fontSize: 20  }}  />
         <Appbar.Action icon={ collapsed ? 'chevron-down' : 'chevron-up' } onPress={() => { setCollapsed(!collapsed)}} style={{}}/>
         <Appbar.Action  style={{ flex: 2 }}/>
         

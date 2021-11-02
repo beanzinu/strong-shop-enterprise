@@ -55,17 +55,11 @@ const styles= {
 
 export default function( props ) {
     const [data,setData] = React.useState({}) ;
-    const [collapsed,setCollapsed] = React.useState(true);
 
     React.useEffect(() => {
     
         // BidPage 에서 data를 받아옴
         setData( props.route.params.data ) ;
-
-        setTimeout( () => {
-            setCollapsed(false);
-        },500);
-
 
     },[]);
 
@@ -91,15 +85,7 @@ export default function( props ) {
             <Row style={{ borderBottomWidth: 1 , borderBottomColor: 'gray' }}>
                 <Avatar.Icon icon='car-arrow-left' color='red' style={{ backgroundColor: 'transparent'}} />
                 <Title style={{ ...styles.title  }}>{data.carName}</Title>
-                <IconButton icon={ collapsed ? 'chevron-down' : 'chevron-up'} 
-                    onPress={ () => { setCollapsed(!collapsed) }}
-                />
             </Row>
-            <Collapsible 
-                collapsed={collapsed}
-                collapsedHeight={0}
-                duration={2000}
-            >
             {
                 data.tinting && (
                     <>
@@ -188,7 +174,6 @@ export default function( props ) {
                     </>
                 )
             }
-            </Collapsible>
             
             <Title style={styles.label}>최종가격 :</Title>
             <Button color = { colors.main } 

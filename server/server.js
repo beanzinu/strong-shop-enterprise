@@ -1,3 +1,3 @@
 export default {
-    url : 'http://localhost:8080'
+    url : 'http://15.164.101.207:8080'
 }

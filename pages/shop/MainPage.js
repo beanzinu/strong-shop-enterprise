@@ -68,9 +68,9 @@ const chatRoute = () => <ChatPage/>
 export default function() {
     const [index, setIndex] = React.useState(0);
     const [routes] = React.useState([
-      { key: 'home', title: '홈', icon: 'home' },
+      { key: 'home', title: '홈', icon: 'home'  },
       { key: 'bid', title: '입찰', icon: 'alarm-plus' },
-      { key: 'chat', title: '시공', icon: 'car-door' },
+      { key: 'chat', title: '시공', icon: 'car-door' , badge: true },
     ]);
     const renderScene = BottomNavigation.SceneMap({
         home: homeRoute,
@@ -83,6 +83,7 @@ export default function() {
             barStyle= {{ backgroundColor: 'white' }}
             activeColor={colors.main}
             navigationState={{ index, routes }}
+            shifting={true}
             onIndexChange={setIndex}
             renderScene={renderScene}
         />  

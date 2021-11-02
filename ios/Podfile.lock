@@ -158,6 +158,8 @@ PODS:
   - GoogleUtilities/UserDefaults (7.5.1):
     - GoogleUtilities/Logger
   - GTMSessionFetcher/Core (1.6.1)
+  - iamport-react-native (2.0.0-rc.0):
+    - React-Core
   - kakao-login (3.3.3):
     - KakaoSDK (~> 2.4.0)
     - KakaoSDKAuth (~> 2.4.0)
@@ -412,6 +414,8 @@ PODS:
   - react-native-multiple-image-picker (0.4.6):
     - React-Core
     - TLPhotoPicker (= 2.1.4)
+  - react-native-netinfo (6.0.4):
+    - React-Core
   - react-native-nmap (0.0.66):
     - NMapsMap
     - React
@@ -580,6 +584,7 @@ DEPENDENCIES:
   - FlipperKit/FlipperKitUserDefaultsPlugin (~> 0.75.1)
   - FlipperKit/SKIOSNetworkPlugin (~> 0.75.1)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
+  - iamport-react-native (from `../node_modules/iamport-react-native`)
   - "kakao-login (from `../node_modules/@react-native-seoul/kakao-login`)"
   - Permission-Camera (from `../node_modules/react-native-permissions/ios/Camera`)
   - Permission-Notifications (from `../node_modules/react-native-permissions/ios/Notifications`)
@@ -598,6 +603,7 @@ DEPENDENCIES:
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - "react-native-multiple-image-picker (from `../node_modules/@baronha/react-native-multiple-image-picker`)"
+  - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-nmap (from `../node_modules/react-native-nmap`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-webview (from `../node_modules/react-native-webview`)
@@ -679,6 +685,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/React/FBReactNativeSpec"
   glog:
     :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
+  iamport-react-native:
+    :path: "../node_modules/iamport-react-native"
   kakao-login:
     :path: "../node_modules/@react-native-seoul/kakao-login"
   Permission-Camera:
@@ -711,6 +719,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
   react-native-multiple-image-picker:
     :path: "../node_modules/@baronha/react-native-multiple-image-picker"
+  react-native-netinfo:
+    :path: "../node_modules/@react-native-community/netinfo"
   react-native-nmap:
     :path: "../node_modules/react-native-nmap"
   react-native-safe-area-context:
@@ -795,6 +805,7 @@ SPEC CHECKSUMS:
   GoogleDataTransport: 85fd18ff3019bb85d3f2c551d04c481dedf71fc9
   GoogleUtilities: 3df19e3c24f7bbc291d8b5809aa6b0d41e642437
   GTMSessionFetcher: 36689134877faeb055b27dfa4ccc9ceaa42e029e
+  iamport-react-native: 418f463f15566324e80325d7f5bc590ece3b80c9
   kakao-login: 8569f9925c765b9cea5b27ded4629c298b4f85d0
   KakaoSDK: 1e80d6877c0eac6a310f93c73fb15ca56c05f2bd
   KakaoSDKAuth: fcba1c9ede431683f5bdd84c835a96981cb115a5
@@ -826,6 +837,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 80c46bd381fd06e418e0d4f53672dc1d1945c4c3
   React-jsinspector: cc614ec18a9ca96fd275100c16d74d62ee11f0ae
   react-native-multiple-image-picker: 516d520a1672ff8177c2cd8a113553cbbe2939e9
+  react-native-netinfo: 1c7676413ab265759c7b3da205efab163f5366ef
   react-native-nmap: cfcc5402746040494c544ea90a6062f49505acdf
   react-native-safe-area-context: 61c8c484a3a9e7d1fda19f7b1794b35bbfd2262a
   react-native-webview: 133a6a5149f963259646e710b4545c67ef35d7c9

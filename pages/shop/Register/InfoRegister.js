@@ -7,6 +7,9 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import Postcode from '@actbase/react-daum-postcode';
 // Async
 import store from '../../../storage/store';
+import axios from 'axios';
+import fetch from '../../../storage/fetch';
+import server from '../../../server/server';
 
 const Input = styled.TextInput`
     border: 3px ${colors.main};
@@ -37,6 +40,7 @@ const styles = {
 }
 
 export default function( props ) {
+    const [serverState,setServerState] = React.useState(1);
     const [info,setInfo] = React.useState('');
     const [blogUrl,setBlogUrl] = React.useState('');
     const [siteUrl,setSiteUrl] = React.useState('');
@@ -48,22 +52,41 @@ export default function( props ) {
 
     const addInfo = async () => {
         data = {
-            info : info ,
+            introduction : info ,
             blogUrl : blogUrl ,
             siteUrl : siteUrl ,
             snsUrl : snsUrl ,
             address : address ,
             detailAddress : detailAddress ,
         } ;
-        // 서버에게 전달
 
-        // 캐시 
         try {
-            store('Info',data) ;
-            props.navigation.goBack();
+            const res = await fetch('auth') ;
+            const auth = res.auth ;
+
+            // 서버 ( POST/PUT )
+            axios({
+                method: serverState == 2 ? 'PUT' : 'POST' ,
+                url: `${server.url}/api/companyinfo`,
+                data: data ,
+                headers: {
+                    Auth: auth 
+                }
+            })
+            .then ( async (res)=>  {
+                // 저장성공시
+                await store('Info',data) ;
+                props.navigation.goBack();
+            })
+            .catch( e =>  {
+                //
+                Alert.alert('다시 시도해주세요.');
+            })
+
         }
         catch {
-            console.log("Info 저장 에러");
+            //
+            Alert.alert('다시 시도해주세요.');
         }
 
         
@@ -72,12 +95,16 @@ export default function( props ) {
 
     // 기존 정보를 수정
     React.useEffect( () => { 
-        setInfo(props.route.params?.data?.info) ;
-        setBlogUrl(props.route.params?.data?.blogUrl) ;
-        setSiteUrl(props.route.params?.data?.siteUrl) ;
-        setSnsUrl(props.route.params?.data?.snsUrl) ;
-        setAddress(props.route.params?.data?.address);
-        setDetailAddress(props.route.params?.data?.detailAddress);
+        if ( props.route.params?.data != null ) {
+            // PUT
+            setServerState(2);
+            setInfo(props.route.params?.data?.introduction) ;
+            setBlogUrl(props.route.params?.data?.blogUrl) ;
+            setSiteUrl(props.route.params?.data?.siteUrl) ;
+            setSnsUrl(props.route.params?.data?.snsUrl) ;
+            setAddress(props.route.params?.data?.address);
+            setDetailAddress(props.route.params?.data?.detailAddress);
+        }
     },[]);
 
     return(

@@ -4,31 +4,23 @@ import {
     BottomSheetModal,
     BottomSheetModalProvider,
   } from '@gorhom/bottom-sheet';
-import { Title , Appbar , Button , Text, TextInput } from 'react-native-paper';
+import { Title , Button , Text, TextInput } from 'react-native-paper';
 import colors from '../../color/colors';
 import axios from 'axios';
-import { ScrollView } from 'react-native';
-import { Image } from 'react-native';
-import { Alert } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import ImageBackground from 'react-native/Libraries/Image/ImageBackground';
 import { login } from '@react-native-seoul/kakao-login';
 import auth from '@react-native-firebase/auth'
+import IMP from 'iamport-react-native';
 //
 import server from '../../server/server';
+import store from '../../storage/store';
+import fetch from '../../storage/fetch';
 
 const View = styled.View`
     flex : 1 ;
 `;
-const Row = styled.View`
-    flex-direction: row;
-    height: 130px ;
-    margin-top: 10px;
-`;
-const TextView = styled.View`
-    flex: 2 ;
-`;
-
 const styles = {
     title : {
         padding: 10 ,
@@ -69,15 +61,11 @@ const styles = {
 }
 
 export default function({getMain}) {
-    const snapPoints = React.useMemo(() => ['75%'], []);
+    const snapPoints = React.useMemo(() => ['80%'], []);
     const [businessNumber,setBusinessNumber] = React.useState('');
     const [openDate,setOpenDate] = React.useState('');
     const [bossName,setBossName] = React.useState('');
     const [bottomPage,setBottomPage] = React.useState(1);
-    const [phoneNum,setPhoneNum] = React.useState('');
-    const [confirm,setConfirm] = React.useState(null);
-    const [code,setCode] = React.useState('');
-    const [codeVisible,setCodeVisible] = React.useState(false);
     const [dtoData,setDtoData] = React.useState(null);
 
     const bottomSheetModalRef = React.useRef(null);
@@ -88,12 +76,9 @@ export default function({getMain}) {
         bottomSheetModalRef.current?.dismiss();
     }, []);  
 
-    const handleKakaoLogin = async() =>  {
-        // 카카오 인증요청
-        const token = await login().catch(e=>{  });
-        if ( token == null ) return;
-        // token 서버에게 전달 
-        const accessToken = 'Bearer ' + token.accessToken ;        
+
+    // 카카오 AccessToken => 서버 
+    function requestAccessToken(accessToken) {
         axios({
             method : 'GET' ,
             url : `${server.url}/api/login/company/kakao` ,
@@ -101,64 +86,98 @@ export default function({getMain}) {
                 Authorization : accessToken
             } ,
         })
-        .then( res =>  {
+        .then( async (res) =>  {
             // 회원가입 필요
-            if ( res.data.statusCode == 200 ) {
+            if ( res.data.statusCode == 201 ) {
                 // 추가정보를 사용자로부터 받음.
                 handlePresentModalPress();       
                 setDtoData(res.data.data);         
             }
             // 이미 가입된 회원 => jwt token을 발급받음.
+            else if ( res.data.statusCode == 200 ) {
+                const auth = res.headers.auth;
+                // jwt token cache
+                await store('auth',{ auth : auth });
+                // cache 성공 시 -> 메인화면
+                await fetch('auth')
+                .then( res => {
+                    if ( res != null ) getMain(true);
+                })
+                .catch ( e => { 
+                    //
+                })
 
+            }
 
         })
         .catch( e =>  {
             // 서버 통신에러
         })
-
     }
 
-    // 인증번호 전송 => Firebase
-    const testAuth = async() => {
-
-        // 010 => +8210
-        number = phoneNum.replace('01','+821')
-        confirmation = await auth().signInWithPhoneNumber(number).catch(e => console.log(e));
-        if ( confirmation != null ) setCodeVisible(true);
-        setConfirm(confirmation);
-    }
-    // 인증번호 확인 
-    const verifyAuth = async() => {
-        try {
-            await confirm.confirm(code);
-            // 인증완료 후
-            // 추가정보를 포함해서 다시 서버호출
-            axios({
-                url: `${server.url}/api/login/company/kakao` ,
-                method: 'POST' ,
-                data : {
-                    ...dtoData ,
-                    businessNumber: businessNumber,
-                    bossName: bossName,
-                    
+    function requestSignIn() {
+        // 서버에게 dtoData 전달
+        axios({
+            method: 'POST',
+            url : `${server.url}/api/login/company/kakao` ,
+            data : {
+                ...dtoData ,
+                businessNumber: businessNumber
+            }
+        })
+        .then(async(res) =>{
+            // 가입성공
+            if ( res.data.statusCode == 200 ) {
+                const auth = res.headers.auth;
+                // jwt token cache
+                try {
+                    await store('auth',{auth : auth});
+                    getMain(true);
                 }
-                
-            })
-            .then(res => {
-                console.log(res);
-            })
-            .catch(e => {
-                // 
-            })
+                // cache 성공 시 -> 메인화면
+                catch {
+                    // cache 저장 에러
+                    console.log('cache 에러');
+                }
+            }   
 
-
-        } catch (e) {
-            // 인증번호 틀렸을 때
-            Alert.alert('인증번호를 다시 확인해주세요.');
-        }
+        })
+        .catch(e => {
+            //
+            
+        })
     }
 
 
+    const handleKakaoLogin = async() =>  {
+        // 카카오 인증요청
+        const token = await login().catch(e=>{ });
+        // 카카오 인증취소 / 인증실패 
+        if ( token == null ) return;
+        const accessToken = 'Bearer ' + token.accessToken ;        
+        try {
+            // token 서버에게 전달 
+            requestAccessToken(accessToken);
+        }
+        catch {
+            Alert.alert('다시 요청해주세요.');
+        }
+
+    }
+
+    // 휴대폰인증
+    function phoneAuth(response) {
+       if ( response.success ) {
+           // 최종 회원가입요청
+           requestSignIn();
+       }
+       else {
+           // 인증 취소 / 대표자명과 맞지않을때
+           handleDismissModalPress();
+       }
+    }
+
+    // 사업자등록번호 인증
     const verify = () => {
 
         // 입력양식 체크
@@ -169,6 +188,39 @@ export default function({getMain}) {
     
         // Test ( 사업자 인증 성공 후 )
         setBottomPage(2);
+        // 서버에게 dtoData 전달
+        // axios({
+        //     method: 'POST',
+        //     url : `${server.url}/api/login/company/kakao` ,
+        //     data : {
+        //         ...dtoData ,
+        //         businessNumber: businessNumber
+        //     }
+        // })
+        // .then(async(res) =>{
+        //     // 가입성공
+        //     if ( res.data.statusCode == 200 ) {
+        //         console.log(res);
+        //         const auth = res.headers.auth;
+        //         console.log(auth);
+        //         // jwt token cache
+        //         try {
+        //             await store('auth',{ auth : auth } );
+        //             getMain(true);
+        //         }
+        //         // cache 성공 시 -> 메인화면
+        //         catch {
+        //             // cache 저장 에러
+        //             console.log('cache 에러');
+        //         }
+        //     }   
+
+        // })
+        // .catch(e => {
+        //     //
+            
+        // })
+
         
 
         // 사업자등록 인증
@@ -210,7 +262,7 @@ export default function({getMain}) {
                 <Button style={styles.loginButton} color='white' icon='chat' onPress={handleKakaoLogin}>
                     카카오로 시작하기
                 </Button>
-                <Button style={styles.loginButton} color='white' icon='alpha-n-box' onPress={testAuth}>
+                <Button style={styles.loginButton} color='white' icon='alpha-n-box' onPress={handlePresentModalPress}>
                     네이버로 시작하기
                 </Button>
             {/* </ImageBackground> */}
@@ -261,32 +313,25 @@ export default function({getMain}) {
                 {
                     bottomPage == 2 && (
                         <>
-                        <Title style={styles.title}>휴대전화를 인증해주세요. (2/2)</Title>
-                        <Text style={styles.description}>휴대전화번호</Text>
-                        <TextInput theme={{ colors: { primary : colors.main , background: 'white' }  }}
-                            style={{ flex: 2 }}
-                            value={phoneNum}
-                            onChangeText={value=>{setPhoneNum(value)}}
-                            keyboardType='number-pad'
-                            placeholder=' (-) 없이 입력'
-                        />                  
-                        <Button style={{ padding: 10 }} onPress={testAuth} mode='outlined' color={colors.main} >인증번호 전송</Button>
-                        {
-                            codeVisible && (
-                                <>
-                                <Text style={styles.description}>인증번호</Text>
-                                <TextInput theme={{ colors: { primary : colors.main , background: 'white' }  }}
-                                style={{ flex: 6 }}
-                                value={code}
-                                onChangeText={value=>{setCode(value)}}
-                                keyboardType='number-pad'
-                                placeholder=' (-) 없이 입력'
-                                />
-                                <Button style={{ padding: 10 }} onPress={verifyAuth} mode='outlined' color='red' >인증하기</Button>
-                                </>
-                            )
+                        <Title style={styles.title}> {bossName}님으로 인증할게요.(2/2)</Title>
+                        <View style={{ width: '100%' , height: 700 }}>
+                        <IMP.Certification
+                        userCode={'iamport'}  // 가맹점 식별코드
+                        // tierCode={'AAA'}      // 티어 코드: agency 기능 사용자에 한함
+                        data = {{
+                            merchant_uid: `mid_${new Date().getTime()}`,
+                            company: '최강샵',
+                            carrier: '',
+                            name: '',
+                            phone: '',
+                            min_age: '',
                         }
-                        </>
+                        }
+                        loading={<ActivityIndicator />} // 로딩 컴포넌트
+                        callback={phoneAuth}   // 본인인증 종료 후 콜백
+                      />  
+                      </View>
+                      </>
                     )
                 }
                 

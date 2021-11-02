@@ -9,8 +9,10 @@ import { Linking } from 'react-native';
 import { RefreshControl } from 'react-native';
 import _ from 'lodash';
 // storage
+import server from '../../../server/server';
 import fetch from '../../../storage/fetch';
 import store from '../../../storage/store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Row = styled.View`
     flex-direction: row;
@@ -39,7 +41,7 @@ const styles = {
 
 export default function( props ) {
     const [coord,setCoord] = React.useState(0);
-    const [data,setData] = React.useState({});
+    const [data,setData] = React.useState(null);
     const [refreshing,setRefreshing] = React.useState(false);
 
     const wait = (timeout) => {
@@ -61,10 +63,77 @@ export default function( props ) {
 
         }
         )
-        .catch(e => console.log(e) ) ;
+        .catch(e => {
+            //
+        } ) ;
+    }
+
+    const fetchInfo = async() =>  {
+        let tmp ;
+        // 저장된 Info정보 확인 
+        await fetch('Info')
+        .then( async(res) => {
+            if (res != null) {
+                setData(res);
+                tmp = res ;
+            }
+            else {
+                let auth;
+                await fetch('auth')
+                .then( res => {
+                    auth = res.auth;
+                }).catch( e=> { 
+                    //
+                 })
+
+                // 1. 서버에게 요청하여 Info 정보 받아옴.
+                axios({
+                    method: 'get',
+                    url: `${server.url}/api/companyinfo`,
+                    headers: {
+                        Auth:  auth
+                    }
+                })
+                .then( async(res)=> {
+                    // 2. Info 정보를 setData()
+                    try {
+                        if ( res.data.data == null ) {
+                            // POST
+                            setData(null);
+                        }
+                        else {
+                            // PUT
+                            await store('Info',res.data.data) ;
+                            setData( res.data.data );
+                            getCoord( res.data.data.address );
+                        }
+                    }
+                    catch(e) {
+                    
+                    }
+                })
+                .catch (e => {
+                    //
+                })
+            }
+
+        })
+        .catch( async(e) => {
+
+            
+
+        });
+        return tmp ;
     }
 
     React.useEffect( async () =>  {
+
+
+        // 1. 캐시 / 서버조회 => data => POST/PUT
+        // 다시 Focus 되었을 때 변경사항이 있는지 확인
+        // let tmp = fetchInfo(); 
+        
+        
 
         // 저장된 좌표정보가 있을 때
         await fetch('map')
@@ -75,20 +144,7 @@ export default function( props ) {
             // 1. 서버에게 요청하여 Info 정보 받아옴.
             // 2. Info 정보의 address를 좌표로 설정  ( setCoord() , getCoord() )
             // 3. 캐시에 저장 ( store('map',point) )
-            getCoord('서울 광진구 뚝섬로33길 6');
-        });
-
-        let tmp ; // 다시 Focus 되었을 때 변경사항이 있는지 확인
-
-        // 저장된 Info정보 확인 
-        await fetch('Info')
-        .then( (res) => {
-            setData(res);
-            tmp = res ;
-        })
-        .catch(e => {
-            // 1. 서버에게 요청하여 Info 정보 받아옴.
-            // 2. Info 정보를 setData()
+            setCoord({latitude: 37.53 , longitude : 127 })
 
         });
 
@@ -102,17 +158,14 @@ export default function( props ) {
                         // 주소의 변화가 있을 때
                         if ( tmp.address != res.address ) getCoord(res.address);
                         
-                        console.log(tmp);
                         // 데이터의 변화가 있을 시
                         if ( !_.isEqual( tmp,res ) ) {
                             setRefreshing(true);
-                            console.log(res);
                             setData({
                                 ...data,
                                 ...res
                             });
                             wait(2000).then(()=>setRefreshing(false));
-                            console.log(data);
                         }
                     })
                     .catch(e=>{
@@ -148,7 +201,7 @@ export default function( props ) {
                 수정하기
             </Button>
             <Title style= { styles.title }> 업체 소개 </Title>
-            <Text>{data?.info == null ? '업체 소개를 해주세요.' : data?.info }</Text>
+            <Text>{data?.introduction == null ? '업체 소개를 해주세요.' : data?.introduction }</Text>
             <Row>
                 <Avatar.Icon icon='link' style={{ backgroundColor: 'transparent' , marginLeft: 10 }} color={colors.main} size={30} />
                 <Button uppercase={false} color={colors.main} onPress={()=> { Linking.openURL(data.blogUrl)}}>{data?.blogUrl}</Button>
@@ -162,7 +215,7 @@ export default function( props ) {
                 <Button uppercase={false} color={colors.main} onPress={()=> { Linking.openURL(data.snsUrl) }}>{data?.snsUrl}</Button>
             </Row>
             <Title style= { styles.title }> 위치 </Title>
-            <Text style={{ marginBottom: 20 }}>{data?.address == null ? '위치를 등록해주세요.' : data.address +'\n'+ data?.detailAddress == null ? '' :  data?.detailAddress }</Text>
+            <Text style={{ marginBottom: 20 }}>{data?.address == null ? '위치를 등록해주세요.' : data.address}{'\n'}{data?.detailAddress == null ? '' :  data?.detailAddress }</Text>
             <NaverMapView style={{width: '80%', height: 300 , alignSelf : 'center' , borderWidth: 2 , borderColor: 'lightgray' , marginBottom: 20 }}
             showsMyLocationButton={true}
             center={{...coord, zoom: 13 }}
