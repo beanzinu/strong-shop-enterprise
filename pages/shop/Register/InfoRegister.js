@@ -41,12 +41,12 @@ const styles = {
 
 export default function( props ) {
     const [serverState,setServerState] = React.useState(1);
-    const [info,setInfo] = React.useState('');
-    const [blogUrl,setBlogUrl] = React.useState('');
-    const [siteUrl,setSiteUrl] = React.useState('');
-    const [snsUrl,setSnsUrl] = React.useState('');
-    const [address,setAddress] = React.useState('');
-    const [detailAddress,setDetailAddress] = React.useState('');
+    const [info,setInfo] = React.useState(null);
+    const [blogUrl,setBlogUrl] = React.useState(null);
+    const [siteUrl,setSiteUrl] = React.useState(null);
+    const [snsUrl,setSnsUrl] = React.useState(null);
+    const [address,setAddress] = React.useState(null);
+    const [detailAddress,setDetailAddress] = React.useState(null);
 
     const [visible,setVisible] = React.useState(false) ;
 

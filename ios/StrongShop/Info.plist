@@ -23,13 +23,19 @@
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
+		<key>CFBundleURLSchemes</key>
+		<array>
+		<string>strongshop</string>
+		</array>
+		</dict>
+		<!-- <dict>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>com.googleusercontent.apps.26629226700-ifmtnuvgf4otqa7oujg57vatdcai8pjs</string>
 			</array>
-		</dict>
+		</dict> -->
 		<dict>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
@@ -55,6 +61,10 @@
 	<string>6qlgkpokp9</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
+		<key>NSAllowsArbitraryLoadsInWebContent</key>
+		<true/>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
 		<key>NSExceptionDomains</key>
 		<dict>
 			<key>localhost</key>

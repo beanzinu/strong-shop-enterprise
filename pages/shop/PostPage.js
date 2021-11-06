@@ -4,7 +4,7 @@ import Swiper from 'react-native-swiper';
 import { Image } from 'react-native';
 import colors from '../../color/colors';
 import styled from 'styled-components';
-
+import FastImage from 'react-native-fast-image';
 
 const ImageView = styled.View`
     width: 100%;
@@ -41,16 +41,19 @@ export default function( props ) {
                 <Swiper 
                     loop={false}
                 >  
-                    <ImageView>
-                        <Image source={{ uri: props.route.params.uri }} style={ styles.Image }/>
-                    </ImageView>
-                    <ImageView>
-                        <Image source={{ uri: props.route.params.uri }} style={ styles.Image }/>
-                    </ImageView>
+                    {
+                        props.route.params.uri.map( picture =>  {
+                            return(
+                                <ImageView>
+                                    <FastImage source={{ uri: picture.imageUrl }} style={ styles.Image }/>
+                                </ImageView>
+                            )
+                        })
+                    }
                 </Swiper>
             </ImageView>
 
-            <Text style={styles.text} >{props.route.params.data.paragraph}</Text>
+            <Text style={styles.text} >{props.route.params.content}</Text>
 
         </>
     );

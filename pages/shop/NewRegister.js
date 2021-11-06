@@ -17,6 +17,7 @@ import IMP from 'iamport-react-native';
 import server from '../../server/server';
 import store from '../../storage/store';
 import fetch from '../../storage/fetch';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const View = styled.View`
     flex : 1 ;
@@ -87,6 +88,8 @@ export default function({getMain}) {
             } ,
         })
         .then( async (res) =>  {
+            // 캐시삭제
+            AsyncStorage.clear();
             // 회원가입 필요
             if ( res.data.statusCode == 201 ) {
                 // 추가정보를 사용자로부터 받음.
@@ -126,6 +129,7 @@ export default function({getMain}) {
             }
         })
         .then(async(res) =>{
+            console.log('가입성공:',res);
             // 가입성공
             if ( res.data.statusCode == 200 ) {
                 const auth = res.headers.auth;
@@ -151,7 +155,7 @@ export default function({getMain}) {
 
     const handleKakaoLogin = async() =>  {
         // 카카오 인증요청
-        const token = await login().catch(e=>{ });
+        const token = await login().catch(e=>{console.log(e) });
         // 카카오 인증취소 / 인증실패 
         if ( token == null ) return;
         const accessToken = 'Bearer ' + token.accessToken ;        
@@ -194,15 +198,14 @@ export default function({getMain}) {
         //     url : `${server.url}/api/login/company/kakao` ,
         //     data : {
         //         ...dtoData ,
-        //         businessNumber: businessNumber
+        //         businessNumber: businessNumber ,
+        //         bossName: bossName 
         //     }
         // })
         // .then(async(res) =>{
         //     // 가입성공
         //     if ( res.data.statusCode == 200 ) {
-        //         console.log(res);
         //         const auth = res.headers.auth;
-        //         console.log(auth);
         //         // jwt token cache
         //         try {
         //             await store('auth',{ auth : auth } );
@@ -283,6 +286,7 @@ export default function({getMain}) {
                     <Text style={styles.description}>사업자등록번호</Text>
                     <TextInput theme={{  colors: { primary : colors.main }  }}
                         value={businessNumber}
+                        mode='outlined'
                         onChangeText={value=>{setBusinessNumber(value)}}
                         keyboardType='number-pad'
                         placeholder='10자리를 입력하세요 (-없이) '
@@ -291,6 +295,7 @@ export default function({getMain}) {
                     <Text style={styles.description}>개업일자</Text>
                     <TextInput theme={{ colors: { primary : colors.main }  }}
                         value={openDate}
+                        mode='outlined'
                         onChangeText={value=>{setOpenDate(value)}}
                         keyboardType='number-pad'
                         placeholder='YYYYMMDD (예) 2021년 9월 27일 -> 20210927'
@@ -298,6 +303,7 @@ export default function({getMain}) {
                     <Text style={styles.description}>대표자성명</Text>
                     <TextInput theme={{ colors: { primary : colors.main , background: 'white' }  }}
                         value={bossName}
+                        mode='outlined'
                         onChangeText={value=>{setBossName(value)}}
                         placeholder='홍길동'
                     />
@@ -315,12 +321,13 @@ export default function({getMain}) {
                         <>
                         <Title style={styles.title}> {bossName}님으로 인증할게요.(2/2)</Title>
                         <View style={{ width: '100%' , height: 700 }}>
+                        
                         <IMP.Certification
                         userCode={'iamport'}  // 가맹점 식별코드
                         // tierCode={'AAA'}      // 티어 코드: agency 기능 사용자에 한함
                         data = {{
                             merchant_uid: `mid_${new Date().getTime()}`,
-                            company: '최강샵',
+                            company: 'imaport',
                             carrier: '',
                             name: '',
                             phone: '',

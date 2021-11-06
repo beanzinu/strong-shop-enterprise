@@ -68,8 +68,8 @@ export default function( props ) {
         } ) ;
     }
 
-    const fetchInfo = async() =>  {
-        let tmp ;
+    let tmp ;
+    async function fetchInfo () {
         // 저장된 Info정보 확인 
         await fetch('Info')
         .then( async(res) => {
@@ -97,7 +97,7 @@ export default function( props ) {
                 .then( async(res)=> {
                     // 2. Info 정보를 setData()
                     try {
-                        if ( res.data.data == null ) {
+                        if ( res.status == 204 ) {
                             // POST
                             setData(null);
                         }
@@ -123,17 +123,13 @@ export default function( props ) {
             
 
         });
-        return tmp ;
     }
-
+    
     React.useEffect( async () =>  {
-
 
         // 1. 캐시 / 서버조회 => data => POST/PUT
         // 다시 Focus 되었을 때 변경사항이 있는지 확인
-        // let tmp = fetchInfo(); 
-        
-        
+        await fetchInfo(); 
 
         // 저장된 좌표정보가 있을 때
         await fetch('map')
@@ -190,7 +186,7 @@ export default function( props ) {
         {
             coord == 0 ? ( <ActivityIndicator size='large' color={colors.main} style={{ marginTop: 20 }}/> ) : (
             <KeyboardAwareScrollView 
-                onScrollEndDrag={ this.handleScroll } refreshControl
+                onScrollEndDrag={ this.handleScroll } 
                 style={{ backgroundColor: 'white' }}
                 refreshControl={<RefreshControl refreshing={refreshing} />}
             >

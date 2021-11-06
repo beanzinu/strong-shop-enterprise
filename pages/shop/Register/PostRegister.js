@@ -14,7 +14,11 @@ import {
 import DraggableFlatList , {ScaleDecorator} from 'react-native-draggable-flatlist';
 import axios from 'axios';
 import { LogBox } from 'react-native';
+import AppContext from '../../../storage/AppContext';
 import MultipleImagePicker from '@baronha/react-native-multiple-image-picker';
+import fetch from '../../../storage/fetch';
+import server from '../../../server/server';
+
 
 // Warning 메시지 무시 
 // library 내부 Component 문제
@@ -84,40 +88,42 @@ const styles= {
 
 export default function( props ) {
     const [pictures,setPictures]= React.useState(null) ;
+    const [cache,setCache] = React.useState([]);
     const [text,setText] = React.useState('');
     const [inputHeight,setInputHeight] = React.useState(120);
     const [refresh,setRefresh] = React.useState(false);
     const ModalRef = React.useRef(null);
+    const MyContext = React.useContext(AppContext)
     
     openNew = async () => {
         request(PERMISSIONS.IOS.PHOTO_LIBRARY);
         await MultipleImagePicker.openPicker({
             mediaType: 'image',
-            // selectedAssets: pictures,
+            selectedAssets: cache ,
             doneTitle: "완료",
             selectedColor: "#162741",
+            maxSelectedAssets: 10 ,
+            maximumMessageTitle: '최대 10장까지만 등록해주세요.' ,
+            maximumMessage: '' ,
+            cancelTitle: '취소' ,
+            numberOfColumn: 3 ,
         })
         .then(res => {
+           setCache(res);
            url = [] ;
-           res.map(file =>  {
-            //    newPath = file.path.replace('file://','').replace('file:///','file://');
-               url.push(file.path);
+           res.map( async ( file ) =>  {
+               newPath = file.path.replace('file://','').replace('file:///','file://');
+               
+               url.push(newPath);
+            //    url.push(file.path);
            });
-           if ( pictures != null ) {
-           files = pictures ;
-           url.map(file=>{
-               files.push(file);
-           })
-           setPictures(files);
+          
+           setPictures(url);
+           // Refresh Swiper
            setRefresh(true);
            setTimeout(()=>{
             setRefresh(false);
            },2000);
-
-           }
-           else {
-               setPictures(url);
-           }
 
         }) 
         .catch(e => { });
@@ -142,18 +148,36 @@ export default function( props ) {
         // 현재 사용자가 불러온 이미지 리스트들 => 각각 폼데이터에 넣어준다.
         pictures?.map( (picture,index) =>{
             var photo = {
-                uri: picture.uri ,
+                uri: picture ,
                 type: 'multipart/form-data',
-                name: `${index}.jpg`
+                name: `${index}.jpg` ,
+                
             }
-            body.append('image',photo);
+            body.append('files',photo);
         })
-        //test
-        console.log(body?._parts);
+        body.append('content',text);
+       
         // 서버에게 전송
-        // axios.post('serverUrl',body,{
-        //     headers: {'content-type': 'multipart/form-data'}
-        // })
+        await fetch('auth')
+        .then(res => {
+            const auth = res.auth ;
+            axios.post(`${server.url}/api/gallery`,body,{
+                headers: {'content-type': 'multipart/form-data' , Auth: auth }
+            })
+            .then(res => {
+                if ( res.data.statusCode == 201 ) {
+                    MyContext.setRefresh(!MyContext.refresh);
+                    props.navigation.goBack();
+                }
+            })
+            .catch(e => {
+                console.log(e);
+            })
+
+        })
+        .catch(e => {
+
+        })
     }
 
     
@@ -184,19 +208,19 @@ export default function( props ) {
                 <OptionView onPress={() => openNew() }>
                     <IconButton icon='image-plus' />
                 </OptionView>
-                {
+                {/* {
                     pictures != null && pictures.length > 1 && (
                 <OptionView onPress={() => ModalRef.current?.present() }>
                     <IconButton icon='tools'/>
                     <Text style={{ fontSize: 12 }}>사진 수정</Text>
                 </OptionView>
                     )
-                }
+                } */}
             </Row>
             {
                 pictures != null && (
                     <SwiperView>
-                    <Swiper horizontal={true} refreshControl={refresh} showsHorizontalScrollIndicator={true}>
+                    <Swiper horizontal={true} refreshControl={refresh} showsHorizontalScrollIndicator={true} loop={false}>
                         {
                             pictures.map((picture) =>{
                                return(

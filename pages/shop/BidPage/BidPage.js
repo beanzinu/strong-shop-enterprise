@@ -144,6 +144,11 @@ const styles = {
         backgroundColor: 'white' ,
         borderTopWidth: 1 ,
         borderTopColor: 'lightgray'        
+    } ,
+    button: {
+        flex: 1 ,
+        padding: 3 ,
+        margin: 3
     }
 
 }
@@ -215,6 +220,7 @@ function Item ( {i , item , navigation , ModalPress } ) {
 
 
 export default function ( props ) {
+    const [menu,setMenu] = React.useState(1);
 
     React.useEffect(() => {
         // 서버
@@ -236,7 +242,15 @@ export default function ( props ) {
             <Title style={{...styles.title , color: 'red' , fontSize: 35 }}>{data.length}</Title>
             <Title style={styles.title}>건의 입찰요청이 있습니다.</Title>
         </Row> */}
+
+        <Row>
+            <Button style={styles.button} mode={ menu == 1 ? 'contained' : 'outlined' } color={colors.main}>입찰 전</Button>
+            <Button style={styles.button} mode={ menu == 2 ? 'contained' : 'outlined' } color={colors.main}>입찰 중</Button>
+            <Button style={styles.button} mode={ menu == 3 ? 'contained' : 'outlined' } color={colors.main}>입찰 결과</Button>
+        </Row>
+        {/* 입찰 전 */}
         {
+            menu == 1 && 
             data.map( (item,i) => {
                     return (
                     <Item item={item} i={i} navigation={props.navigation}/>

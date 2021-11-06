@@ -1,9 +1,16 @@
 import React from 'react';
 import styled from 'styled-components';
 import { FlatList } from 'react-native';
-import { Button  , Avatar , Title } from 'react-native-paper';
+import { Button  , Avatar , Title, ActivityIndicator } from 'react-native-paper';
 import { Image } from 'react-native';
 import colors from '../../../color/colors';
+import axios from 'axios';
+import server from '../../../server/server';
+import fetch from '../../../storage/fetch';
+import AppContext from '../../../storage/AppContext';
+import FastImage from 'react-native-fast-image';
+
+
 
 const PostButton = styled.TouchableOpacity`
     width: 33.3%;
@@ -23,12 +30,42 @@ const styles = {
 
 
 export default function( props ) {
-   const postData = [];
+   const [postData,setPostData] = React.useState([]);
+   const MyContext = React.useContext(AppContext);
+
+    requestImage = async() =>  {
+
+        const token = await fetch('auth') ;
+        const auth = token.auth ;
+
+        axios({
+            url: `${server.url}/api/gallery`,
+            method: 'get' ,
+            headers : {
+                Auth : auth
+            }
+        })
+        .then ( res =>  {
+            setPostData(res.data.data) ;
+        })
+        .catch(e  => {
+            //
+        })
+    }
+
+
+    React.useEffect(() =>  {
+        // 사진요청
+        requestImage();
+
+    },[MyContext.refresh]);
+
+
   // 1개의 게시물 
   const RenderItem = ({ item }) =>  {
         return(
-        <PostButton onPress= { () =>  { props.navigation.navigate('Post',{ data: props.data  , uri : item.uri }) }}>
-            <Image source= { { uri: item.uri }  } style={{ width: '100%' , height: '100%' }} />
+        <PostButton onPress= { () =>  { props.navigation.navigate('Post',{ data: props.data  , uri : item.imageUrls , content : item.content }) }}>
+            <FastImage source= { { uri: item.imageUrls[0].imageUrl }  } style={{ width: '100%' , height: '100%' }} />
         </PostButton>    
         );
     }
@@ -67,6 +104,5 @@ export default function( props ) {
         }
         
         </View>       
-
     );
 }

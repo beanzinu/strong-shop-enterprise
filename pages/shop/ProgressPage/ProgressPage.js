@@ -94,6 +94,7 @@ export default function( props ) {
     const[visible,setVisible] = React.useState(false);
 
     openNew = async () => {
+
         request(PERMISSIONS.IOS.PHOTO_LIBRARY);
         await MultipleImagePicker.openPicker({
             mediaType: 'image',
@@ -163,11 +164,11 @@ export default function( props ) {
         <ScrollView>
             <Appbar.Header style={{ backgroundColor: colors.main }}>
             <Appbar.BackAction onPress={() => { props.navigation.goBack() }} />
-            <Appbar.Content title={`${props.route.params.name} 고객님`} titleStyle={{ fontFamily : 'DoHyeon-Regular' , fontSize: 30}} />
-            <Row>
-            <Appbar.Action icon="chat" onPress={() => { props.navigation.navigate('ChatDetail',{ name : props.route.params.name }) }} color='white'/>
-            <Badge size={10} style={{ alignSelf: 'flex-start' }}/>
-            </Row>
+            <Appbar.Content title={`${props.route.params.name} 고객님`} titleStyle={{ fontFamily : 'DoHyeon-Regular' , fontSize: 24}} />
+            <View>
+                <Appbar.Action icon="chat" onPress={() => { props.navigation.navigate('ChatDetail',{ name : props.route.params.name }) }} color='white' style={{ backgroundColor: 'transparent' , margin: 0}} size={30}/>
+                <Badge size={10} style={{ position: 'absolute' , right: 0 , top: 0 }}/>
+            </View>
             </Appbar.Header>  
             <ProgressBar style={styles.progress} progress={state/4} color='red'  
                 theme = {{ animation : { scale : 5 }  }}
@@ -180,6 +181,7 @@ export default function( props ) {
             </Title>
             <SwiperView>
             <Swiper horizontal={true} index={state-1}
+                loop={false}
                 showsButtons={true}
                 showsHorizontalScrollIndicator={true}
                 showsPagination={false}

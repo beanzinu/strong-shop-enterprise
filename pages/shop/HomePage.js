@@ -1,6 +1,6 @@
 import React from 'react' ;
 import styled from 'styled-components';
-import { Appbar , Card } from 'react-native-paper';
+import { Appbar , Card , Title } from 'react-native-paper';
 import { SafeAreaView } from 'react-native';
 import Collapsible from 'react-native-collapsible';
 import colors from '../../color/colors';
@@ -12,7 +12,7 @@ import PostGalleryPage from './HomePageTap/PostGalleryPage';
 import ProductPage from './HomePageTap/ProductPage';
 import ReviewPage from './HomePageTap/ReviewPage';
 
-
+const View = styled.View``;
 const Row = styled.View`
     flex-direction: row;
     background-color: white;
@@ -36,6 +36,8 @@ const data = {
     location : '서울시 광진구 507-3' ,
     paragraph :  'Then launch simulator to preview. Note that you just need to edit the source file src/index.js, the change will auto sync to examples.\n After development, you should add test for your modification and make all tests passed to prevent other contributors break the feature in the future accidentally. We use detox + jest for e2e test now, you can read Detox for more deta' ,
 }
+
+const thumbnails = null ;
 
 const styles = {
     card : {
@@ -79,9 +81,21 @@ export default function( props  ) {
         <Card style={ styles.card }>
 
                 <Swiper autoplay={true}>
-                    <Card.Cover source = {{ uri : 'https://picsum.photos/0' }} style={ styles.cover }/>
-                    <Card.Cover source = {{ uri : 'https://picsum.photos/0' }} style={ styles.cover }/>
-                    <Card.Cover source = {{ uri : 'https://picsum.photos/0' }} style={ styles.cover }/>
+                    {
+                        thumbnails == null ? 
+                        (
+                            <View style={styles.cover}>
+                                <Title>업체 썸네일을 등록해보세요.</Title>
+                            </View>
+                        ) :
+                        (   
+                            <>
+                            <Card.Cover source = {{ uri : 'https://picsum.photos/0' }} style={ styles.cover }/>
+                            <Card.Cover source = {{ uri : 'https://picsum.photos/0' }} style={ styles.cover }/>
+                            <Card.Cover source = {{ uri : 'https://picsum.photos/0' }} style={ styles.cover }/>
+                            </>
+                        )
+                    }
                 </Swiper>
 
         </Card>
