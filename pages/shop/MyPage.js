@@ -40,7 +40,7 @@ export default function( props ) {
                 style: 'destructive' ,
                 onPress: async() => { 
                     // 가지고있는 모든 캐시정보 clear
-                    // await AsyncStorage.clear();
+                    await AsyncStorage.clear();
                     myContext.LOGOUT() 
                 }
             },

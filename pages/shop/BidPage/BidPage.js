@@ -66,23 +66,9 @@ const data = [
         glass : true ,
         seat : false ,
         etc : '',
-    } ,
-    {
-        carName: '제네시스 G80' ,
-        tinting: true ,
-        detailTinting : {
-            select : true , // 틴팅 시공 선택
-            solarguard : true ,
-            rayno : false ,
-            llumar : false ,
-            rainbow : true ,
-        } ,
-        blackbox : true ,
-        ppf : true ,
-        glass : false ,
-        seat : false ,
-        etc : '가성비로 맞추고 싶어요!' ,
-    } ,
+    }
+];
+const myData = [
     {
         carName: '기아 레이' ,
         tinting: true ,
@@ -98,7 +84,9 @@ const data = [
         glass : true ,
         seat : false ,
         etc : '100만원 안쪽으로 부탁드려요.' ,
-    } ,
+    }
+] ;
+const myResult = [
     {
         carName: '쌍용 티볼리' ,
         tinting: true ,
@@ -114,9 +102,8 @@ const data = [
         glass : true ,
         seat : false ,
         etc : '',
-    } ,
-    
-];
+    }
+]
 
 const styles = {
     containerStyle : {
@@ -237,16 +224,11 @@ export default function ( props ) {
             <Appbar.Action icon="bell-outline" color='gray' onPress={() => {}} />
             <Appbar.Action icon="cog-outline" color='gray' onPress={() => {}} />
         </Appbar.Header>   
-        {/* <Row style={{ marginTop: 20 , marginBottom: 20 , borderWidth: 1 , padding: 20 , borderColor: 'lightgray'  , backgroundColor: 'white'  }}>
-            <Title style={styles.title}>현재</Title>
-            <Title style={{...styles.title , color: 'red' , fontSize: 35 }}>{data.length}</Title>
-            <Title style={styles.title}>건의 입찰요청이 있습니다.</Title>
-        </Row> */}
 
         <Row>
-            <Button style={styles.button} mode={ menu == 1 ? 'contained' : 'outlined' } color={colors.main}>입찰 전</Button>
-            <Button style={styles.button} mode={ menu == 2 ? 'contained' : 'outlined' } color={colors.main}>입찰 중</Button>
-            <Button style={styles.button} mode={ menu == 3 ? 'contained' : 'outlined' } color={colors.main}>입찰 결과</Button>
+            <Button style={styles.button} mode={ menu == 1 ? 'contained' : 'outlined' } color={colors.main} onPress={()=>{ setMenu(1) }}>입찰 전</Button>
+            <Button style={styles.button} mode={ menu == 2 ? 'contained' : 'outlined' } color={colors.main} onPress={()=>{ setMenu(2) }}>입찰 중</Button>
+            <Button style={styles.button} mode={ menu == 3 ? 'contained' : 'outlined' } color={colors.main} onPress={()=>{ setMenu(3) }}>입찰 결과</Button>
         </Row>
         {/* 입찰 전 */}
         {
@@ -258,6 +240,27 @@ export default function ( props ) {
                 }
             )
         }
+        {/* 입찰 중 */}
+        {
+            menu == 2 && 
+            myData.map( (item,i) => {
+                    return (
+                    <Item item={item} i={i} navigation={props.navigation}/>
+                    )
+                }
+            )
+        }
+        {/* 입찰 후 */}
+        {
+            menu == 3 && 
+            myResult.map( (item,i) => {
+                    return (
+                    <Item item={item} i={i} navigation={props.navigation}/>
+                    )
+                }
+            )
+        }
+
         </SafeAreaView>
     </KeyboardAwareScrollView>  
     );

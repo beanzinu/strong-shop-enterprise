@@ -7,9 +7,14 @@ import Collapsible from 'react-native-collapsible';
 import colors from '../../../color/colors';
 import { FlatList } from 'react-native';
 import { random } from 'lodash';
+import { NavigationContainer  } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 // async
 import fetch from '../../../storage/fetch';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import server from '../../../server/server';
+import AppContext from '../../../storage/AppContext';
 
 const styles = {
     title : {
@@ -77,7 +82,7 @@ function ProductItem( {item} ) {
             </Row>
             {
                 visible && (
-                    <SubText  >{item.description}</SubText>
+                    <SubText  >{item.additionalInfo}</SubText>
                 )
             }                        
         </Card.Content>
@@ -104,7 +109,6 @@ function Product( {DATA} ) {
             ) :
             (
             <FlatList
-                onScrollEndDrag={ this.handleScroll }
                 data={ DATA } 
                 renderItem = {RenderItem}
                 horizontal={false}
@@ -135,21 +139,36 @@ const options = [
 export default function( props ) {
     const [value,setValue] = React.useState(1);
     const [DATA,setDATA] = React.useState(null);
+    const MyContext = React.useContext(AppContext);
+    
 
     React.useEffect( async ()=>{
-        await fetch('Product')
-        .then( res => {
-            setDATA(res);
-            setValue(1);
-        })
-        .catch(e=>{ console.log(e) }) ;
 
-    },[]);
 
-       
-    handleScroll = function( event ) {
-        props.setScroll(event.nativeEvent.contentOffset.y);
-    } ;
+        // request Product
+        try {
+            const token = await fetch('auth') ;
+            const auth = token.auth ;
+            axios({
+                url: `${server.url}/api/product`,
+                method: 'get',
+                headers: { Auth: auth }
+            })
+            .then( res => {
+                setDATA(res.data.data) ;
+                MyContext.setProduct( res.data.data ) ;
+            })
+            .catch( e =>  {
+                //
+            })
+        }
+        catch {
+            console.log('취급상품 불러오기 에러');
+        }
+
+        
+
+    },[MyContext.productRefresh]);
 
     return(
         <View style={{ flex: 1 }}>

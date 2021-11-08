@@ -18,7 +18,15 @@ import server from './server/server';
 function App (props) {
   const [mainVisible,setMainVisible] = React.useState(false);
   const [loading,setLoading] = React.useState(false);
+  // 정보
+  const [info,setInfo] = React.useState(null);
+  // 갤러리
   const [refresh,setRefresh] = React.useState(false);
+  //취급상품
+  const [product,setProduct]  = React.useState(null);
+  const [productRefresh,setProductRefresh] = React.useState(false);
+  // 리뷰
+  const [reviewRefresh,setReviewRefresh] = React.useState(false) ;
   
   const LOGOUT = () => {
     setMainVisible(false);
@@ -28,7 +36,13 @@ function App (props) {
     state : mainVisible ,
     LOGOUT ,
     refresh : refresh ,
-    setRefresh
+    setRefresh ,
+    product , 
+    setProduct ,
+    productRefresh ,
+    setProductRefresh ,
+    reviewRefresh,
+    setReviewRefresh
   };
 
   // RefreshToken
@@ -84,7 +98,7 @@ function App (props) {
 
   return (
     <AppContext.Provider value={userSettings}>
-        { 
+        {/* { 
           loading ? ( 
             mainVisible ? 
               <MainPage/> : 
@@ -96,9 +110,9 @@ function App (props) {
               <Title>최강샵</Title>
             </View>
           )   
-        }
+        } */}
 
-        {/* <NewRegister />  */}
+        <NewRegister /> 
         {/* <MainPage state={mainVisible}/> */}
       </AppContext.Provider>
   );

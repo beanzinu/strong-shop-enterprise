@@ -13,6 +13,7 @@ import server from '../../../server/server';
 import fetch from '../../../storage/fetch';
 import store from '../../../storage/store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import AppContext from '../../../storage/AppContext';
 
 const Row = styled.View`
     flex-direction: row;
@@ -43,6 +44,7 @@ export default function( props ) {
     const [coord,setCoord] = React.useState(0);
     const [data,setData] = React.useState(null);
     const [refreshing,setRefreshing] = React.useState(false);
+    const MyContext = React.useContext(AppContext) ;
 
     const wait = (timeout) => {
         return new Promise(resolve => setTimeout(resolve, timeout));
@@ -68,14 +70,13 @@ export default function( props ) {
         } ) ;
     }
 
-    let tmp ;
     async function fetchInfo () {
         // 저장된 Info정보 확인 
         await fetch('Info')
         .then( async(res) => {
             if (res != null) {
                 setData(res);
-                tmp = res ;
+
             }
             else {
                 let auth;
@@ -134,7 +135,8 @@ export default function( props ) {
         // 저장된 좌표정보가 있을 때
         await fetch('map')
         .then( res =>  {
-            setCoord({latitude: Number(res.y) , longitude : Number(res.x) });
+            if ( res != null )
+                setCoord({latitude: Number(res.y) , longitude : Number(res.x) });
         })
         .catch (async(e) =>  { 
             // 1. 서버에게 요청하여 Info 정보 받아옴.
@@ -146,35 +148,35 @@ export default function( props ) {
 
         // InfoPage가 다시 Focus 되었을 때
         // 1. Info 정보가 바뀌었는지 확인한다. 
-        const unsubscribe = props.navigation.addListener('focus',async () => {
+        // const unsubscribe = props.navigation.addListener('focus',async () => {
             
-                wait(2000).then(async ()=>{
-                    await fetch('Info')
-                    .then((res)=>{
-                        // 주소의 변화가 있을 때
-                        if ( tmp.address != res.address ) getCoord(res.address);
+        //         wait(2000).then(async ()=>{
+        //             await fetch('Info')
+        //             .then((res)=>{
+        //                 // 주소의 변화가 있을 때
+        //                 if ( tmp.address != res.address ) getCoord(res.address);
                         
-                        // 데이터의 변화가 있을 시
-                        if ( !_.isEqual( tmp,res ) ) {
-                            setRefreshing(true);
-                            setData({
-                                ...data,
-                                ...res
-                            });
-                            wait(2000).then(()=>setRefreshing(false));
-                        }
-                    })
-                    .catch(e=>{
-                        //
-                    })
-                    });
-          });
+        //                 // 데이터의 변화가 있을 시
+        //                 if ( !_.isEqual( tmp,res ) ) {
+        //                     setRefreshing(true);
+        //                     setData({
+        //                         ...data,
+        //                         ...res
+        //                     });
+        //                     wait(2000).then(()=>setRefreshing(false));
+        //                 }
+        //             })
+        //             .catch(e=>{
+        //                 //
+        //             })
+        //             });
+        //   });
           
-          return unsubscribe;
+        //   return unsubscribe;
         
       
 
-    },[props.navigation]);
+    },[MyContext.info]);
 
     handleScroll = function( event ) {
         props.setScroll(event.nativeEvent.contentOffset.y);

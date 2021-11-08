@@ -193,36 +193,36 @@ export default function({getMain}) {
         // Test ( 사업자 인증 성공 후 )
         setBottomPage(2);
         // 서버에게 dtoData 전달
-        // axios({
-        //     method: 'POST',
-        //     url : `${server.url}/api/login/company/kakao` ,
-        //     data : {
-        //         ...dtoData ,
-        //         businessNumber: businessNumber ,
-        //         bossName: bossName 
-        //     }
-        // })
-        // .then(async(res) =>{
-        //     // 가입성공
-        //     if ( res.data.statusCode == 200 ) {
-        //         const auth = res.headers.auth;
-        //         // jwt token cache
-        //         try {
-        //             await store('auth',{ auth : auth } );
-        //             getMain(true);
-        //         }
-        //         // cache 성공 시 -> 메인화면
-        //         catch {
-        //             // cache 저장 에러
-        //             console.log('cache 에러');
-        //         }
-        //     }   
+        axios({
+            method: 'POST',
+            url : `${server.url}/api/login/company/kakao` ,
+            data : {
+                ...dtoData ,
+                businessNumber: businessNumber ,
+                bossName: bossName 
+            }
+        })
+        .then(async(res) =>{
+            // 가입성공
+            if ( res.data.statusCode == 200 ) {
+                const auth = res.headers.auth;
+                // jwt token cache
+                try {
+                    await store('auth',{ auth : auth } );
+                    getMain(true);
+                }
+                // cache 성공 시 -> 메인화면
+                catch {
+                    // cache 저장 에러
+                    console.log('cache 에러');
+                }
+            }   
 
-        // })
-        // .catch(e => {
-        //     //
+        })
+        .catch(e => {
+            //
             
-        // })
+        })
 
         
 
