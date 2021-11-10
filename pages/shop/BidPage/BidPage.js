@@ -3,12 +3,16 @@ import styled from 'styled-components';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { 
     Appbar , Title , Divider , List,
-    Button ,  IconButton , Chip
+    Button ,  IconButton , Chip ,
+    Provider , Modal , Portal 
 } 
 from 'react-native-paper';
 import { ScrollView } from 'react-native-gesture-handler';
 import colors from '../../../color/colors';
 import { SafeAreaView } from 'react-native';
+import axios from 'axios';
+import server from '../../../server/server' ;
+import fetch from '../../../storage/fetch' ;
 
 const View = styled.SafeAreaView``;
 const Row = styled.View`
@@ -17,57 +21,57 @@ const Row = styled.View`
 `;
 
 
-const data = [
-    {
-        carName: '제네시스 G80' ,
-        tinting: true ,
-        detailTinting : {
-            select : true , // 틴팅 시공 선택
-            solarguard : true ,
-            rayno : false ,
-            llumar : false ,
-            rainbow : true ,
-        } ,
-        blackbox : true ,
-        ppf : true ,
-        glass : true ,
-        seat : true ,
-        //  요청사항 30자 정도로 제한 
-        etc : '가성비로 맞추고 싶어요!가성비로 맞추고 싶어요!가성비로 맞추고 싶어요!' ,
-    } ,
-    {
-        carName: '기아 레이' ,
-        tinting: true ,
-        detailTinting : {
-            select : true , // 틴팅 시공 선택
-            solarguard : true ,
-            rayno : false ,
-            llumar : false ,
-            rainbow : true ,
-        } ,
-        blackbox : true ,
-        ppf : true ,
-        glass : true ,
-        seat : false ,
-        etc : '100만원 안쪽으로 부탁드려요.' ,
-    } ,
-    {
-        carName: '쌍용 티볼리' ,
-        tinting: true ,
-        detailTinting : {
-            select : true , // 틴팅 시공 선택
-            solarguard : true ,
-            rayno : false ,
-            llumar : false ,
-            rainbow : true ,
-        } ,
-        blackbox : false ,
-        ppf : true ,
-        glass : true ,
-        seat : false ,
-        etc : '',
-    }
-];
+// const data = [
+//     {
+//         carName: '제네시스 G80' ,
+//         tinting: true ,
+//         detailTinting : {
+//             select : true , // 틴팅 시공 선택
+//             solarguard : true ,
+//             rayno : false ,
+//             llumar : false ,
+//             rainbow : true ,
+//         } ,
+//         blackbox : true ,
+//         ppf : true ,
+//         glass : true ,
+//         seat : true ,
+//         //  요청사항 30자 정도로 제한 
+//         etc : '가성비로 맞추고 싶어요!가성비로 맞추고 싶어요!가성비로 맞추고 싶어요!' ,
+//     } ,
+//     {
+//         carName: '기아 레이' ,
+//         tinting: true ,
+//         detailTinting : {
+//             select : true , // 틴팅 시공 선택
+//             solarguard : true ,
+//             rayno : false ,
+//             llumar : false ,
+//             rainbow : true ,
+//         } ,
+//         blackbox : true ,
+//         ppf : true ,
+//         glass : true ,
+//         seat : false ,
+//         etc : '100만원 안쪽으로 부탁드려요.' ,
+//     } ,
+//     {
+//         carName: '쌍용 티볼리' ,
+//         tinting: true ,
+//         detailTinting : {
+//             select : true , // 틴팅 시공 선택
+//             solarguard : true ,
+//             rayno : false ,
+//             llumar : false ,
+//             rainbow : true ,
+//         } ,
+//         blackbox : false ,
+//         ppf : true ,
+//         glass : true ,
+//         seat : false ,
+//         etc : '',
+//     }
+// ];
 const myData = [
     {
         carName: '기아 레이' ,
@@ -140,12 +144,41 @@ const styles = {
 
 }
 
+const REGION =[
+    {
+        value: '서울',
+        key: 'seoul',
+    },{
+        value: '인천',
+        key: 'incheon',
+    },{
+        value: '대전',
+        key: 'daejeon',
+    },{
+        value: '대구',
+        key: 'daegu',
+    },{
+        value: '부산',
+        key: 'busan',
+    },{
+        value: '광주',
+        key: 'gwangju',
+    },{
+        value: '제주',
+        key: 'jeju',
+    },
+];
+
+
 function Item ( {i , item , navigation , ModalPress } ) {
     const [expanded,setExpanded] = React.useState(false) ;
 
     React.useEffect(() =>  {
         // 서버
         // 1. 서버로부터 나의 지역에 있는 입찰내역들을 불러온다.
+        
+
+
     },[]);
 
     return( 
@@ -205,19 +238,103 @@ function Item ( {i , item , navigation , ModalPress } ) {
     )
 }
 
+// 선택지역 
+const defaultRegions = {
+    seoul : false ,
+    incheon: false ,
+    daejeon: false ,
+    daegu: false ,
+    busan: false ,
+    gwangju: false,
+    jeju: false 
+}
 
 export default function ( props ) {
+    const [data,setData] = React.useState([]);
     const [menu,setMenu] = React.useState(1);
+    const [modalVisible,setModalVisible] = React.useState(false);
+    const [regions,setRegions] = React.useState(defaultRegions) ;
+
+    const handleRegion = (region) => { 
+            switch( region ) {
+                case 'seoul' :
+                    setRegions({ ...regions, 'seoul': !regions[region] })
+                    break ;
+                case 'incheon' :
+                    setRegions({ ...regions, 'incheon': !regions[region] })
+                    break ;
+                case 'daejeon' :
+                    setRegions({ ...regions, 'daejeon': !regions[region] })
+                    break ;
+                case 'daegu' :
+                    setRegions({ ...regions, 'daegu': !regions[region] })
+                    break ;
+                case 'busan' :
+                    setRegions({ ...regions, 'busan': !regions[region] })
+                    break ;
+                case 'gwangju' :
+                    setRegions({ ...regions, 'gwangju': !regions[region] })
+                    break ;
+                case 'jeju' :
+                    setRegions({ ...regions, 'jeju': !regions[region] })
+                    break ;
+                
+            }
+    }
+
+    async function requestOrders() {
+
+       let tmp = [] ;
+       for ( key in regions ) {
+            if ( regions[key] ) tmp.push(key);
+       }
+
+       const token = await fetch('auth') ;
+       const auth = token.auth ;
+       axios({
+           method: 'GET' ,
+           url: `${server.url}/api/orders?regions=${tmp}` ,
+           headers: { Auth: auth  }
+       })
+       .then( res => {
+            setData(res.data.data);
+       })
+       .catch( e => {
+           //
+           console.log(e);
+       })
+
+    }
 
     React.useEffect(() => {
         // 서버
-        //  1. 서버로부터 현재 나의 지역에 대한 입찰을 가져온다.
-        // *1-1) 내가 이미 입찰한 건들?
+        // 선택지역 캐시 있으면 requestOrders() 
         
     },[]);
 
     return (
-    <KeyboardAwareScrollView style={{ backgroundColor: 'white' }}> 
+    <Provider>
+    <KeyboardAwareScrollView style={{ backgroundColor: 'white' }}>
+        <Portal>
+            <Modal visible={modalVisible} contentContainerStyle={{ backgroundColor: 'white' , width: '100%' , height: 500 , marginRight: 10 , bottom: 0 , position: 'absolute' }}>
+                <View style={{ width: '100%' , height: 500  }}>
+                    <IconButton icon='close' style={{ alignSelf: 'flex-end' , top: 0  }} onPress={() => { setModalVisible(false)}} />
+                    {
+                        REGION.map(region=>{
+                            return(
+                                <Button icon={ regions[region.key] && 'check-decagram' } key={region.key} style={{ flex: 1 , justifyContent: 'center' , margin: 3 }} mode='outlined' color={colors.main}
+                                    onPress={ () => { handleRegion(region.key) } }
+                                >
+                                    {region.value}
+                                </Button>
+                            )
+                        })
+                    }
+                    <Button onPress={requestOrders} icon='magnify' style={{ flex: 1 , justifyContent: 'center' , margin: 3 , marginTop: 50 }} color={colors.main} mode='contained'>검색하기</Button>
+                </View>
+            </Modal>
+        </Portal>
+
         <SafeAreaView>
         <Appbar.Header style={{ backgroundColor: 'transparent' , elevation: 0 }}>
             <Appbar.Content title="최강샵" titleStyle={{ fontFamily : 'DoHyeon-Regular' , fontSize: 30 , color: 'gray'  }} />
@@ -233,12 +350,22 @@ export default function ( props ) {
         {/* 입찰 전 */}
         {
             menu == 1 && 
+            <>
+            <Button icon='plus' style={{ alignSelf: 'flex-start' , padding: 5 , margin: 10 , borderRadius: 30 }} mode='contained' color={colors.main} onPress={() => { setModalVisible(true) }}>
+                지역
+            </Button>
+            {
             data.map( (item,i) => {
+                
+                
+                console.log(str);
                     return (
-                    <Item item={item} i={i} navigation={props.navigation}/>
+                    <Item item={item.details} i={i} navigation={props.navigation}/>
                     )
                 }
-            )
+            )   
+            }
+            </>
         }
         {/* 입찰 중 */}
         {
@@ -263,5 +390,6 @@ export default function ( props ) {
 
         </SafeAreaView>
     </KeyboardAwareScrollView>  
+    </Provider>
     );
 }

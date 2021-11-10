@@ -80,23 +80,21 @@ export default function( props  ) {
 
         <Card style={ styles.card }>
 
-                <Swiper autoplay={true}>
                     {
                         thumbnails == null ? 
                         (
-                            <View style={styles.cover}>
-                                <Title>업체 썸네일을 등록해보세요.</Title>
+                            <View style={{flex: 1 , justifyContent: 'center'}}>
+                                <Title style={{ alignSelf: 'center'}}>업체 썸네일을 등록해보세요.</Title>
                             </View>
                         ) :
                         (   
-                            <>
+                            <Swiper autoplay={true}>
                             <Card.Cover source = {{ uri : 'https://picsum.photos/0' }} style={ styles.cover }/>
                             <Card.Cover source = {{ uri : 'https://picsum.photos/0' }} style={ styles.cover }/>
                             <Card.Cover source = {{ uri : 'https://picsum.photos/0' }} style={ styles.cover }/>
-                            </>
+                            </Swiper>
                         )
                     }
-                </Swiper>
 
         </Card>
  

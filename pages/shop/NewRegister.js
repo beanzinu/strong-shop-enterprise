@@ -89,7 +89,7 @@ export default function({getMain}) {
         })
         .then( async (res) =>  {
             // 캐시삭제
-            AsyncStorage.clear();
+            AsyncStorage.clear().catch(e => { });
             // 회원가입 필요
             if ( res.data.statusCode == 201 ) {
                 // 추가정보를 사용자로부터 받음.

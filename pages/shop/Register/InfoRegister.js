@@ -10,6 +10,7 @@ import store from '../../../storage/store';
 import axios from 'axios';
 import fetch from '../../../storage/fetch';
 import server from '../../../server/server';
+import AppContext from '../../../storage/AppContext';
 
 const Input = styled.TextInput`
     border: 3px ${colors.main};
@@ -47,10 +48,37 @@ export default function( props ) {
     const [snsUrl,setSnsUrl] = React.useState(null);
     const [address,setAddress] = React.useState(null);
     const [detailAddress,setDetailAddress] = React.useState(null);
-
+    let latitude = null ;
+    let longitude = null ;
     const [visible,setVisible] = React.useState(false) ;
+    const MyContext = React.useContext(AppContext) ;
+
+    // API Request
+   // 도로명 주소 -> 좌표로 변환
+    function getCoord(address){
+        return new Promise(resolve=>{
+            axios({
+                method: 'GET' ,
+                url : `https://api.vworld.kr/req/address?service=address&request=getCoord&key=98C4A0B1-90CD-30F6-B7D0-9F5A0DC9F18B&address=${address}&type=ROAD` ,
+            })
+            .then(async (res) => {
+                const point = res.data.response.result.point ;
+                latitude = point.y ;
+                longitude = point.x ;
+                resolve();
+            }
+            )
+            .catch(e => {
+                //
+            } ) ;
+        }) ;
+    
+    }
 
     const addInfo = async () => {
+
+        if ( address != null ) await getCoord(address) ;
+
         data = {
             introduction : info ,
             blogUrl : blogUrl ,
@@ -58,12 +86,13 @@ export default function( props ) {
             snsUrl : snsUrl ,
             address : address ,
             detailAddress : detailAddress ,
+            latitude: latitude ,
+            longitude: longitude
         } ;
 
         try {
             const res = await fetch('auth') ;
             const auth = res.auth ;
-
             // 서버 ( POST/PUT )
             axios({
                 method: serverState == 2 ? 'PUT' : 'POST' ,
@@ -76,10 +105,12 @@ export default function( props ) {
             .then ( async (res)=>  {
                 // 저장성공시
                 await store('Info',data) ;
+                MyContext.setInfoRefresh(!MyContext.infoRefresh) ;
                 props.navigation.goBack();
             })
             .catch( e =>  {
                 //
+                // console.log(e);
                 Alert.alert('다시 시도해주세요.');
             })
 

@@ -19,7 +19,7 @@ function App (props) {
   const [mainVisible,setMainVisible] = React.useState(false);
   const [loading,setLoading] = React.useState(false);
   // 정보
-  const [info,setInfo] = React.useState(null);
+  const [infoRefresh,setInfoRefresh] = React.useState(false);
   // 갤러리
   const [refresh,setRefresh] = React.useState(false);
   //취급상품
@@ -35,6 +35,8 @@ function App (props) {
   const userSettings = {
     state : mainVisible ,
     LOGOUT ,
+    infoRefresh ,
+    setInfoRefresh ,
     refresh : refresh ,
     setRefresh ,
     product , 
@@ -98,7 +100,7 @@ function App (props) {
 
   return (
     <AppContext.Provider value={userSettings}>
-        {/* { 
+        { 
           loading ? ( 
             mainVisible ? 
               <MainPage/> : 
@@ -110,9 +112,9 @@ function App (props) {
               <Title>최강샵</Title>
             </View>
           )   
-        } */}
+        }
 
-        <NewRegister /> 
+        {/* <NewRegister />  */}
         {/* <MainPage state={mainVisible}/> */}
       </AppContext.Provider>
   );

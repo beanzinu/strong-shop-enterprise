@@ -113,7 +113,6 @@ export default function( props ){
 
     React.useEffect(() => {
         // 'Product' 데이터를 모두 가져옴.
-        console.log( MyContext.product);
         if ( MyContext.product != null ) setData( MyContext.product );
         else setData( props.route.params.data );
         
