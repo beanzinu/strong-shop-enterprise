@@ -13,6 +13,18 @@ import { SafeAreaView } from 'react-native';
 import axios from 'axios';
 import server from '../../../server/server' ;
 import fetch from '../../../storage/fetch' ;
+import _ from 'lodash';
+import store from '../../../storage/store';
+import { useIsFocused } from '@react-navigation/native';
+// ...
+
+function Profile() {
+  const isFocused = useIsFocused();
+
+  return <Text>{isFocused ? 'focused' : 'unfocused'}</Text>;
+}
+// pages
+import BidRegister_current from './BidRegister_current';
 
 const View = styled.SafeAreaView``;
 const Row = styled.View`
@@ -117,7 +129,7 @@ const styles = {
     }  ,
     chipStyle : {
         backgroundColor: 'rgb(220,220,220)',
-        margin : 3
+        margin : 3 ,
     } ,
     chipTextStyle : {
     } , 
@@ -143,7 +155,7 @@ const styles = {
     }
 
 }
-
+// 지역선택
 const REGION =[
     {
         value: '서울',
@@ -169,17 +181,57 @@ const REGION =[
     },
 ];
 
+function translate(option,item){
+    const res_Tinting = {
+        LUMA: '루마',
+        SOLAR: '솔라가드',
+        RAINBOW: '레인보우',
+        RAYNO: '레이노',
+        ANY: '상관없음',
+    }
+    const res_Ppf ={
+    }
+    const res_Blackbox = {
+        FINETECH: '파인테크',
+        INAVI: '아이나비',
+        ANY: '상관없음',
+    }
+    const res_Battery = {
+        ANY: '상관없음',
+    }
+    const res_Afterblox = {
+        ANY: '상관없음',
+    }
+    const res_Soundproof = {
+        ANY: '상관없음',
+    }
+    const res_Wrapping = {
+    }
+    const res_Region = {
+        seoul: '서울',
+        daejeon: '대전',
+        daegu: '대구',
+        incheon: '인천',
+        busan: '부산',
+        gwangju: '광주',
+        jeju: '제주',
+    }
+    if(option === 'tinting') return res_Tinting[item];
+    else if(option === 'ppf') return res_Ppf[item];
+    else if(option === 'blackbox') return res_Blackbox[item];
+    else if(option === 'battery') return res_Battery[item];
+    else if(option === 'afterblow') return res_Afterblox[item];
+    else if(option === 'soundproof') return res_Soundproof[item];
+    else if(option === 'wrapping') return res_Wrapping[item];
+    else if(option === 'region') return res_Region[item];
+}
 
-function Item ( {i , item , navigation , ModalPress } ) {
+
+// 각각의 입찰요청항목
+function Item ( {i , item , navigation , ModalPress  , id} ) {
     const [expanded,setExpanded] = React.useState(false) ;
 
-    React.useEffect(() =>  {
-        // 서버
-        // 1. 서버로부터 나의 지역에 있는 입찰내역들을 불러온다.
-        
-
-
-    },[]);
+    
 
     return( 
                     <List.Section key={i}>
@@ -194,41 +246,110 @@ function Item ( {i , item , navigation , ModalPress } ) {
                             // left={props => <List.Icon {...props} icon="car-hatchback" color={'black'}  />}
                            >
                             <View style={{ backgroundColor: 'rgb(250,250,250)' , margin: 10 , borderWidth: 1 , borderRadius: 10 , borderColor: 'lightgray' }}>
-                                { item.tinting && 
+                                { item.options.tinting && 
                                     <>
                                         <List.Item titleStyle={styles.listStyle} title ='틴팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
                                         <Row>
-                                            { item.detailTinting.solarguard && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>솔라가드</Chip>}
-                                            { item.detailTinting.rayno && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>레이노</Chip>}
-                                            { item.detailTinting.llumar && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>루마</Chip>}
-                                            { item.detailTinting.rainbow && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>레인보우</Chip>}
+                                            {
+                                                _.map(item.options.detailTinting,(value,key) => { 
+                                                    if (key == 'ETC' && value != null && value.length != 0  ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
+                                                    if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('tinting',key) }</Chip>  
+                                                })
+                                            }
                                         </Row>
                                     </> }
-                                {item.blackbox && 
+                                {item.options.ppf && 
+                                    <>
+                                        <List.Item titleStyle={styles.listStyle}  title ='PPF' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                                        <Row>
+                                            {
+                                                _.map(item.options.detailPpf,(value,key) => { 
+                                                    if (key == 'ETC' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
+                                                    if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('ppf',key) }</Chip>  
+                                                })
+                                            }
+                                        </Row>
+                                    </>
+                                }
+                                {item.options.blackbox && 
                                     <>
                                         <List.Item titleStyle={styles.listStyle}  title ='블랙박스' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10}/>} />
                                         <Row>
-                                            { item.detailTinting.solarguard && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>솔라가드</Chip>}
-                                            { item.detailTinting.rayno && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>레이노</Chip>}
-                                            { item.detailTinting.llumar && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>루마</Chip>}
-                                            { item.detailTinting.rainbow && <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>레인보우</Chip>}
+                                            {
+                                                _.map(item.options.detailBlackbox,(value,key) => { 
+                                                    if (key == 'ETC' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
+                                                    if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('blackbox',key) }</Chip>  
+                                                })
+                                            }
                                         </Row>
-                                    </>}
-                                {item.ppf && <><List.Item titleStyle={styles.listStyle}  title ='PPF' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} /></>}
-                                {item.glass && <><List.Item titleStyle={styles.listStyle}  title ='유리막코팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} /></>} 
-                                {item.seat && <><List.Item titleStyle={styles.listStyle}  title ='가죽코팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} /></>}
+                                    </>
+                                }
+                                {item.options.battery && 
+                                    <>
+                                        <List.Item titleStyle={styles.listStyle}  title ='보조배터리' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10}/>} />
+                                        <Row>
+                                            {
+                                                _.map(item.options.detailBattery,(value,key) => { 
+                                                    if (key == 'ETC' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
+                                                    if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('battery',key) }</Chip>  
+                                                })
+                                            }
+                                        </Row>
+                                    </>
+                                }
+                                {item.options.afterblow && 
+                                    <>
+                                        <List.Item titleStyle={styles.listStyle}  title ='보조배터리' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10}/>} />
+                                        <Row>
+                                            {
+                                                _.map(item.options.detailAfterblow,(value,key) => { 
+                                                    if (key == 'ETC' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
+                                                    if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('afterblow',key) }</Chip>  
+                                                })
+                                            }
+                                        </Row>
+                                    </>
+                                }
+                                {item.options.soundproof && 
+                                    <>
+                                        <List.Item titleStyle={styles.listStyle}  title ='방음' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10}/>} />
+                                        <Row>
+                                            {
+                                                _.map(item.options.detailSoundProof,(value,key) => { 
+                                                    if (key == 'ETC' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
+                                                    if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('soundproof',key) }</Chip>  
+                                                })
+                                            }
+                                        </Row>
+                                    </>
+                                }
+                                {item.options.wrapping && 
+                                    <>
+                                        <List.Item titleStyle={styles.listStyle}  title ='랩핑' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10}/>} />
+                                        <Row>
+                                            {
+                                                _.map(item.options.detailWrapping,(value,key) => { 
+                                                    if (key == 'DESIGN' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
+                                                    if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('wrapping',key) }</Chip>  
+                                                })
+                                            }
+                                        </Row>
+                                    </>
+                                }
+                                {item.options.glasscoating && <><List.Item titleStyle={styles.listStyle}  title ='유리막코팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} /></>} 
+                                {item.options.undercoating && <><List.Item titleStyle={styles.listStyle}  title ='언더코팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} /></>}
                                 <Divider/>
                                 <List.Item 
                                     // style={{ borderWidth: 1 ,borderColor: 'lightgray'}}
                                     titleStyle={{  fontWeight: 'bold' }} 
                                     descriptionStyle={{ paddingTop: 3 , fontWeight: 'bold' }}
-                                    title='요청사항:' description={item.etc} />
+                                    title='요청사항:' description={item.require} />
                                 <Button 
                                         icon='account-cash' 
                                         mode='outlined' 
                                         color={colors.main}
                                         mode='contained' 
-                                        onPress={ () => { navigation.navigate('BidRegister',{ data : item }) } }
+                                        onPress={ () => { navigation.navigate('BidRegister',{ data : item , id : id }) } }
                                         style={{ margin: 3 , marginTop: 20 }} labelStyle={{  fontSize: 17 }} >
                                     입찰하기
                                 </Button>
@@ -281,6 +402,13 @@ export default function ( props ) {
                 
             }
     }
+    const cacheRegion = (region) => {
+        let data  = regions ;
+        region.map(item => {
+            data[item] = true ;
+        })
+        setRegions(data);
+    }
 
     async function requestOrders() {
 
@@ -288,6 +416,7 @@ export default function ( props ) {
        for ( key in regions ) {
             if ( regions[key] ) tmp.push(key);
        }
+       await store('orderRegion',{ region : tmp });
 
        const token = await fetch('auth') ;
        const auth = token.auth ;
@@ -298,17 +427,45 @@ export default function ( props ) {
        })
        .then( res => {
             setData(res.data.data);
+            setModalVisible(false);
        })
        .catch( e => {
            //
-           console.log(e);
+           alert('다시 시도해주세요.');
        })
 
     }
 
-    React.useEffect(() => {
+    
+
+    React.useEffect(async () => {
         // 서버
         // 선택지역 캐시 있으면 requestOrders() 
+        await fetch('orderRegion')
+        .then( async (res) => {
+            if (res?.region != null ) {
+
+                cacheRegion(res.region);
+
+                const token = await fetch('auth') ;
+                const auth = token.auth ;
+                axios({
+                    method: 'GET' ,
+                    url: `${server.url}/api/orders?regions=${res.region}` ,
+                    headers: { Auth: auth  }
+                })
+                .then( res => {
+                     setData(res.data.data);
+                })
+                .catch( e => {
+                    //
+                })
+            }
+        })
+        .catch( e=> {
+
+        })
+
         
     },[]);
 
@@ -338,8 +495,8 @@ export default function ( props ) {
         <SafeAreaView>
         <Appbar.Header style={{ backgroundColor: 'transparent' , elevation: 0 }}>
             <Appbar.Content title="최강샵" titleStyle={{ fontFamily : 'DoHyeon-Regular' , fontSize: 30 , color: 'gray'  }} />
-            <Appbar.Action icon="bell-outline" color='gray' onPress={() => {}} />
-            <Appbar.Action icon="cog-outline" color='gray' onPress={() => {}} />
+            {/* <Appbar.Action icon="bell-outline" color='gray' onPress={() => {}} /> */}
+            {/* <Appbar.Action icon="cog-outline" color='gray' onPress={() => { props.navigation.navigate('MyPage')}} /> */}
         </Appbar.Header>   
 
         <Row>
@@ -351,16 +508,37 @@ export default function ( props ) {
         {
             menu == 1 && 
             <>
-            <Button icon='plus' style={{ alignSelf: 'flex-start' , padding: 5 , margin: 10 , borderRadius: 30 }} mode='contained' color={colors.main} onPress={() => { setModalVisible(true) }}>
-                지역
-            </Button>
+            <ScrollView horizontal={true} contentContainerStyle={{ alignItems: 'center' }}>
+                <Button icon='plus' style={{ alignSelf: 'flex-start' , padding: 5 , margin: 10 , borderRadius: 30 }} mode='contained' color={colors.main} onPress={() => { setModalVisible(true) }}>
+                    지역
+                </Button>
+                {
+                    regions.seoul && <Chip  style={{ padding: 3 , margin: 3 }}>서울</Chip>
+                }
+                {
+                    regions.incheon && <Chip style={{ padding: 3 , margin: 3 }}>인천</Chip>
+                }
+                {
+                    regions.daejeon && <Chip style={{ padding: 3 , margin: 3 }}>대전</Chip>
+                }
+                {
+                    regions.daegu && <Chip style={{ padding: 3 , margin: 3 }}>대구</Chip>
+                }
+                {
+                    regions.busan && <Chip style={{ padding: 3 , margin: 3 }}>부산</Chip>
+                }
+                {
+                    regions.gwangju && <Chip style={{ padding: 3 , margin: 3 }}>광주</Chip>
+                }
+                {
+                    regions.jeju && <Chip style={{ padding: 3 , margin: 3 }}>제주</Chip>
+                }
+            </ScrollView>
             {
-            data.map( (item,i) => {
-                
-                
-                console.log(str);
+            data.map( (item,i) => {    
+                    let tmp = JSON.parse(item.details) ;
                     return (
-                    <Item item={item.details} i={i} navigation={props.navigation}/>
+                    <Item item={tmp} i={i} navigation={props.navigation} id={item.id}/>
                     )
                 }
             )   
@@ -370,12 +548,7 @@ export default function ( props ) {
         {/* 입찰 중 */}
         {
             menu == 2 && 
-            myData.map( (item,i) => {
-                    return (
-                    <Item item={item} i={i} navigation={props.navigation}/>
-                    )
-                }
-            )
+            <BidRegister_current />
         }
         {/* 입찰 후 */}
         {

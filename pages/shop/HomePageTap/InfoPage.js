@@ -129,7 +129,7 @@ export default function( props ) {
             coord == 0 ? ( <ActivityIndicator size='large' color={colors.main} style={{ marginTop: 20 }}/> ) : (
             <KeyboardAwareScrollView 
                 style={{ backgroundColor: 'white' }}
-                refreshControl={<RefreshControl refreshing={refreshing} />}
+
             >
             <Button icon='hammer' style={ styles.button }
                 onPress={ () => { props.navigation.navigate('InfoRegister',{ data : data  }) }}

@@ -84,10 +84,11 @@ function App (props) {
       // jwt 캐시 ( accesstoken 만료  => refreshToken => jwt accessToken )
       await fetch('auth')
       .then( async(res) => {
-        if ( res.auth != null ) setMainVisible(true);
-          // await requestNewToken(res.auth)
-          // .then( ()=> { alert('refreshToken 성공'); setMainVisible(true); })
-          // .catch( () => { } )
+        if ( res.auth != null ) 
+        setMainVisible(true);
+      //     await requestNewToken(res.auth)
+      //     .then( ()=> { alert('refreshToken 성공'); setMainVisible(true); })
+      //     .catch( () => { } )
       })
       .catch(e => { })
       

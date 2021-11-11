@@ -4,7 +4,7 @@ import {
     BottomSheetModal,
     BottomSheetModalProvider,
   } from '@gorhom/bottom-sheet';
-import { Title , Button , Text, TextInput } from 'react-native-paper';
+import { Title , Button , Text, TextInput , Provider , Modal , Portal  } from 'react-native-paper';
 import colors from '../../color/colors';
 import axios from 'axios';
 import { ActivityIndicator, Alert, ScrollView } from 'react-native';
@@ -13,6 +13,7 @@ import ImageBackground from 'react-native/Libraries/Image/ImageBackground';
 import { login } from '@react-native-seoul/kakao-login';
 import auth from '@react-native-firebase/auth'
 import IMP from 'iamport-react-native';
+import Postcode from '@actbase/react-daum-postcode';
 //
 import server from '../../server/server';
 import store from '../../storage/store';
@@ -36,7 +37,8 @@ const styles = {
     } ,
     description : {
         fontSize: 17 , 
-        margin: 10
+        margin: 5 ,
+        padding: 5
     } ,
     button : {
         flex: 1 , 
@@ -61,13 +63,24 @@ const styles = {
 
 }
 
+  
+
 export default function({getMain}) {
     const snapPoints = React.useMemo(() => ['80%'], []);
+    const [name,setName] = React.useState('');
     const [businessNumber,setBusinessNumber] = React.useState('');
     const [openDate,setOpenDate] = React.useState('');
     const [bossName,setBossName] = React.useState('');
+
     const [bottomPage,setBottomPage] = React.useState(1);
     const [dtoData,setDtoData] = React.useState(null);
+
+    const [address,setAddress] = React.useState('');
+    const [detailAddress,setDetailAddress] = React.useState('');
+    const [visible,setVisible] = React.useState(false);
+
+    let latitude = null ;
+    let longitude = null ;
 
     const bottomSheetModalRef = React.useRef(null);
     const handlePresentModalPress = React.useCallback(() => {
@@ -77,6 +90,28 @@ export default function({getMain}) {
         bottomSheetModalRef.current?.dismiss();
     }, []);  
 
+
+    // API Request
+   // 도로명 주소 -> 좌표로 변환
+   function getCoord(address){
+    return new Promise(resolve=>{
+        axios({
+            method: 'GET' ,
+            url : `https://api.vworld.kr/req/address?service=address&request=getCoord&key=98C4A0B1-90CD-30F6-B7D0-9F5A0DC9F18B&address=${address}&type=ROAD` ,
+        })
+        .then(async (res) => {
+            const point = res.data.response.result.point ;
+            latitude = point.y ;
+            longitude = point.x ;
+            resolve();
+        }
+        )
+        .catch(e => {
+            //
+        } ) ;
+    }) ;
+
+    }
 
     // 카카오 AccessToken => 서버 
     function requestAccessToken(accessToken) {
@@ -125,18 +160,23 @@ export default function({getMain}) {
             url : `${server.url}/api/login/company/kakao` ,
             data : {
                 ...dtoData ,
-                businessNumber: businessNumber
+                businessNumber: businessNumber ,
+                bossName: bossName ,
+                name: name
             }
         })
         .then(async(res) =>{
-            console.log('가입성공:',res);
             // 가입성공
             if ( res.data.statusCode == 200 ) {
                 const auth = res.headers.auth;
                 // jwt token cache
                 try {
                     await store('auth',{auth : auth});
-                    getMain(true);
+                    // 업체정보 post
+                    await requestPost(auth)
+                    .then ( () => {
+                        getMain(true);
+                    })
                 }
                 // cache 성공 시 -> 메인화면
                 catch {
@@ -149,6 +189,27 @@ export default function({getMain}) {
         .catch(e => {
             //
             
+        })
+    }
+    function requestPost(auth) {
+        return new Promise(async(resolve)=>{
+
+            // 주소 변환 
+            await getCoord(address) ;
+
+            axios({
+                method: 'POST',
+                url: `${server.url}/api/companyinfo`,
+                data : { address: address , detailAddress: detailAddress , latitude: latitude, longitude: longitude } ,
+                headers: { Auth: auth }
+            })
+            .then( async(res) => {
+                await store('Info',res.data.data) ;
+                resolve();
+            })
+            .catch( e => {
+                alert('POST 에러');
+            })
         })
     }
 
@@ -191,38 +252,40 @@ export default function({getMain}) {
         // }
     
         // Test ( 사업자 인증 성공 후 )
-        setBottomPage(2);
-        // 서버에게 dtoData 전달
-        axios({
-            method: 'POST',
-            url : `${server.url}/api/login/company/kakao` ,
-            data : {
-                ...dtoData ,
-                businessNumber: businessNumber ,
-                bossName: bossName 
-            }
-        })
-        .then(async(res) =>{
-            // 가입성공
-            if ( res.data.statusCode == 200 ) {
-                const auth = res.headers.auth;
-                // jwt token cache
-                try {
-                    await store('auth',{ auth : auth } );
-                    getMain(true);
-                }
-                // cache 성공 시 -> 메인화면
-                catch {
-                    // cache 저장 에러
-                    console.log('cache 에러');
-                }
-            }   
+        setBottomPage(3);
 
-        })
-        .catch(e => {
-            //
+        // 서버에게 dtoData 전달
+        // axios({
+        //     method: 'POST',
+        //     url : `${server.url}/api/login/company/kakao` ,
+        //     data : {
+        //         ...dtoData ,
+        //         businessNumber: businessNumber ,
+        //         bossName: bossName ,
+        //         name: '허지훈게이'
+        //     }
+        // })
+        // .then(async(res) =>{
+        //     // 가입성공
+        //     if ( res.data.statusCode == 200 ) {
+        //         const auth = res.headers.auth;
+        //         // jwt token cache
+        //         try {
+        //             await store('auth',{ auth : auth } );
+        //             getMain(true);
+        //         }
+        //         // cache 성공 시 -> 메인화면
+        //         catch {
+        //             // cache 저장 에러
+        //             console.log('cache 에러');
+        //         }
+        //     }   
+
+        // })
+        // .catch(e => {
+        //     //
             
-        })
+        // })
 
         
 
@@ -257,7 +320,9 @@ export default function({getMain}) {
     } ;
 
     return(
+        <Provider>
         <BottomSheetModalProvider>
+             
         <View style={{ backgroundColor: colors.main , flex: 1 , justifyContent: 'center' , alignItems: 'center' }}>
             {/* <ImageBackground source={{ uri: 'https://picsum.photos/1' }} resizeMode='cover' style={{ justifyContent:'center' , alignItems: 'center' , flex: 1   }}> */}
                 <Title style={styles.mainTitle}>최강샵</Title>
@@ -281,33 +346,33 @@ export default function({getMain}) {
                     bottomPage == 1 && (
                     <>
                     {/* <Button style={styles.guideButton} color='black' icon='information-outline'>이용가이드</Button>                     */}
-                    <Title style={styles.title}>나만의 샵을 등록해요. (1/2)</Title>
+                    <Title style={styles.title}>나만의 샵을 등록해요. (1/3)</Title>
                     
                     <Text style={styles.description}>사업자등록번호</Text>
-                    <TextInput theme={{  colors: { primary : colors.main }  }}
+                    <TextInput theme={{  colors: { primary : colors.main , disabled: 'white'  }   }}
                         value={businessNumber}
-                        mode='outlined'
+                        mode='flat'
                         onChangeText={value=>{setBusinessNumber(value)}}
                         keyboardType='number-pad'
                         placeholder='10자리를 입력하세요 (-없이) '
                     />
                     
                     <Text style={styles.description}>개업일자</Text>
-                    <TextInput theme={{ colors: { primary : colors.main }  }}
+                    <TextInput theme={{ colors: { primary : colors.main , disabled: 'white'  }   }}
                         value={openDate}
-                        mode='outlined'
+                        mode='flat'
                         onChangeText={value=>{setOpenDate(value)}}
                         keyboardType='number-pad'
                         placeholder='YYYYMMDD (예) 2021년 9월 27일 -> 20210927'
                     />
                     <Text style={styles.description}>대표자성명</Text>
-                    <TextInput theme={{ colors: { primary : colors.main , background: 'white' }  }}
-                        value={bossName}
-                        mode='outlined'
+                    <TextInput theme={{ colors: { primary : colors.main , disabled: 'white'  }  }}
+                        // value={bossName}
+                        mode='flat'
                         onChangeText={value=>{setBossName(value)}}
                         placeholder='홍길동'
                     />
-                    <Button style={{ marginTop: 10 , height: 50 , justifyContent: 'center' }} 
+                    <Button style={{ marginTop: 10 , height: 50 , justifyContent: 'center'  }} 
                         onPress={() => {verify()}}
                         mode={businessNumber.length&&openDate.length&&bossName.length ? 'contained' : 'outlined'}  
                         color={colors.main}>
@@ -319,11 +384,11 @@ export default function({getMain}) {
                 {
                     bottomPage == 2 && (
                         <>
-                        <Title style={styles.title}> {bossName}님으로 인증할게요.(2/2)</Title>
+                        <Title style={styles.title}> {bossName}님으로 인증할게요.(2/3)</Title>
                         <View style={{ width: '100%' , height: 700 }}>
                         
                         <IMP.Certification
-                        userCode={'iamport'}  // 가맹점 식별코드
+                        userCode={'imp01457748'}  // 가맹점 식별코드
                         // tierCode={'AAA'}      // 티어 코드: agency 기능 사용자에 한함
                         data = {{
                             merchant_uid: `mid_${new Date().getTime()}`,
@@ -341,10 +406,68 @@ export default function({getMain}) {
                       </>
                     )
                 }
+                {
+                    bottomPage == 3 && (
+                        <>
+
+                        <Portal>
+                        <Modal 
+                            visible={visible} 
+                            onDismiss={ () => {setVisible(false)}}
+                            style= {{ alignItems : 'center' , justifyContent: 'center' , marginTop: 200   }}
+                            >
+                            <KeyboardAwareScrollView>
+                                <Postcode
+                                style={{ width : 300 , height: 500   }}
+                                jsOptions={{ animated: true }}
+                                onSelected={data => {setAddress(data.roadAddress) , setVisible(false)  } }
+                                />
+                            </KeyboardAwareScrollView>
+                        </Modal>
+                        </Portal>
+
+                        <Title style={styles.title}> 업체에 대해 알려주세요.(3/3)</Title>
+                        <View style = {{ width: '100%' , height: 700 }}>
+                            <Text style={styles.description}>업체명</Text>
+                            <TextInput theme={{ colors: { primary : colors.main , disabled: 'white'  }  }}
+                            // value={bossName}
+                            mode='flat'
+                            onChangeText={value=>{setName(value)}}
+                            placeholder='최강샵'
+                            />
+                            <Text style={styles.description}>주소</Text>
+                            <TextInput  left={<TextInput.Icon icon='home' size={24}/>}
+                            placeholder='주소를 선택하세요'
+                            theme={{ colors: { primary: colors.main , background: 'white' }}}
+                            editable={false}
+                            right= {<TextInput.Icon name='magnify' onPress={ () => { setVisible(true) } }/>}
+                            value={address}
+                            onChangeText={ value=> setAddress(value)}
+                            />
+                            <TextInput  
+                                placeholder='상세주소'
+                                theme={{ colors: { primary: colors.main , background: 'white' }}}
+                                value={detailAddress}
+                                onChangeText={ value=> setDetailAddress(value) }
+                            />
+                                <Button style={{ marginTop: 10 , height: 50 , justifyContent: 'center'  }} 
+                                onPress={() => { requestSignIn() }}
+                                mode='contained'
+                                disabled={ name.length && address.length && detailAddress.length ? false : true}
+                                color={colors.main}>
+                                가입하기
+                                </Button>
+                            </View>
+                            
+                
+                        </>
+                    )
+                }
                 
                 </KeyboardAwareScrollView>
             </BottomSheetModal> 
         </View>
         </BottomSheetModalProvider>
+        </Provider>
     );
 }

@@ -1,6 +1,6 @@
 import React from 'react' ;
 import styled from 'styled-components';
-import { Appbar , Card , Title } from 'react-native-paper';
+import { Appbar , Card , Title , Avatar} from 'react-native-paper';
 import { SafeAreaView } from 'react-native';
 import Collapsible from 'react-native-collapsible';
 import colors from '../../color/colors';
@@ -13,6 +13,7 @@ import ProductPage from './HomePageTap/ProductPage';
 import ReviewPage from './HomePageTap/ReviewPage';
 
 const View = styled.View``;
+const ImageView = styled.TouchableOpacity``;
 const Row = styled.View`
     flex-direction: row;
     background-color: white;
@@ -61,7 +62,7 @@ export default function( props  ) {
     const [collapsed,setCollapsed] = React.useState(true);
     return (
         <>
-        <Appbar.Header style={{ backgroundColor: 'white' , borderColor: 'lightgray' , borderWidth: 1  }}>
+        <Appbar.Header style={{ backgroundColor: 'white' , borderColor: 'lightgray' , borderBottomWidth: 1  }}>
         <Appbar.Content onPress={()=> { setCollapsed(!collapsed) }}  title={data.shopName} titleStyle={{  fontFamily : 'DoHyeon-Regular' , fontSize: 20  }}  />
         <Appbar.Action icon={ collapsed ? 'chevron-down' : 'chevron-up' } onPress={() => { setCollapsed(!collapsed)}} style={{}}/>
         <Appbar.Action  style={{ flex: 2 }}/>
@@ -83,9 +84,10 @@ export default function( props  ) {
                     {
                         thumbnails == null ? 
                         (
-                            <View style={{flex: 1 , justifyContent: 'center'}}>
-                                <Title style={{ alignSelf: 'center'}}>업체 썸네일을 등록해보세요.</Title>
-                            </View>
+                            <ImageView style={{flex: 1 , justifyContent: 'center' , alignItems:'center'}}>
+                                <Avatar.Icon icon='gesture-tap' style={{ backgroundColor: 'transparent'}} color='black'/>
+                                <Title>업체 썸네일을 등록해보세요.</Title>
+                            </ImageView>
                         ) :
                         (   
                             <Swiper autoplay={true}>
