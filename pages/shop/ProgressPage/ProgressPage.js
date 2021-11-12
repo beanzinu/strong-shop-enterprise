@@ -86,12 +86,25 @@ const progress = [
     } ,
 ]
 
+const states = {
+    DESIGNATING_SHIPMENT_LOCATION : 1 ,
+    CAR_EXAMINATION : 2 ,
+    CONSTRUCTING : 3 ,
+    CONSTRUCTION_COMPLETED : 4
+}
+
 
 export default function( props ) {
+    const [data,setData] = React.useState(null) ;
     const[state,setState] = React.useState(2);
     const[pictures,setPictures] = React.useState(null);
     const[refresh,setRefresh] = React.useState(false);
     const[visible,setVisible] = React.useState(false);
+
+    React.useEffect(() => {
+        setData( props.route.params.data) ;
+        setState(states[props.route.params.data.state]);
+    },[]);
 
     openNew = async () => {
 
@@ -164,7 +177,7 @@ export default function( props ) {
         <ScrollView>
             <Appbar.Header style={{ backgroundColor: colors.main }}>
             <Appbar.BackAction onPress={() => { props.navigation.goBack() }} />
-            <Appbar.Content title={`${props.route.params.name} 고객님`} titleStyle={{ fontFamily : 'DoHyeon-Regular' , fontSize: 24}} />
+            <Appbar.Content title={`${data?.userResponseDto?.nickname} 고객님`} titleStyle={{ fontFamily : 'DoHyeon-Regular' , fontSize: 24}} />
             <View>
                 <Appbar.Action icon="chat" onPress={() => { props.navigation.navigate('ChatDetail',{ name : props.route.params.name }) }} color='white' style={{ backgroundColor: 'transparent' , margin: 0}} size={30}/>
                 <Badge size={10} style={{ position: 'absolute' , right: 0 , top: 0 }}/>

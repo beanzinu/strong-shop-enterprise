@@ -4,7 +4,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { 
     Appbar , Title , Divider , List,
     Button ,  IconButton , Chip ,
-    Provider , Modal , Portal 
+    Provider , Modal , Portal, Avatar 
 } 
 from 'react-native-paper';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -16,13 +16,7 @@ import fetch from '../../../storage/fetch' ;
 import _ from 'lodash';
 import store from '../../../storage/store';
 import { useIsFocused } from '@react-navigation/native';
-// ...
 
-function Profile() {
-  const isFocused = useIsFocused();
-
-  return <Text>{isFocused ? 'focused' : 'unfocused'}</Text>;
-}
 // pages
 import BidRegister_current from './BidRegister_current';
 
@@ -230,7 +224,6 @@ function translate(option,item){
 // 각각의 입찰요청항목
 function Item ( {i , item , navigation , ModalPress  , id} ) {
     const [expanded,setExpanded] = React.useState(false) ;
-
     
 
     return( 
@@ -375,6 +368,8 @@ export default function ( props ) {
     const [menu,setMenu] = React.useState(1);
     const [modalVisible,setModalVisible] = React.useState(false);
     const [regions,setRegions] = React.useState(defaultRegions) ;
+    // const isFocused = useIsFocused();
+
 
     const handleRegion = (region) => { 
             switch( region ) {
@@ -439,6 +434,7 @@ export default function ( props ) {
     
 
     React.useEffect(async () => {
+
         // 서버
         // 선택지역 캐시 있으면 requestOrders() 
         await fetch('orderRegion')
@@ -465,9 +461,10 @@ export default function ( props ) {
         .catch( e=> {
 
         })
-
+        
         
     },[]);
+
 
     return (
     <Provider>
@@ -535,14 +532,23 @@ export default function ( props ) {
                 }
             </ScrollView>
             {
-            data.map( (item,i) => {    
-                    let tmp = JSON.parse(item.details) ;
-                    return (
-                    <Item item={tmp} i={i} navigation={props.navigation} id={item.id}/>
-                    )
-                }
-            )   
+                data.length == 0 ? (
+                    <View style={{ height: 300 , justifyContent: 'center' , alignItems: 'center'  }}>
+                        <Avatar.Icon icon='account-arrow-left' style={{ backgroundColor: 'transparent'}} color='black'/>
+                        <Title>아직 입찰요청이 없어요.</Title>
+                    </View>
+                ) :
+                (
+                    data.map( (item,i) => {    
+                        let tmp = JSON.parse(item.details) ;
+                        return (
+                        <Item item={tmp} i={i} navigation={props.navigation} id={item.id}/>
+                        )
+                    }
+                    )                       
+                )
             }
+            
             </>
         }
         {/* 입찰 중 */}
