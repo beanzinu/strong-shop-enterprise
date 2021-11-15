@@ -119,7 +119,6 @@ export default function( props ) {
         // 1. 캐시 / 서버조회 => data => POST/PUT
         // 다시 Focus 되었을 때 변경사항이 있는지 확인
         await fetchInfo(); 
-
   
     },[MyContext.infoRefresh]);
 
@@ -139,6 +138,10 @@ export default function( props ) {
             </Button>
             <Title style= { styles.title }> 업체 소개 </Title>
             <Text>{data?.introduction == null ? '업체 소개를 해주세요.' : data?.introduction }</Text>
+            <Row>
+                <Avatar.Icon icon='phone' style={{ backgroundColor: 'transparent' , marginLeft: 10 }} color={colors.main} size={30} />
+                <Button color={colors.main} >{data?.contact}</Button>
+            </Row>
             <Row>
                 <Avatar.Icon icon='link' style={{ backgroundColor: 'transparent' , marginLeft: 10 }} color={colors.main} size={30} />
                 <Button uppercase={false} color={colors.main} onPress={()=> { Linking.openURL(data.blogUrl)}}>{data?.blogUrl}</Button>

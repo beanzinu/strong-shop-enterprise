@@ -16,6 +16,7 @@ import fetch from '../../../storage/fetch' ;
 import _ from 'lodash';
 import store from '../../../storage/store';
 import { useIsFocused } from '@react-navigation/native';
+import { Dimensions } from 'react-native';
 
 // pages
 import BidRegister_current from './BidRegister_current';
@@ -222,7 +223,7 @@ function translate(option,item){
 
 
 // 각각의 입찰요청항목
-function Item ( {i , item , navigation , ModalPress  , id} ) {
+function Item ( {i , item , navigation , id} ) {
     const [expanded,setExpanded] = React.useState(false) ;
     
 
@@ -501,6 +502,7 @@ export default function ( props ) {
             <Button style={styles.button} mode={ menu == 2 ? 'contained' : 'outlined' } color={colors.main} onPress={()=>{ setMenu(2) }}>입찰 중</Button>
             <Button style={styles.button} mode={ menu == 3 ? 'contained' : 'outlined' } color={colors.main} onPress={()=>{ setMenu(3) }}>입찰 결과</Button>
         </Row>
+
         {/* 입찰 전 */}
         {
             menu == 1 && 
@@ -533,7 +535,7 @@ export default function ( props ) {
             </ScrollView>
             {
                 data.length == 0 ? (
-                    <View style={{ height: 300 , justifyContent: 'center' , alignItems: 'center'  }}>
+                    <View style={{ height: Dimensions.get('screen').height*0.6 , justifyContent: 'center' , alignItems: 'center'  }}>
                         <Avatar.Icon icon='account-arrow-left' style={{ backgroundColor: 'transparent'}} color='black'/>
                         <Title>아직 입찰요청이 없어요.</Title>
                     </View>
@@ -551,11 +553,13 @@ export default function ( props ) {
             
             </>
         }
+
         {/* 입찰 중 */}
         {
             menu == 2 && 
             <BidRegister_current />
         }
+
         {/* 입찰 후 */}
         {
             menu == 3 && 

@@ -77,9 +77,6 @@ function App (props) {
       //   if ( !state.isInternetReachable ) setLoading(false);
       // });
 
-      
-      // AsyncStorage.removeItem('auth');
-      // AsyncStorage.removeItem('Info');
 
       // jwt 캐시 ( accesstoken 만료  => refreshToken => jwt accessToken )
       await fetch('auth')

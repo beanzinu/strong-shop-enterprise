@@ -40,7 +40,7 @@ const homeRoute = () => {
             <Stack.Screen name='Home' component={HomePage}  options={{ headerShown : false }}/>
             <Stack.Screen name='MyPage' component={MyPage}  options={{ headerShown : false }}/>
             <Stack.Screen name='Post' component={PostPage} />
-            <Stack.Screen name='InfoRegister' component={InfoRegister} options={{ title: '업체 소개' }} />
+            <Stack.Screen name='InfoRegister' component={InfoRegister} options={{ headerShown: false }} />
             <Stack.Screen name='PostPageRegister' component={PostPageRegister} options={{ title: '작업갤러리 등록' }}/>
             <Stack.Screen name='PostRegister' component={PostRegister} options={{ title: '작업갤러리 상세등록' }} />
             <Stack.Screen name='ProductRegister' component={ProductRegister} options={{ title: '취급상품 등록'}}/>

@@ -1,6 +1,6 @@
 import React from 'react' ;
 import styled from 'styled-components';
-import { Title , TextInput , Button , Avatar , Provider , Portal , Modal} from 'react-native-paper';
+import { Title , TextInput , Button , Avatar , Provider , Portal , Modal, Appbar} from 'react-native-paper';
 import colors from '../../../color/colors';
 import { Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
@@ -24,11 +24,13 @@ const Row = styled.View`
     flex-direction: row;
     align-items: center;
 `;
+const View = styled.View``;
 
 const styles = {
     title : {
         fontWeight : 'bold' ,
         padding: 10 ,
+        marginTop: 10 ,
         color : colors.main , 
         fontFamily : 'DoHyeon-Regular' ,
         fontSize: 30
@@ -41,8 +43,8 @@ const styles = {
 }
 
 export default function( props ) {
-    const [serverState,setServerState] = React.useState(1);
     const [info,setInfo] = React.useState(null);
+    const [contact,setContact] = React.useState(null);
     const [blogUrl,setBlogUrl] = React.useState(null);
     const [siteUrl,setSiteUrl] = React.useState(null);
     const [snsUrl,setSnsUrl] = React.useState(null);
@@ -95,7 +97,7 @@ export default function( props ) {
             const auth = res.auth ;
             // 서버 ( POST/PUT )
             axios({
-                method: serverState == 2 ? 'PUT' : 'POST' ,
+                method: 'PUT' ,
                 url: `${server.url}/api/companyinfo`,
                 data: data ,
                 headers: {
@@ -103,6 +105,7 @@ export default function( props ) {
                 }
             })
             .then ( async (res)=>  {
+                console.log(res);
                 // 저장성공시
                 await store('Info',data) ;
                 MyContext.setInfoRefresh(!MyContext.infoRefresh) ;
@@ -126,16 +129,13 @@ export default function( props ) {
 
     // 기존 정보를 수정
     React.useEffect( () => { 
-        if ( props.route.params?.data != null ) {
             // PUT
-            setServerState(2);
             setInfo(props.route.params?.data?.introduction) ;
             setBlogUrl(props.route.params?.data?.blogUrl) ;
             setSiteUrl(props.route.params?.data?.siteUrl) ;
             setSnsUrl(props.route.params?.data?.snsUrl) ;
             setAddress(props.route.params?.data?.address);
             setDetailAddress(props.route.params?.data?.detailAddress);
-        }
     },[]);
 
     return(
@@ -156,6 +156,13 @@ export default function( props ) {
                     </KeyboardAwareScrollView>
                 </Modal>
             </Portal>
+            <Appbar.Header style={{ backgroundColor: 'white' }}>
+                <Appbar.BackAction onPress={() => { props.navigation.goBack() }}/>
+                <Appbar.Content title='업체 소개'  style={{ flex:1 }}/>
+                <View>
+                    <Button color='black' onPress={addInfo} >수정하기</Button>
+                </View>
+            </Appbar.Header>
             <Row>
                 <Title style={ styles.title }> 업체 소개를 해주세요.</Title>
                 <Button color='red' 
@@ -178,22 +185,29 @@ export default function( props ) {
                 onChangeText = { value => setInfo(value) }
                 placeholder='업체 소개를 해주세요.'
             />
+            <TextInput  left={<TextInput.Icon icon='phone' size={24}/>}
+                placeholder='업체 전화번호'
+                theme={{ colors: { primary: colors.main , background: 'white' }}}
+                keyboardType='number-pad'
+                value={contact}
+                onChangeText={ value=> setContact(value)  }
+            />
             <TextInput  left={<TextInput.Icon icon='link' size={24}/>}
-                placeholder='(선택)블로그/카페 주소를 입력하세요.'
+                placeholder='블로그/카페 주소'
                 theme={{ colors: { primary: colors.main , background: 'white' }}}
                 keyboardType='email-address'
                 value={blogUrl}
                 onChangeText={ value=> setBlogUrl(value) }
             />
             <TextInput  left={<TextInput.Icon icon='web' size={24}/>}
-                placeholder='(선택)자체사이트 주소를 입력하세요.'
+                placeholder='자체사이트 주소'
                 theme={{ colors: { primary: colors.main , background: 'white' }}}
                 keyboardType='email-address'
                 value={siteUrl}
                 onChangeText={ value=> setSiteUrl(value) }
             />
             <TextInput  left={<TextInput.Icon icon='instagram' size={24}/>}
-                placeholder='(선택)SNS 주소를 입력하세요.'
+                placeholder='SNS 주소'
                 theme={{ colors: { primary: colors.main , background: 'white' }}}
                 keyboardType='email-address'
                 value={snsUrl}
@@ -214,13 +228,13 @@ export default function( props ) {
                 onChangeText={ value=> setDetailAddress(value) }
             />
 
-            <Button onPress={ () => { addInfo() }} mode='outlined'
+            {/* <Button onPress={ () => { addInfo() }} mode='outlined'
                 color = { colors.main }
                 mode={ 'contained' }
                 style={{ margin: 10 }}
             >
                 수정하기
-            </Button>
+            </Button> */}
         </KeyboardAwareScrollView> 
         </Provider>
     );

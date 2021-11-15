@@ -23,7 +23,7 @@ const styles = {
     } ,
     itemText: {
         fontSize: 17 ,
-        fontWeight: 'bold'
+        fontWeight: 'bold' ,
     } ,
     labelStyle : {
         borderWidth: 1 , 
