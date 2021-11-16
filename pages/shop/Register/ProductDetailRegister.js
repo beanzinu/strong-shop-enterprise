@@ -4,6 +4,10 @@ import styled from 'styled-components';
 import colors from '../../../color/colors';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Title , Divider , Button } from 'react-native-paper';
+import axios from 'axios';
+import server from '../../../server/server';
+import fetch from '../../../storage/fetch';
+import AppContext from '../../../storage/AppContext';
 
 const Label = styled.Text`
     margin-left: 10px;
@@ -34,24 +38,60 @@ export default function( props ) {
     const [name,setName] = React.useState('');
     const [description,setDescription] = React.useState('');
     const [option,setOption] = React.useState('');
+    const [id,setId] = React.useState(0);
+    const [requestOption,setRequestOption] = React.useState(1) ;
+    const MyContext = React.useContext(AppContext) ;
 
 
     React.useEffect(() => { 
         
-        alert( props.route?.params.option) ;
+        
+        
         setOption( props.route?.params.option ) ;
+        
+        if ( props.route.params.itemOption == 'fix' )  {
+            setRequestOption(2) ;
+            setId( props.route.params.data.id ) ;
+        }
+        
 
         if ( props.route?.params.data != null) {
           setName( props.route.params.data.name );
-          setDescription( props.route.params.data.description );
+          setDescription( props.route.params.data.additionalInfo );
         }
 
     },[]);
 
+
     const addItem = async () =>  {
 
 
-        data = {  name : name , description : description } ;
+        data = {  name : name , additionalInfo : description , id : id } ;
+
+        try {
+           const token =  await fetch('auth') ;
+           const auth = token.auth ;
+
+           axios({
+                url: `${server.url}/api/product/${option}` ,
+                method: requestOption == 1  ? 'post' : 'put' ,
+                data: data ,
+                headers : { Auth : auth }
+            })
+            .then( res => {
+                    MyContext.setProductRefresh(!MyContext.productRefresh);
+                    props.navigation.goBack();
+            })
+            .catch( e =>  {
+                //
+            })
+        }
+        catch { 
+            console.log('취급상품 등록에러');
+        }
+
+        
+
 
         // 서버
         // 1. 틴팅~기타 옵션과 함께 데이터들을 포함시켜 전송
@@ -96,7 +136,7 @@ export default function( props ) {
 
         // })
 
-        props.route.params.reload();
+        // props.route.params.reload();
 
     }
 

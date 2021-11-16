@@ -14,13 +14,18 @@ import {
 import DraggableFlatList , {ScaleDecorator} from 'react-native-draggable-flatlist';
 import axios from 'axios';
 import { LogBox } from 'react-native';
+import AppContext from '../../../storage/AppContext';
 import MultipleImagePicker from '@baronha/react-native-multiple-image-picker';
+import fetch from '../../../storage/fetch';
+import server from '../../../server/server';
+
 
 // Warning 메시지 무시 
 // library 내부 Component 문제
 LogBox.ignoreLogs([
   'ReactNativeFiberHostComponent: Calling getNode() on the ref of an Animated component is no longer necessary. You can now directly use the ref instead. This method will be removed in a future release.',
 ]);
+
 const PictureButton = styled.TouchableOpacity`
     flex: 1 ;
     border: 1px lightgray;
@@ -82,126 +87,59 @@ const styles= {
 
 
 export default function( props ) {
-    const [pictures,setPictures]= React.useState([]) ;
+    const [pictures,setPictures]= React.useState(null) ;
+    const [cache,setCache] = React.useState([]);
     const [text,setText] = React.useState('');
     const [inputHeight,setInputHeight] = React.useState(120);
+    const [refresh,setRefresh] = React.useState(false);
     const ModalRef = React.useRef(null);
+    const MyContext = React.useContext(AppContext)
     
     openNew = async () => {
         request(PERMISSIONS.IOS.PHOTO_LIBRARY);
         await MultipleImagePicker.openPicker({
-            mediaType: 'image', 
-            // selectedAssets: pictures,
+            mediaType: 'image',
+            selectedAssets: cache ,
             doneTitle: "완료",
             selectedColor: "#162741",
+            maxSelectedAssets: 10 ,
+            maximumMessageTitle: '최대 10장까지만 등록해주세요.' ,
+            maximumMessage: '' ,
+            cancelTitle: '취소' ,
+            numberOfColumn: 3 ,
         })
         .then(res => {
+           setCache(res);
            url = [] ;
-           res.map(file =>  {
-            //    newPath = file.path.replace('file://','').replace('file:///','file://');
-               newPath = file.path ;
+           res.map( async ( file ) =>  {
+               newPath = file.path.replace('file://','').replace('file:///','file://');
+               
                url.push(newPath);
+            //    url.push(file.path);
            });
-           console.log(url);
-           setPictures(url)
+          
+           setPictures(url);
+           // Refresh Swiper
+           setRefresh(true);
+           setTimeout(()=>{
+            setRefresh(false);
+           },2000);
+
         }) 
         .catch(e => { });
        
     }
-    openLibrary = async () =>  {
-        ModalRef.current?.dismiss();
-        check(PERMISSIONS.IOS.PHOTO_LIBRARY)
-        .then((result) => {
-          switch (result) {
-            case RESULTS.GRANTED:
-                let url = pictures ;
-
-                ImagePicker.openPicker({
-                    width: this.width,
-                    height: this.height,
-                    includeBase64 : true,
-                    multiple: true,
-                    cropping: true ,
-                }).then( image => {
-                    image.map( (item )  => { 
-                        url = [ ...url , { uri : item.sourceURL }] ; 
-                        console.log(url);
-                    } )
-
-                    setPictures(url) ;
-                    setLoading(true);
-                })
-                .catch(e => console.log(e)) ;
-                break;
-
-            default :
-                Alert.alert('라이브러리 사용을 허용해주세요.','',[
-                    {
-                        text : '설정으로 가기' ,
-                        onPress : () =>  {
-                            openSettings().catch(() => console.warn('cannot open settings'));
-                        }
-                    } ,
-                    {
-                        text : '취소' ,
-                        onPress : () => { }
-                    }
-                ])
-                break;
-                
-          }
-        })
-        .catch((error) => {
-          // …
-        });
-    } ;
-
-    openCamera = async() =>  {
-        ModalRef.current?.dismiss();
-        check(PERMISSIONS.IOS.CAMERA)
-        .then((result)=>{
-            switch (result) {
-                case RESULTS.GRANTED:
-                    let url = pictures ;
     
-                    ImagePicker.openCamera({
-                        width: this.width,
-                        height: this.height,
-                        includeBase64 : true,
-                        multiple: true,
-                        cropping: true ,
-                    }).then( image => {
-                        image.map( (item )  => { 
-                            url = [ ...url , { uri : item.sourceURL }] ; 
-                            console.log(url);
-                        } )
-    
-                        setPictures(url) ;
-                        setLoading(true);
-                    })
-                    .catch(e => console.log(e)) ;
-                    break;
-    
-                default :
-                    Alert.alert('카메라 사용을 허용해주세요.','',[
-                        {
-                            text : '설정으로 가기' ,
-                            onPress : () =>  {
-                                openSettings().catch(() => console.warn('cannot open settings'));
-                            }
-                        } ,
-                        {
-                            text : '취소' ,
-                            onPress : () => { }
-                        }
-                    ])
-                    break;
-                    
-              }
-        })
-        .catch(e => { 
-            // 
-        })
+    removePictures = () =>  {
+        Alert.alert('사진을 모두 지우시겠습니까?','',[
+            {
+                text: '확인' ,
+                onPress: () => { setPictures(null) }
+            }
+            ,{
+                text: '취소'
+            }
+        ])
     }
 
     uploadData = async() =>  {
@@ -210,18 +148,36 @@ export default function( props ) {
         // 현재 사용자가 불러온 이미지 리스트들 => 각각 폼데이터에 넣어준다.
         pictures?.map( (picture,index) =>{
             var photo = {
-                uri: picture.uri ,
+                uri: picture ,
                 type: 'multipart/form-data',
-                name: `${index}.jpg`
+                name: `${index}.jpg` ,
+                
             }
-            body.append('image',photo);
+            body.append('files',photo);
         })
-        //test
-        console.log(body?._parts);
+        body.append('content',text);
+       
         // 서버에게 전송
-        // axios.post('serverUrl',body,{
-        //     headers: {'content-type': 'multipart/form-data'}
-        // })
+        await fetch('auth')
+        .then(res => {
+            const auth = res.auth ;
+            axios.post(`${server.url}/api/gallery`,body,{
+                headers: {'content-type': 'multipart/form-data' , Auth: auth }
+            })
+            .then(res => {
+                if ( res.data.statusCode == 201 ) {
+                    MyContext.setRefresh(!MyContext.refresh);
+                    props.navigation.goBack();
+                }
+            })
+            .catch(e => {
+                console.log(e);
+            })
+
+        })
+        .catch(e => {
+
+        })
     }
 
     
@@ -245,29 +201,26 @@ export default function( props ) {
                     titleStyle={ styles.title }
                     title= { props.route.params.data.shopName } 
                     left = { (props)=>  <Avatar.Icon {...props} icon='account' size={24} style={{ backgroundColor: colors.main}}/>  }
-                    right = { (props) => <Button onPress={()=>{ setPictures([]); }} color='red'>사진 지우기</Button>}
+                    right = { (props) => <Button onPress={removePictures} color='red'>사진 지우기</Button>}
                 />
             </Card>
             <Row>
-                <OptionView onPress={() => openCamera() }>
-                    <IconButton icon='camera-plus' />
-                </OptionView>
                 <OptionView onPress={() => openNew() }>
                     <IconButton icon='image-plus' />
                 </OptionView>
-                {
-                    pictures.length > 1 && (
+                {/* {
+                    pictures != null && pictures.length > 1 && (
                 <OptionView onPress={() => ModalRef.current?.present() }>
                     <IconButton icon='tools'/>
                     <Text style={{ fontSize: 12 }}>사진 수정</Text>
                 </OptionView>
                     )
-                }
+                } */}
             </Row>
             {
-                pictures.length != 0 && (
+                pictures != null && (
                     <SwiperView>
-                    <Swiper horizontal={true}>
+                    <Swiper horizontal={true} refreshControl={refresh} showsHorizontalScrollIndicator={true} loop={false}>
                         {
                             pictures.map((picture) =>{
                                return(

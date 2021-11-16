@@ -9,6 +9,9 @@ import {
     BottomSheetModalProvider,
   } from '@gorhom/bottom-sheet';
 import fetch from '../../../storage/fetch';
+import axios from 'axios';
+import server from '../../../server/server';
+import AppContext from '../../../storage/AppContext';
 
 const Row = styled.View`
     flex-direction: row;
@@ -72,13 +75,14 @@ export default function( props ){
     const[value,setValue] = React.useState(1);
     const[data,setData] = React.useState([]);
     const[currentData,setCurrentData] = React.useState({});
-
     const snapPoints = React.useMemo(() => ['25%'], []);
+    const MyContext = React.useContext(AppContext) ;
+
 
     const bottomSheetModalRef = React.useRef(null);
     const handlePresentModalPress = React.useCallback(() => {
         bottomSheetModalRef.current?.present();
-      }, []);
+    }, []);
     const handleDismissModalPress = React.useCallback(() => {
         bottomSheetModalRef.current?.dismiss();
     }, []);  
@@ -97,7 +101,7 @@ export default function( props ){
                             onPress={() => {
                                 handlePresentModalPress();
                                 // 현재 누른 항목의 데이터를 넘기기 위함.
-                                setCurrentData({ name : item.name , description: item.description});
+                                setCurrentData({ name : item.name , additionalInfo : item.additionalInfo , id : item.id });
                             }} 
                         />
                     </Row>
@@ -105,24 +109,15 @@ export default function( props ){
                 </Card>
         )
     }
-    
+
+
     React.useEffect(() => {
         // 'Product' 데이터를 모두 가져옴.
-        setData( props.route.params.data );
-    },[]);
+        if ( MyContext.product != null ) setData( MyContext.product );
+        else setData( props.route.params.data );
+        
+    },[MyContext.product] );
 
-    const reload = React.useCallback( () =>  {
-        
-        setTimeout( async ()=>{
-            await fetch('Product')
-            .then(res => {
-                setData(res);
-            })
-            .catch(() => { alert('추가하기 실패') })
-        },2000);
-        
-        
-    },[]);
 
     const add = (num) =>  {
         let option = 'tinting' ;
@@ -131,17 +126,38 @@ export default function( props ){
         else if ( value == 3 ) option='blackbox' ;
         else if ( value == 4 ) option='battery' ;
         else if ( value == 5 ) option='afterblow' ;
-        else if ( value == 6 ) option='defeaning' ;
+        else if ( value == 6 ) option='deafening' ;
         else if ( value == 7 ) option='wrapping' ;
         else if ( value == 8 ) option='glasscoating' ;
         else if ( value == 9 ) option='undercoating' ;
         else if ( value == 10 ) option='etc' ;
         
         if ( num == 1 ) props.navigation.navigate('ProductDetailRegister',{ option: option , itemOption: 'add' });
-        else props.navigation.navigate('ProductDetailRegister',{ data : currentData , option : option , reload : reload , itemOption: 'fix'});
+        else props.navigation.navigate('ProductDetailRegister',{ data : currentData , option : option , itemOption: 'fix'});
     }
 
-   
+    const remove = async() =>  {
+        
+        const token = await fetch('auth') ;
+        const auth = token.auth ;
+
+        axios({
+            url : `${server.url}/api/product` ,
+            method: 'delete' ,
+            data : { id : currentData.id } ,
+            headers: { Auth: auth } 
+        })
+        .then( res =>  {
+            // 성공
+            MyContext.setProductRefresh(!MyContext.productRefresh) ;
+        })
+        .catch( e =>  {
+            // 실패
+        })
+
+    }
+
+
 
     return(
         <BottomSheetModalProvider>
@@ -203,7 +219,7 @@ export default function( props ){
             }
             { value ==6 && 
                 <FlatList
-                    data={data?.defeaning}
+                    data={data?.deafening}
                     renderItem={RenderItem}
                     keyExtractor={(item) => {item.name} }
                 />
@@ -261,7 +277,8 @@ export default function( props ){
                                 {
                                     text : '확인' ,
                                     onPress : () =>  {
-                                        handleDismissModalPress()
+                                        remove();
+                                        handleDismissModalPress();
                                     }
                                 } ,
                                 {

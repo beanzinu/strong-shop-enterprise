@@ -4,46 +4,83 @@ import {
     BottomSheetModal,
     BottomSheetModalProvider,
   } from '@gorhom/bottom-sheet';
-import { Title , Appbar , Button , Text, TextInput } from 'react-native-paper';
+import { Title , Button , Text, TextInput , Provider , Modal , Portal  } from 'react-native-paper';
 import colors from '../../color/colors';
 import axios from 'axios';
-import { ScrollView } from 'react-native';
-import { Image } from 'react-native';
-import { Alert } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import ImageBackground from 'react-native/Libraries/Image/ImageBackground';
+import { login } from '@react-native-seoul/kakao-login';
+import auth from '@react-native-firebase/auth'
+import IMP from 'iamport-react-native';
+import Postcode from '@actbase/react-daum-postcode';
+//
+import server from '../../server/server';
+import store from '../../storage/store';
+import fetch from '../../storage/fetch';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const View = styled.View`
     flex : 1 ;
 `;
-const Row = styled.View`
-    flex-direction: row;
-    height: 130px ;
-    margin-top: 10px;
-`;
-const TextView = styled.View`
-    flex: 2 ;
-`;
-
 const styles = {
     title : {
         padding: 10 ,
         fontSize: 30 ,
         fontFamily: 'DoHyeon-Regular' ,
     } ,
+    mainTitle : {
+        color: 'white',
+        padding: 10 ,
+        fontSize: 30 ,
+        fontFamily: 'DoHyeon-Regular' ,
+    } ,
     description : {
         fontSize: 17 , 
-        margin: 10
+        margin: 5 ,
+        padding: 5
+    } ,
+    button : {
+        flex: 1 , 
+        borderWidth: 1 ,
+        margin: 5 ,
+        borderColor: 'white'
+    } ,
+    loginButton : {
+        width: '70%' ,
+        borderWidth: 1 ,
+        margin: 20 ,
+        padding: 5,
+        borderColor: 'white'
+    } ,
+    guideButton: { 
+        alignSelf: 'flex-start', 
+        padding: 10 ,
+        borderWidth: 1 , 
+        borderColor: 'black' , 
+        margin: 5
     }
 
 }
 
-export default function() {
-    const snapPoints = React.useMemo(() => ['75%'], []);
+  
+
+export default function({getMain}) {
+    const snapPoints = React.useMemo(() => ['80%'], []);
+    const [name,setName] = React.useState('');
     const [businessNumber,setBusinessNumber] = React.useState('');
     const [openDate,setOpenDate] = React.useState('');
     const [bossName,setBossName] = React.useState('');
+
     const [bottomPage,setBottomPage] = React.useState(1);
+    const [dtoData,setDtoData] = React.useState(null);
+
+    const [address,setAddress] = React.useState('');
+    const [detailAddress,setDetailAddress] = React.useState('');
+    const [visible,setVisible] = React.useState(false);
+
+    let latitude = null ;
+    let longitude = null ;
 
     const bottomSheetModalRef = React.useRef(null);
     const handlePresentModalPress = React.useCallback(() => {
@@ -53,11 +90,203 @@ export default function() {
         bottomSheetModalRef.current?.dismiss();
     }, []);  
 
+
+    // API Request
+   // 도로명 주소 -> 좌표로 변환
+   function getCoord(address){
+    return new Promise(resolve=>{
+        axios({
+            method: 'GET' ,
+            url : `https://api.vworld.kr/req/address?service=address&request=getCoord&key=98C4A0B1-90CD-30F6-B7D0-9F5A0DC9F18B&address=${address}&type=ROAD` ,
+        })
+        .then(async (res) => {
+            const point = res.data.response.result.point ;
+            latitude = point.y ;
+            longitude = point.x ;
+            resolve();
+        }
+        )
+        .catch(e => {
+            //
+        } ) ;
+    }) ;
+
+    }
+
+    // 카카오 AccessToken => 서버 
+    function requestAccessToken(accessToken) {
+        axios({
+            method : 'GET' ,
+            url : `${server.url}/api/login/company/kakao` ,
+            headers : {
+                Authorization : accessToken
+            } ,
+        })
+        .then( async (res) =>  {
+            // 캐시삭제
+            AsyncStorage.clear().catch(e => { });
+            // 회원가입 필요
+            if ( res.data.statusCode == 201 ) {
+                // 추가정보를 사용자로부터 받음.
+                handlePresentModalPress();       
+                setDtoData(res.data.data);         
+            }
+            // 이미 가입된 회원 => jwt token을 발급받음.
+            else if ( res.data.statusCode == 200 ) {
+                const auth = res.headers.auth;
+                // jwt token cache
+                await store('auth',{ auth : auth });
+                // cache 성공 시 -> 메인화면
+                await fetch('auth')
+                .then( res => {
+                    if ( res != null ) getMain(true);
+                })
+                .catch ( e => { 
+                    //
+                })
+
+            }
+
+        })
+        .catch( e =>  {
+            // 서버 통신에러
+        })
+    }
+
+    function requestSignIn() {
+        // 서버에게 dtoData 전달
+        axios({
+            method: 'POST',
+            url : `${server.url}/api/login/company/kakao` ,
+            data : {
+                ...dtoData ,
+                businessNumber: businessNumber ,
+                bossName: bossName ,
+                name: name
+            }
+        })
+        .then(async(res) =>{
+            // 가입성공
+            if ( res.data.statusCode == 200 ) {
+                const auth = res.headers.auth;
+                // jwt token cache
+                try {
+                    await store('auth',{auth : auth});
+                    // 업체정보 post
+                    await requestPost(auth)
+                    .then ( () => {
+                        getMain(true);
+                    })
+                }
+                // cache 성공 시 -> 메인화면
+                catch {
+                    // cache 저장 에러
+                    console.log('cache 에러');
+                }
+            }   
+
+        })
+        .catch(e => {
+            //
+            
+        })
+    }
+    function requestPost(auth) {
+        return new Promise(async(resolve)=>{
+
+            // 주소 변환 
+            await getCoord(address) ;
+
+            axios({
+                method: 'POST',
+                url: `${server.url}/api/companyinfo`,
+                data : { address: address , detailAddress: detailAddress , latitude: latitude, longitude: longitude } ,
+                headers: { Auth: auth }
+            })
+            .then( async(res) => {
+                await store('Info',res.data.data) ;
+                resolve();
+            })
+            .catch( e => {
+                alert('POST 에러');
+            })
+        })
+    }
+
+
+    const handleKakaoLogin = async() =>  {
+        // 카카오 인증요청
+        const token = await login().catch(e=>{console.log(e) });
+        // 카카오 인증취소 / 인증실패 
+        if ( token == null ) return;
+        const accessToken = 'Bearer ' + token.accessToken ;        
+        try {
+            // token 서버에게 전달 
+            requestAccessToken(accessToken);
+        }
+        catch {
+            Alert.alert('다시 요청해주세요.');
+        }
+
+    }
+
+    // 휴대폰인증
+    function phoneAuth(response) {
+       if ( response.success ) {
+           // 최종 회원가입요청
+           requestSignIn();
+       }
+       else {
+           // 인증 취소 / 대표자명과 맞지않을때
+           handleDismissModalPress();
+       }
+    }
+
+    // 사업자등록번호 인증
     const verify = () => {
 
+        // 입력양식 체크
+        // if ( !/[0-9]{10}/.test(businessNumber) && !/[0-9]{8}/.test(openDate) ) {
+        //     Alert.alert('입력양식을 확인해주세요.');
+        //     return;
+        // }
+    
         // Test ( 사업자 인증 성공 후 )
-        Alert.alert('인증완료');
-        setBottomPage(2);
+        setBottomPage(3);
+
+        // 서버에게 dtoData 전달
+        // axios({
+        //     method: 'POST',
+        //     url : `${server.url}/api/login/company/kakao` ,
+        //     data : {
+        //         ...dtoData ,
+        //         businessNumber: businessNumber ,
+        //         bossName: bossName ,
+        //         name: '허지훈게이'
+        //     }
+        // })
+        // .then(async(res) =>{
+        //     // 가입성공
+        //     if ( res.data.statusCode == 200 ) {
+        //         const auth = res.headers.auth;
+        //         // jwt token cache
+        //         try {
+        //             await store('auth',{ auth : auth } );
+        //             getMain(true);
+        //         }
+        //         // cache 성공 시 -> 메인화면
+        //         catch {
+        //             // cache 저장 에러
+        //             console.log('cache 에러');
+        //         }
+        //     }   
+
+        // })
+        // .catch(e => {
+        //     //
+            
+        // })
+
         
 
         // 사업자등록 인증
@@ -82,161 +311,163 @@ export default function() {
         // .then( res =>   { 
 
         //     if(res.data.data[0].valid === '01')  {
-        //         Alert.alert('인증완료');
+        //         setBottomPage(2);
         //     }
-        //     else Alert.alert('유효하지 않은 번호입니다.','다시 한번 확인해주세요.');
+        //     else Alert.alert('유효하지 않은 사업자등록증입니다.','다시 한번 확인해주세요.');
         // }) 
         // .catch(e => Alert.alert('필수사항을 입력해주세요.') ) ;
 
     } ;
 
     return(
-        <View style={{ flex: 1  }}>
-            <ImageBackground source={{ uri: 'https://picsum.photos/0' }} resizeMode='cover' style={{ justifyContent:'center' , alignItems: 'center' , flex: 1   }}>
-            <Title style={{ fontFamily: 'DoHyeon-Regular' , color: 'white' }}>최강샵</Title>
-            <Text style={{ color: 'white'}}>나만의 샵을 관리해요.</Text>
-            <TextInput 
-                style={{ width: '50%' , height: 50 , margin: 10 }}
-                mode='flat'
-                placeholder='아이디'
-                theme={{ colors : { primary: colors.main , background: 'transparent' , disabled: 'white'  }}}
-            />
-            <TextInput 
-                style={{ width: '50%' , height: 50 , margin: 10 }}
-                mode='flat'
-                placeholder='비밀번호'
-                theme={{ colors : { primary: colors.main , background: 'transparent' , disabled: 'white'  }}}
-            />
-            <Row style={{ width: '50%' , height: 50 }}>
-                <Text style={{ flex: 1 , textAlign: 'center' , alignSelf: 'center' ,  borderWidth: 1 , padding: 10 , margin: 5 , color: 'white' , borderColor: 'white'}}>회원가입</Text>
-                <Text style={{ flex: 1 , textAlign: 'center' , alignSelf: 'center' ,  borderWidth: 1 , padding: 10 , margin: 5 , color: 'white' , borderColor: 'white'}}>로그인</Text>
-            </Row>
-            </ImageBackground>
+        <Provider>
+        <BottomSheetModalProvider>
+             
+        <View style={{ backgroundColor: colors.main , flex: 1 , justifyContent: 'center' , alignItems: 'center' }}>
+            {/* <ImageBackground source={{ uri: 'https://picsum.photos/1' }} resizeMode='cover' style={{ justifyContent:'center' , alignItems: 'center' , flex: 1   }}> */}
+                <Title style={styles.mainTitle}>최강샵</Title>
+                <Text style={{ color: 'white'}}>나만의 샵을 관리해요.</Text>
+                <Button style={styles.loginButton} color='white' icon='chat' onPress={handleKakaoLogin}>
+                    카카오로 시작하기
+                </Button>
+                <Button style={styles.loginButton} color='white' icon='alpha-n-box' onPress={handlePresentModalPress}>
+                    네이버로 시작하기
+                </Button>
+            {/* </ImageBackground> */}
+
+            {/* BottomSheet 모달  */}
+            <BottomSheetModal
+                ref={bottomSheetModalRef}
+                snapPoints={snapPoints}
+                // enablePanDownToClose={false}
+            >
+            <KeyboardAwareScrollView>
+                {
+                    bottomPage == 1 && (
+                    <>
+                    {/* <Button style={styles.guideButton} color='black' icon='information-outline'>이용가이드</Button>                     */}
+                    <Title style={styles.title}>나만의 샵을 등록해요. (1/3)</Title>
+                    
+                    <Text style={styles.description}>사업자등록번호</Text>
+                    <TextInput theme={{  colors: { primary : colors.main , disabled: 'white'  }   }}
+                        value={businessNumber}
+                        mode='flat'
+                        onChangeText={value=>{setBusinessNumber(value)}}
+                        keyboardType='number-pad'
+                        placeholder='10자리를 입력하세요 (-없이) '
+                    />
+                    
+                    <Text style={styles.description}>개업일자</Text>
+                    <TextInput theme={{ colors: { primary : colors.main , disabled: 'white'  }   }}
+                        value={openDate}
+                        mode='flat'
+                        onChangeText={value=>{setOpenDate(value)}}
+                        keyboardType='number-pad'
+                        placeholder='YYYYMMDD (예) 2021년 9월 27일 -> 20210927'
+                    />
+                    <Text style={styles.description}>대표자성명</Text>
+                    <TextInput theme={{ colors: { primary : colors.main , disabled: 'white'  }  }}
+                        // value={bossName}
+                        mode='flat'
+                        onChangeText={value=>{setBossName(value)}}
+                        placeholder='홍길동'
+                    />
+                    <Button style={{ marginTop: 10 , height: 50 , justifyContent: 'center'  }} 
+                        onPress={() => {verify()}}
+                        mode={businessNumber.length&&openDate.length&&bossName.length ? 'contained' : 'outlined'}  
+                        color={colors.main}>
+                        다음
+                    </Button>
+                    </>
+                    )
+                }
+                {
+                    bottomPage == 2 && (
+                        <>
+                        <Title style={styles.title}> {bossName}님으로 인증할게요.(2/3)</Title>
+                        <View style={{ width: '100%' , height: 700 }}>
+                        
+                        <IMP.Certification
+                        userCode={'imp01457748'}  // 가맹점 식별코드
+                        // tierCode={'AAA'}      // 티어 코드: agency 기능 사용자에 한함
+                        data = {{
+                            merchant_uid: `mid_${new Date().getTime()}`,
+                            company: 'imaport',
+                            carrier: '',
+                            name: '',
+                            phone: '',
+                            min_age: '',
+                        }
+                        }
+                        loading={<ActivityIndicator />} // 로딩 컴포넌트
+                        callback={phoneAuth}   // 본인인증 종료 후 콜백
+                      />  
+                      </View>
+                      </>
+                    )
+                }
+                {
+                    bottomPage == 3 && (
+                        <>
+
+                        <Portal>
+                        <Modal 
+                            visible={visible} 
+                            onDismiss={ () => {setVisible(false)}}
+                            style= {{ alignItems : 'center' , justifyContent: 'center' , marginTop: 200   }}
+                            >
+                            <KeyboardAwareScrollView>
+                                <Postcode
+                                style={{ width : 300 , height: 500   }}
+                                jsOptions={{ animated: true }}
+                                onSelected={data => {setAddress(data.roadAddress) , setVisible(false)  } }
+                                />
+                            </KeyboardAwareScrollView>
+                        </Modal>
+                        </Portal>
+
+                        <Title style={styles.title}> 업체에 대해 알려주세요.(3/3)</Title>
+                        <View style = {{ width: '100%' , height: 700 }}>
+                            <Text style={styles.description}>업체명</Text>
+                            <TextInput theme={{ colors: { primary : colors.main , disabled: 'white'  }  }}
+                            // value={bossName}
+                            mode='flat'
+                            onChangeText={value=>{setName(value)}}
+                            placeholder='최강샵'
+                            />
+                            <Text style={styles.description}>주소</Text>
+                            <TextInput  left={<TextInput.Icon icon='home' size={24}/>}
+                            placeholder='주소를 선택하세요'
+                            theme={{ colors: { primary: colors.main , background: 'white' }}}
+                            editable={false}
+                            right= {<TextInput.Icon name='magnify' onPress={ () => { setVisible(true) } }/>}
+                            value={address}
+                            onChangeText={ value=> setAddress(value)}
+                            />
+                            <TextInput  
+                                placeholder='상세주소'
+                                theme={{ colors: { primary: colors.main , background: 'white' }}}
+                                value={detailAddress}
+                                onChangeText={ value=> setDetailAddress(value) }
+                            />
+                                <Button style={{ marginTop: 10 , height: 50 , justifyContent: 'center'  }} 
+                                onPress={() => { requestSignIn() }}
+                                mode='contained'
+                                disabled={ name.length && address.length && detailAddress.length ? false : true}
+                                color={colors.main}>
+                                가입하기
+                                </Button>
+                            </View>
+                            
+                
+                        </>
+                    )
+                }
+                
+                </KeyboardAwareScrollView>
+            </BottomSheetModal> 
         </View>
-
-
-    // <BottomSheetModalProvider >
-    //     <View>
-    //         <Appbar.Header style={{ backgroundColor: colors.main }}>
-    //         <Appbar.Content title='최강샵 ？' titleStyle={{  fontFamily : 'DoHyeon-Regular' , fontSize: 30 }} />
-    //         </Appbar.Header> 
-    //         <ScrollView style={{ flex: 1   }}>
-    //             <Row>
-    //                 <Image style={{ flex: 1 , margin: 10 }} source={{uri : 'https://picsum.photos/200'}} />
-    //                 <TextView>
-    //                     <Title style={styles.title}>간편가입</Title>
-    //                     <Text style={styles.description}>{'사업자등록번호와\n소셜 로그인을 통해 등록해보세요.'}</Text>
-    //                 </TextView>
-    //             </Row>
-
-    //             <Row>
-    //                 <Image style={{ flex: 1 , margin: 10 }} source={{uri : 'https://picsum.photos/100'}} />
-    //                 <TextView>
-    //                     <Title style={styles.title}>페이지관리</Title>
-    //                     <Text style={styles.description}>{'샵 페이지를 간편하게\n커스터마이징 해보세요.'}</Text>
-    //                     <Text style={{ color: 'gray', marginLeft: 10}}>*입찰때 고객들에게 제공됩니다.</Text>
-    //                 </TextView>
-    //             </Row>
-    //             <Row>
-    //                 <Image style={{ flex: 1 , margin: 10 }} source={{uri : 'https://picsum.photos/300'}} />
-    //                 <TextView>
-    //                     <Title style={styles.title}>입찰관리</Title>
-    //                     <Text style={styles.description}>{'고객이 원하는 시공품목을\n확인하고 바로 입찰해보세요.'}</Text>
-    //                 </TextView>
-    //             </Row>
-    //             <Row>
-    //                 <Image style={{ flex: 1 , margin: 10 }} source={{uri : 'https://picsum.photos/400'}} />
-    //                 <TextView>
-    //                     <Title style={styles.title}>시공관리</Title>
-    //                     <Text style={styles.description}>{'시공상황을 고객과\n간편하게 공유하고 소통해요.'}</Text>
-    //                 </TextView>
-    //             </Row>
-
-    //             <Row>
-    //                 <Image style={{ flex: 1 , margin: 10 }} source={{uri : 'https://picsum.photos/500'}} />
-    //                 <TextView>
-    //                     <Title style={styles.title}>고객관리</Title>
-    //                     <Text style={styles.description}>{'시공 후 고객들의 리뷰를\n확인하고 바로 답장해요.'}</Text>
-    //                 </TextView>
-    //             </Row>
-
-                
-                
-
-    //         </ScrollView>
-    //         <Button mode='contained' color={colors.main} style={{ height: 50}} onPress={handlePresentModalPress}>등록하기</Button>
-
-
-
-    //         {/* BottomSheet 모달  */}
-    //         <BottomSheetModal
-    //             ref={bottomSheetModalRef}
-    //             snapPoints={snapPoints}
-    //             // enablePanDownToClose={false}
-    //         >
-    //         <KeyboardAwareScrollView>
-    //             {
-    //                 bottomPage == 1 && (
-    //                 <>
-    //                 <Title style={styles.title}>나만의 샵을 등록해요. (1/2)</Title>
-                    
-    //                 <Text style={styles.description}>사업자등록번호</Text>
-    //                 <TextInput theme={{  colors: { primary : colors.main }  }}
-    //                     value={businessNumber}
-    //                     onChangeText={value=>{setBusinessNumber(value)}}
-    //                     keyboardType='number-pad'
-    //                     placeholder='10자리를 입력하세요 (-없이) '
-    //                 />
-                    
-    //                 <Text style={styles.description}>개업일자</Text>
-    //                 <TextInput theme={{ colors: { primary : colors.main }  }}
-    //                     value={openDate}
-    //                     onChangeText={value=>{setOpenDate(value)}}
-    //                     keyboardType='number-pad'
-    //                     placeholder='YYYYMMDD (예) 2021년 9월 27일 -> 20210927'
-    //                 />
-    //                 <Text style={styles.description}>대표자성명</Text>
-    //                 <TextInput theme={{ colors: { primary : colors.main , background: 'white' }  }}
-    //                     value={bossName}
-    //                     onChangeText={value=>{setBossName(value)}}
-    //                     placeholder='홍길동'
-    //                 />
-
-    //                 <Button style={{ marginTop: 10 , height: 50 , justifyContent: 'center' }} 
-    //                     onPress={() => {verify()}}
-    //                     mode={businessNumber.length&&openDate.length&&bossName.length ? 'contained' : 'outlined'}  
-    //                     color={colors.main}>
-    //                     다음
-    //                 </Button>
-    //                 </>
-    //                 )
-    //             }
-    //             {
-    //                 bottomPage == 2 && (
-    //                     <>
-    //                         <Title style={styles.title}>간편하게 인증해보세요. (2/2)</Title>
-    //                         <Button icon='chat' color='black' mode='outlined' 
-    //                             style={{height: 50 , justifyContent: 'center' , margin: 15 }}
-    //                         >
-    //                             카카오로 로그인
-    //                         </Button>
-    //                         <Button icon='chat' color='black' mode='outlined' 
-    //                             style={{height: 50 , justifyContent: 'center' , margin: 15 }}
-    //                         >
-    //                             네이버로 로그인
-    //                         </Button>
-    //                         <Button icon='google' color='black' mode='outlined' 
-    //                             style={{height: 50 , justifyContent: 'center' , margin: 15 }}
-    //                         >
-    //                             구글로 로그인
-    //                         </Button>
-    //                     </>
-    //                 )
-    //             }
-                
-    //             </KeyboardAwareScrollView>
-    //         </BottomSheetModal>
-    //     </View>
-    // </BottomSheetModalProvider>
+        </BottomSheetModalProvider>
+        </Provider>
     );
 }

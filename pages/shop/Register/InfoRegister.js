@@ -1,12 +1,16 @@
 import React from 'react' ;
 import styled from 'styled-components';
-import { Title , TextInput , Button , Avatar , Provider , Portal , Modal} from 'react-native-paper';
+import { Title , TextInput , Button , Avatar , Provider , Portal , Modal, Appbar} from 'react-native-paper';
 import colors from '../../../color/colors';
 import { Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Postcode from '@actbase/react-daum-postcode';
 // Async
 import store from '../../../storage/store';
+import axios from 'axios';
+import fetch from '../../../storage/fetch';
+import server from '../../../server/server';
+import AppContext from '../../../storage/AppContext';
 
 const Input = styled.TextInput`
     border: 3px ${colors.main};
@@ -20,11 +24,13 @@ const Row = styled.View`
     flex-direction: row;
     align-items: center;
 `;
+const View = styled.View``;
 
 const styles = {
     title : {
         fontWeight : 'bold' ,
         padding: 10 ,
+        marginTop: 10 ,
         color : colors.main , 
         fontFamily : 'DoHyeon-Regular' ,
         fontSize: 30
@@ -37,33 +43,84 @@ const styles = {
 }
 
 export default function( props ) {
-    const [info,setInfo] = React.useState('');
-    const [blogUrl,setBlogUrl] = React.useState('');
-    const [siteUrl,setSiteUrl] = React.useState('');
-    const [snsUrl,setSnsUrl] = React.useState('');
-    const [address,setAddress] = React.useState('');
-    const [detailAddress,setDetailAddress] = React.useState('');
-
+    const [info,setInfo] = React.useState(null);
+    const [contact,setContact] = React.useState(null);
+    const [blogUrl,setBlogUrl] = React.useState(null);
+    const [siteUrl,setSiteUrl] = React.useState(null);
+    const [snsUrl,setSnsUrl] = React.useState(null);
+    const [address,setAddress] = React.useState(null);
+    const [detailAddress,setDetailAddress] = React.useState(null);
+    let latitude = null ;
+    let longitude = null ;
     const [visible,setVisible] = React.useState(false) ;
+    const MyContext = React.useContext(AppContext) ;
+
+    // API Request
+   // 도로명 주소 -> 좌표로 변환
+    function getCoord(address){
+        return new Promise(resolve=>{
+            axios({
+                method: 'GET' ,
+                url : `https://api.vworld.kr/req/address?service=address&request=getCoord&key=98C4A0B1-90CD-30F6-B7D0-9F5A0DC9F18B&address=${address}&type=ROAD` ,
+            })
+            .then(async (res) => {
+                const point = res.data.response.result.point ;
+                latitude = point.y ;
+                longitude = point.x ;
+                resolve();
+            }
+            )
+            .catch(e => {
+                //
+            } ) ;
+        }) ;
+    
+    }
 
     const addInfo = async () => {
+
+        if ( address != null ) await getCoord(address) ;
+
         data = {
-            info : info ,
+            introduction : info ,
             blogUrl : blogUrl ,
             siteUrl : siteUrl ,
             snsUrl : snsUrl ,
             address : address ,
             detailAddress : detailAddress ,
+            latitude: latitude ,
+            longitude: longitude
         } ;
-        // 서버에게 전달
 
-        // 캐시 
         try {
-            store('Info',data) ;
-            props.navigation.goBack();
+            const res = await fetch('auth') ;
+            const auth = res.auth ;
+            // 서버 ( POST/PUT )
+            axios({
+                method: 'PUT' ,
+                url: `${server.url}/api/companyinfo`,
+                data: data ,
+                headers: {
+                    Auth: auth 
+                }
+            })
+            .then ( async (res)=>  {
+                console.log(res);
+                // 저장성공시
+                await store('Info',data) ;
+                MyContext.setInfoRefresh(!MyContext.infoRefresh) ;
+                props.navigation.goBack();
+            })
+            .catch( e =>  {
+                //
+                // console.log(e);
+                Alert.alert('다시 시도해주세요.');
+            })
+
         }
         catch {
-            console.log("Info 저장 에러");
+            //
+            Alert.alert('다시 시도해주세요.');
         }
 
         
@@ -72,12 +129,13 @@ export default function( props ) {
 
     // 기존 정보를 수정
     React.useEffect( () => { 
-        setInfo(props.route.params?.data?.info) ;
-        setBlogUrl(props.route.params?.data?.blogUrl) ;
-        setSiteUrl(props.route.params?.data?.siteUrl) ;
-        setSnsUrl(props.route.params?.data?.snsUrl) ;
-        setAddress(props.route.params?.data?.address);
-        setDetailAddress(props.route.params?.data?.detailAddress);
+            // PUT
+            setInfo(props.route.params?.data?.introduction) ;
+            setBlogUrl(props.route.params?.data?.blogUrl) ;
+            setSiteUrl(props.route.params?.data?.siteUrl) ;
+            setSnsUrl(props.route.params?.data?.snsUrl) ;
+            setAddress(props.route.params?.data?.address);
+            setDetailAddress(props.route.params?.data?.detailAddress);
     },[]);
 
     return(
@@ -98,6 +156,13 @@ export default function( props ) {
                     </KeyboardAwareScrollView>
                 </Modal>
             </Portal>
+            <Appbar.Header style={{ backgroundColor: 'white' }}>
+                <Appbar.BackAction onPress={() => { props.navigation.goBack() }}/>
+                <Appbar.Content title='업체 소개'  style={{ flex:1 }}/>
+                <View>
+                    <Button color='black' onPress={addInfo} >수정하기</Button>
+                </View>
+            </Appbar.Header>
             <Row>
                 <Title style={ styles.title }> 업체 소개를 해주세요.</Title>
                 <Button color='red' 
@@ -120,22 +185,29 @@ export default function( props ) {
                 onChangeText = { value => setInfo(value) }
                 placeholder='업체 소개를 해주세요.'
             />
+            <TextInput  left={<TextInput.Icon icon='phone' size={24}/>}
+                placeholder='업체 전화번호'
+                theme={{ colors: { primary: colors.main , background: 'white' }}}
+                keyboardType='number-pad'
+                value={contact}
+                onChangeText={ value=> setContact(value)  }
+            />
             <TextInput  left={<TextInput.Icon icon='link' size={24}/>}
-                placeholder='(선택)블로그/카페 주소를 입력하세요.'
+                placeholder='블로그/카페 주소'
                 theme={{ colors: { primary: colors.main , background: 'white' }}}
                 keyboardType='email-address'
                 value={blogUrl}
                 onChangeText={ value=> setBlogUrl(value) }
             />
             <TextInput  left={<TextInput.Icon icon='web' size={24}/>}
-                placeholder='(선택)자체사이트 주소를 입력하세요.'
+                placeholder='자체사이트 주소'
                 theme={{ colors: { primary: colors.main , background: 'white' }}}
                 keyboardType='email-address'
                 value={siteUrl}
                 onChangeText={ value=> setSiteUrl(value) }
             />
             <TextInput  left={<TextInput.Icon icon='instagram' size={24}/>}
-                placeholder='(선택)SNS 주소를 입력하세요.'
+                placeholder='SNS 주소'
                 theme={{ colors: { primary: colors.main , background: 'white' }}}
                 keyboardType='email-address'
                 value={snsUrl}
@@ -156,13 +228,13 @@ export default function( props ) {
                 onChangeText={ value=> setDetailAddress(value) }
             />
 
-            <Button onPress={ () => { addInfo() }} mode='outlined'
+            {/* <Button onPress={ () => { addInfo() }} mode='outlined'
                 color = { colors.main }
                 mode={ 'contained' }
                 style={{ margin: 10 }}
             >
                 수정하기
-            </Button>
+            </Button> */}
         </KeyboardAwareScrollView> 
         </Provider>
     );
