@@ -7,25 +7,26 @@ import ProductDetailRegister from './pages/shop/Register/ProductDetailRegister';
 
 
 //test
-// import messaging from '@react-native-firebase/messaging';
+import messaging from '@react-native-firebase/messaging';
 // import TestMain from './pages/shop/Test/MainTest';
 
 
 
-// async function requestUserPermission() {
-//   const authStatus = await messaging().requestPermission();
-//   const enabled =
-//     authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-//     authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+async function requestUserPermission() {
+  const authStatus = await messaging().requestPermission();
+  const enabled =
+    authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+    authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
-//   if (enabled) {
-//     console.log('Authorization status:', authStatus);
-//   }
+  if (enabled) {
+    console.log('Authorization status:', authStatus);
+  }
 
-// }
+}
 
 function App (props) {
   
+
   return (
     // <Register />
     // <NewRegister />

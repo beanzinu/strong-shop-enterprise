@@ -4,6 +4,7 @@ import { Appbar , BottomNavigation , Text , IconButton } from 'react-native-pape
 import { createStackNavigator  } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import colors from '../../color/colors';
+import messaging from '@react-native-firebase/messaging';
 // pages 
 import BidPage from './BidPage/BidPage';
 import BidRegister from './BidPage/BidRegister';
@@ -66,6 +67,14 @@ const bidRoute = () => {
 const chatRoute = () => <ChatPage/>
 
 export default function() {
+
+    React.useEffect(()=>{
+        messaging().setBackgroundMessageHandler(async remoteMessage => {
+            console.log('Message handled in the background!', remoteMessage);
+            setIndex(2);
+          });
+    },[]);
+    
     const [index, setIndex] = React.useState(0);
     const [routes] = React.useState([
       { key: 'home', title: '홈', icon: 'home' },
