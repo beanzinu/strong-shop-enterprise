@@ -20,6 +20,7 @@ const PostButton = styled.TouchableOpacity`
     align-items: center;
 `;
 const View= styled.View``;
+const PostView = styled.TouchableOpacity``;
 
 const styles = {
     button : {
@@ -30,8 +31,10 @@ const styles = {
 
 
 export default function( props ) {
+   const [loading,setLoading] = React.useState(true);
    const [postData,setPostData] = React.useState([]);
    const MyContext = React.useContext(AppContext);
+   
 
     requestImage = async() =>  {
 
@@ -47,12 +50,17 @@ export default function( props ) {
         })
         .then ( res =>  {
             setPostData(res.data.data) ;
+            setLoading(false);
         })
         .catch(e  => {
             //
         })
     }
 
+    React.useEffect(() => {
+        if ( this.flatList != null )
+            this?.flatList?.scrollToOffset({ offset: 0 });
+    },[props.listControl]);
 
     React.useEffect(() =>  {
         // 사진요청
@@ -64,8 +72,8 @@ export default function( props ) {
   // 1개의 게시물 
   const RenderItem = ({ item }) =>  {
         return(
-        <PostButton onPress= { () =>  { props.navigation.navigate('Post',{ data: props.data  , uri : item.imageUrls , content : item.content }) }}>
-            <FastImage source= { { uri: item.imageUrls[0].imageUrl }  } style={{ width: '100%' , height: '100%' }} />
+        <PostButton onPress= { () =>  { props.navigation.navigate('Post',{ data: props.data  , uri : item.imageUrls , content : item.content , name : props.shopName }) }}>
+            <FastImage resizeMode='cover' source= { { uri: item?.imageUrls[0]?.imageUrl }  } style={{ width: '100%' , height: '100%' }} />
         </PostButton>    
         );
     }
@@ -77,32 +85,43 @@ export default function( props ) {
 
     return (
         <View style={{ backgroundColor: 'white' , flex: 1}}>  
-        <Button icon='pencil-plus-outline' 
-            style={ styles.button }
-            color={ colors.main }
-            onPress={ () =>  { props.navigation.navigate('PostRegister', { data : props.data }) }}
-        >
-            작성하기
-        </Button>
         {
-            postData.length == 0 ? (
-                <View style={{ backgroundColor: 'white' , justifyContent: 'center' , alignItems: 'center' , flex: 1}}>
-                    <Avatar.Icon icon='camera-plus' style={{ backgroundColor: 'transparent'}} color={colors.main}/>
-                    <Title>시공사진을 등록해보세요.</Title>
-                </View>
-            ) :
+            loading ? (
+                <ActivityIndicator style={{ marginTop: 20 }} size='large' color={colors.main}/>
+            ):
             (
-                <FlatList
-                onScrollEndDrag={this.handleScroll}
-                data={ postData } 
-                renderItem = {RenderItem}
-                horizontal={false}
-                numColumns={3}
-                keyExtractor={(item) => item.uri}
-                />
+                <>
+                <Button icon='pencil-plus-outline' 
+                    style={ styles.button }
+                    color={ colors.main }
+                    onPress={ () =>  { props.navigation.navigate('PostRegister', { data : props.data ,  name : props.shopName   }) }}
+                >
+                    작성하기
+                </Button>
+                {
+                    postData.length == 0 ? (
+                        <PostView style={{ backgroundColor: 'white' , justifyContent: 'center' , alignItems: 'center' , flex: 1}}
+                            onPress={() => { props.navigation.navigate('PostRegister', { data : props.data ,  name : props.shopName  }) }}
+                        >
+                            <Avatar.Icon icon='camera-plus' style={{ backgroundColor: 'transparent'}} color={colors.main}/>
+                            <Title>시공사진을 등록해보세요.</Title>
+                        </PostView>
+                    ) :
+                    (
+                        <FlatList
+                        ref={ ref => this.flatList = ref }
+                        onScrollEndDrag={this.handleScroll}
+                        data={ postData } 
+                        renderItem = {RenderItem}
+                        horizontal={false}
+                        numColumns={3}
+                        keyExtractor={(item) => item.id }
+                        />
+                    )
+                }
+                </>
             )
-        }
-        
+        }      
         </View>       
     );
 }

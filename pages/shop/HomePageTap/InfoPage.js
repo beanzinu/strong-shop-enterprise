@@ -85,12 +85,7 @@ export default function( props ) {
                 .then( async(res)=> {
                     // 2. Info 정보를 setData()
                     try {
-                        if ( res.status == 204 ) {
-                            // POST
-                            setData(null);
-                            setMap(null) ;
-                        }
-                        else {
+                        if ( res.data.statusCode == 200 ) {
                             // PUT
                             await store('Info',res.data.data) ;
                             setData( res.data.data );
@@ -98,7 +93,7 @@ export default function( props ) {
                         }
                     }
                     catch(e) {
-                    
+                        //
                     }
                 })
                 .catch (e => {
@@ -113,12 +108,18 @@ export default function( props ) {
 
         });
     }
+
     
-    React.useEffect( async () =>  {
+    React.useEffect(() => {
+        if ( this.flatList != null )
+            this?.flatList?.scrollToPosition(0);
+    },[props.listControl]);
+
+    React.useEffect(() =>  {
 
         // 1. 캐시 / 서버조회 => data => POST/PUT
         // 다시 Focus 되었을 때 변경사항이 있는지 확인
-        await fetchInfo(); 
+        fetchInfo(); 
   
     },[MyContext.infoRefresh]);
 
@@ -127,6 +128,7 @@ export default function( props ) {
         {
             coord == 0 ? ( <ActivityIndicator size='large' color={colors.main} style={{ marginTop: 20 }}/> ) : (
             <KeyboardAwareScrollView 
+                ref={ ref => { this.flatList = ref }}
                 style={{ backgroundColor: 'white' }}
 
             >

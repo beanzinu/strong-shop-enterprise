@@ -14,6 +14,7 @@ import { login } from '@react-native-seoul/kakao-login';
 import auth from '@react-native-firebase/auth'
 import IMP from 'iamport-react-native';
 import Postcode from '@actbase/react-daum-postcode';
+import messaging from '@react-native-firebase/messaging';
 //
 import server from '../../server/server';
 import store from '../../storage/store';
@@ -68,15 +69,18 @@ const styles = {
 export default function({getMain}) {
     const snapPoints = React.useMemo(() => ['80%'], []);
     const [name,setName] = React.useState('');
-    const [businessNumber,setBusinessNumber] = React.useState('');
+    // const [businessNumber,setBusinessNumber] = React.useState('');
+    const [businessNumber,setBusinessNumber] = React.useState('1234512345');
     const [openDate,setOpenDate] = React.useState('');
     const [bossName,setBossName] = React.useState('');
 
     const [bottomPage,setBottomPage] = React.useState(1);
     const [dtoData,setDtoData] = React.useState(null);
 
-    const [address,setAddress] = React.useState('');
-    const [detailAddress,setDetailAddress] = React.useState('');
+    // const [address,setAddress] = React.useState('');
+    const [address,setAddress] = React.useState('서울시 강남구 삼성로 11');
+    // const [detailAddress,setDetailAddress] = React.useState('');
+    const [detailAddress,setDetailAddress] = React.useState('303호');
     const [visible,setVisible] = React.useState(false);
 
     let latitude = null ;
@@ -153,7 +157,15 @@ export default function({getMain}) {
         })
     }
 
-    function requestSignIn() {
+    async function requestSignIn() {
+
+
+        let FCM_Token ;
+
+        await messaging().getToken().then( res =>{
+            FCM_Token = res ;
+        })
+
         // 서버에게 dtoData 전달
         axios({
             method: 'POST',
@@ -162,7 +174,8 @@ export default function({getMain}) {
                 ...dtoData ,
                 businessNumber: businessNumber ,
                 bossName: bossName ,
-                name: name
+                name: name ,
+                fcmToken: FCM_Token 
             }
         })
         .then(async(res) =>{
@@ -447,7 +460,7 @@ export default function({getMain}) {
                             <TextInput  
                                 placeholder='상세주소'
                                 theme={{ colors: { primary: colors.main , background: 'white' }}}
-                                value={detailAddress}
+                                // value={detailAddress}
                                 onChangeText={ value=> setDetailAddress(value) }
                             />
                                 <Button style={{ marginTop: 10 , height: 50 , justifyContent: 'center'  }} 

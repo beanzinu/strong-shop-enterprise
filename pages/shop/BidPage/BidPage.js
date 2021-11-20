@@ -4,22 +4,25 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { 
     Appbar , Title , Divider , List,
     Button ,  IconButton , Chip ,
-    Provider , Modal , Portal, Avatar 
+    Provider , Modal , Portal, Avatar, ActivityIndicator 
 } 
 from 'react-native-paper';
 import { ScrollView } from 'react-native-gesture-handler';
 import colors from '../../../color/colors';
 import { SafeAreaView } from 'react-native';
+import { FlatList } from 'react-native';
 import axios from 'axios';
 import server from '../../../server/server' ;
 import fetch from '../../../storage/fetch' ;
 import _ from 'lodash';
 import store from '../../../storage/store';
-import { useIsFocused } from '@react-navigation/native';
 import { Dimensions } from 'react-native';
+import AppContext from '../../../storage/AppContext';
+import { useIsFocused } from '@react-navigation/native';
 
 // pages
 import BidRegister_current from './BidRegister_current';
+import BidRegister_history from './BidRegister_history';
 
 const View = styled.SafeAreaView``;
 const Row = styled.View`
@@ -223,12 +226,10 @@ function translate(option,item){
 
 
 // 각각의 입찰요청항목
-function Item ( {i , item , navigation , id} ) {
+function Item ( { item , navigation , id } ) {
     const [expanded,setExpanded] = React.useState(false) ;
-    
-
     return( 
-                    <List.Section key={i}>
+                    <List.Section key={id}>
                           <List.Accordion
                             title={item.carName}
                             style={styles.listAccordionStyle}
@@ -246,8 +247,8 @@ function Item ( {i , item , navigation , id} ) {
                                         <Row>
                                             {
                                                 _.map(item.options.detailTinting,(value,key) => { 
-                                                    if (key == 'ETC' && value != null && value.length != 0  ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
-                                                    if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('tinting',key) }</Chip>  
+                                                    if (key == 'ETC' && value != null && value.length != 0  ) return <Chip key={key} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
+                                                    if(value) return <Chip key={key+'a'} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('tinting',key) }</Chip>  
                                                 })
                                             }
                                         </Row>
@@ -258,8 +259,8 @@ function Item ( {i , item , navigation , id} ) {
                                         <Row>
                                             {
                                                 _.map(item.options.detailPpf,(value,key) => { 
-                                                    if (key == 'ETC' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
-                                                    if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('ppf',key) }</Chip>  
+                                                    if (key == 'ETC' && value != null && value.length != 0 ) return <Chip key={key} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
+                                                    if(value) return <Chip key={key+'a'} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('ppf',key) }</Chip>  
                                                 })
                                             }
                                         </Row>
@@ -271,8 +272,8 @@ function Item ( {i , item , navigation , id} ) {
                                         <Row>
                                             {
                                                 _.map(item.options.detailBlackbox,(value,key) => { 
-                                                    if (key == 'ETC' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
-                                                    if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('blackbox',key) }</Chip>  
+                                                    if (key == 'ETC' && value != null && value.length != 0 ) return <Chip key={key} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
+                                                    if(value) return <Chip key={key+'a'}  style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('blackbox',key) }</Chip>  
                                                 })
                                             }
                                         </Row>
@@ -284,8 +285,8 @@ function Item ( {i , item , navigation , id} ) {
                                         <Row>
                                             {
                                                 _.map(item.options.detailBattery,(value,key) => { 
-                                                    if (key == 'ETC' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
-                                                    if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('battery',key) }</Chip>  
+                                                    if (key == 'ETC' && value != null && value.length != 0 ) return <Chip  key={key} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
+                                                    if(value) return <Chip key={key+'a'}  style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('battery',key) }</Chip>  
                                                 })
                                             }
                                         </Row>
@@ -297,8 +298,8 @@ function Item ( {i , item , navigation , id} ) {
                                         <Row>
                                             {
                                                 _.map(item.options.detailAfterblow,(value,key) => { 
-                                                    if (key == 'ETC' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
-                                                    if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('afterblow',key) }</Chip>  
+                                                    if (key == 'ETC' && value != null && value.length != 0 ) return <Chip  key={key} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
+                                                    if(value) return <Chip key={key+'a'}  style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('afterblow',key) }</Chip>  
                                                 })
                                             }
                                         </Row>
@@ -310,8 +311,8 @@ function Item ( {i , item , navigation , id} ) {
                                         <Row>
                                             {
                                                 _.map(item.options.detailSoundProof,(value,key) => { 
-                                                    if (key == 'ETC' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
-                                                    if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('soundproof',key) }</Chip>  
+                                                    if (key == 'ETC' && value != null && value.length != 0 ) return <Chip key={key} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
+                                                    if(value) return <Chip key={key+'a'}  style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('soundproof',key) }</Chip>  
                                                 })
                                             }
                                         </Row>
@@ -323,8 +324,8 @@ function Item ( {i , item , navigation , id} ) {
                                         <Row>
                                             {
                                                 _.map(item.options.detailWrapping,(value,key) => { 
-                                                    if (key == 'DESIGN' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
-                                                    if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('wrapping',key) }</Chip>  
+                                                    if (key == 'DESIGN' && value != null && value.length != 0 ) return <Chip key={key} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
+                                                    if(value) return <Chip key={key+'a'} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('wrapping',key) }</Chip>  
                                                 })
                                             }
                                         </Row>
@@ -332,7 +333,7 @@ function Item ( {i , item , navigation , id} ) {
                                 }
                                 {item.options.glasscoating && <><List.Item titleStyle={styles.listStyle}  title ='유리막코팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} /></>} 
                                 {item.options.undercoating && <><List.Item titleStyle={styles.listStyle}  title ='언더코팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} /></>}
-                                <Divider/>
+                                <Divider style={{ marginTop: 5 }} />
                                 <List.Item 
                                     // style={{ borderWidth: 1 ,borderColor: 'lightgray'}}
                                     titleStyle={{  fontWeight: 'bold' }} 
@@ -365,11 +366,24 @@ const defaultRegions = {
 }
 
 export default function ( props ) {
+    // 로드 threshold 
+    const loadThresh = 10 ;
+    const [fullData,setFullData] = React.useState([]);
     const [data,setData] = React.useState([]);
+    const [shopName,setShopName] = React.useState('');
     const [menu,setMenu] = React.useState(1);
     const [modalVisible,setModalVisible] = React.useState(false);
     const [regions,setRegions] = React.useState(defaultRegions) ;
+    const MyContext = React.useContext(AppContext);
     // const isFocused = useIsFocused();
+
+    const RenderItem= ({ item }) => {
+        let tmp = JSON.parse(item.details);
+        // console.log(tmp);
+        return (
+            <Item item={tmp} navigation={props.navigation} key={item.id} id = {item.id}/>
+        )
+    }
 
 
     const handleRegion = (region) => { 
@@ -432,44 +446,94 @@ export default function ( props ) {
 
     }
 
+    const isFocused = useIsFocused();
+
+    React.useEffect(() => {
+
+        // 업체이름 가져오기
+        fetch('Info')   
+        .then( res => {
+            setShopName( res?.company_name );
+        })
     
+    },[]);
 
-    React.useEffect(async () => {
+    const loadPartialData = () => {
+        // 새로운 데이터 X
+        if ( fullData.length == 0 ) return;
+        // 10개씩 로드 
+        if ( fullData.length > loadThresh ) {
+            let tmp =  _.concat(data,_.slice(fullData,0,loadThresh) ) 
+            setData ( tmp );
+            setFullData( _.drop(fullData,loadThresh) ) ;
+        }
+        // 10개미만 모두 로드
+        else {
+            setData( _.concat(data,fullData) )
+            setFullData([]);
+        }
 
-        // 서버
-        // 선택지역 캐시 있으면 requestOrders() 
-        await fetch('orderRegion')
-        .then( async (res) => {
+    }
+    
+    
+    React.useEffect(() => {
+
+
+    // 서버
+    // 선택지역 캐시 있으면 requestOrders() 
+    if ( isFocused ) {
+   
+        fetch('orderRegion')
+        .then( (res) => {
             if (res?.region != null ) {
+                    const res_region = res.region;
+                    cacheRegion(res.region);
 
-                cacheRegion(res.region);
-
-                const token = await fetch('auth') ;
-                const auth = token.auth ;
-                axios({
-                    method: 'GET' ,
-                    url: `${server.url}/api/orders?regions=${res.region}` ,
-                    headers: { Auth: auth  }
-                })
-                .then( res => {
-                     setData(res.data.data);
-                })
-                .catch( e => {
-                    //
-                })
-            }
+                    fetch('auth')
+                    .then( res => {
+                        const auth = res.auth ;
+                        axios({
+                            method: 'GET' ,
+                            url: `${server.url}/api/orders?regions=${res_region}` ,
+                            headers: { Auth: auth  }
+                        })
+                        .then( res => {
+                                let rawData = res.data.data;
+                                // 새로운 데이터 X
+                                if ( rawData.length == 0 ) setData([]);
+                                // 10개씩 로드 
+                                else if ( rawData.length > loadThresh ) {
+                                    let tmp =  _.slice(rawData,0,loadThresh) ;
+                                    setData ( tmp );
+                                    setFullData( _.drop(rawData,loadThresh) ) ;
+                                }
+                                // 10개미만 모두 로드
+                                else {
+                                    setData( rawData );
+                                    setFullData([]);
+                                }
+                            })
+                        .catch( e => {
+                                //
+                        })
+                    })
+                    .catch(e => { }) ;
+                    
+                }
+                
         })
         .catch( e=> {
 
         })
+    }
         
         
-    },[]);
+    },[MyContext.bidRef]);
 
 
     return (
     <Provider>
-    <KeyboardAwareScrollView style={{ backgroundColor: 'white' }}>
+    <>
         <Portal>
             <Modal visible={modalVisible} contentContainerStyle={{ backgroundColor: 'white' , width: '100%' , height: 500 , marginRight: 10 , bottom: 0 , position: 'absolute' }}>
                 <View style={{ width: '100%' , height: 500  }}>
@@ -490,9 +554,9 @@ export default function ( props ) {
             </Modal>
         </Portal>
 
-        <SafeAreaView>
+        <>
         <Appbar.Header style={{ backgroundColor: 'transparent' , elevation: 0 }}>
-            <Appbar.Content title="최강샵" titleStyle={{ fontFamily : 'DoHyeon-Regular' , fontSize: 30 , color: 'gray'  }} />
+            <Appbar.Content title={shopName} titleStyle={{ fontFamily : 'DoHyeon-Regular' , fontSize: 30 , color: 'gray'  }} />
             {/* <Appbar.Action icon="bell-outline" color='gray' onPress={() => {}} /> */}
             {/* <Appbar.Action icon="cog-outline" color='gray' onPress={() => { props.navigation.navigate('MyPage')}} /> */}
         </Appbar.Header>   
@@ -507,8 +571,9 @@ export default function ( props ) {
         {
             menu == 1 && 
             <>
-            <ScrollView horizontal={true} contentContainerStyle={{ alignItems: 'center' }}>
-                <Button icon='plus' style={{ alignSelf: 'flex-start' , padding: 5 , margin: 10 , borderRadius: 30 }} mode='contained' color={colors.main} onPress={() => { setModalVisible(true) }}>
+            <Row>
+            <ScrollView horizontal={true} contentContainerStyle={{ alignItems: 'center' , height: 70 }}>
+                <Button icon='plus' style={{  padding: 5, margin: 10 , borderRadius: 30 }} mode='contained' color={colors.main} onPress={() => { setModalVisible(true) }}>
                     지역
                 </Button>
                 {
@@ -533,6 +598,7 @@ export default function ( props ) {
                     regions.jeju && <Chip style={{ padding: 3 , margin: 3 }}>제주</Chip>
                 }
             </ScrollView>
+            </Row>
             {
                 data.length == 0 ? (
                     <View style={{ height: Dimensions.get('screen').height*0.6 , justifyContent: 'center' , alignItems: 'center'  }}>
@@ -541,13 +607,26 @@ export default function ( props ) {
                     </View>
                 ) :
                 (
-                    data.map( (item,i) => {    
-                        let tmp = JSON.parse(item.details) ;
-                        return (
-                        <Item item={tmp} i={i} navigation={props.navigation} id={item.id}/>
-                        )
-                    }
-                    )                       
+                    <View style={{ flex: 1 }}>
+                    <FlatList
+                        nestedScrollEnabled={true}
+                        renderItem={RenderItem}
+                        data={data}
+                        numColumns={1}
+                        keyExtractor={item => item.id }
+                        onEndReachedThreshold={0.05}
+                        onEndReached={() => { loadPartialData() }}
+                    />
+                    </View>
+
+                    // data.map( (item,i) => {    
+                    //     let tmp = JSON.parse(item.details) ;
+                    //     return (
+                    //     <Item item={tmp} i={i} navigation={props.navigation} id={item.id}/>
+                    //     )
+                    // }
+
+                    // )                       
                 )
             }
             
@@ -563,16 +642,11 @@ export default function ( props ) {
         {/* 입찰 후 */}
         {
             menu == 3 && 
-            myResult.map( (item,i) => {
-                    return (
-                    <Item item={item} i={i} navigation={props.navigation}/>
-                    )
-                }
-            )
+            <BidRegister_history />
         }
 
-        </SafeAreaView>
-    </KeyboardAwareScrollView>  
+        </>
+    </>  
     </Provider>
     );
 }

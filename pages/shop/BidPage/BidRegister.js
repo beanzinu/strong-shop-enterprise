@@ -1,6 +1,6 @@
 import React from 'react' ;
 import styled from 'styled-components';
-import { Title , IconButton , Button , TextInput, Avatar , Chip , List } from 'react-native-paper';
+import { Title , IconButton , Button , TextInput, Avatar , Chip , List , Provider , Modal , Portal } from 'react-native-paper';
 import axios from 'axios';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import colors from '../../../color/colors';
@@ -9,6 +9,9 @@ import Collapsible from 'react-native-collapsible';
 import _, { after } from 'lodash';
 import fetch from '../../../storage/fetch';
 import server from '../../../server/server';
+import LottieView from 'lottie-react-native';
+import AppContext from '../../../storage/AppContext';
+
 
 const Container = styled.SafeAreaView``;
 const Text = styled.Text``;
@@ -102,6 +105,7 @@ function translate(option,item){
 }
 
 export default function( props ) {
+    const [requesting,setRequesting] = React.useState(false);
     const [data,setData] = React.useState({}) ;
     const [id,setId] = React.useState('');
     const [tinting,setTinting] = React.useState('');
@@ -122,6 +126,7 @@ export default function( props ) {
     const [glasscoatingPrice,setGlasscoatingPrice] = React.useState('');
     const [undercoating,setUndercoating] = React.useState('');
     const [undercoatingPrice,setUndercoatingPrice] = React.useState('');
+    const MyContext = React.useContext(AppContext);
     
     const getSum = () => {
         return Number(tintingPrice) + Number(ppfPrice) + Number(blackboxPrice) + Number(batteryPrice) + Number(afterblowPrice) + Number(soundproofPrice) + Number(wrappingPrice) + Number(glasscoatingPrice) + Number(undercoatingPrice) ;
@@ -171,6 +176,7 @@ export default function( props ) {
     }
 
     async function requestBidding() {
+        setRequesting(true);
         let data1 = {} ;
         if ( data.options['tinting']  ) {
             data1['tinting'] = tinting , data1['tintingPrice'] = tintingPrice ;
@@ -220,21 +226,32 @@ export default function( props ) {
             if ( res.data.statusCode == 201) {
                 Alert.alert('입찰완료');
                 props.navigation.goBack();
+                MyContext.setBidRef(!MyContext.bidRef);
             }
             else {
-                Alert.alert('다시 시도해주세요.')
+                Alert.alert('다시 시도해주세요.');
+                setRequesting(false);
             }
         })
         .catch ( e =>  {
-
+            Alert.alert('다시 시도해주세요.');
+            setRequesting(false);
         })
 
         
     }
 
 
-    return(                  
+    return(               
+        <Provider>
         <KeyboardAwareScrollView style={{ backgroundColor: 'white' }}>
+
+        <Portal>
+            <Modal visible={requesting} style={{ alignItems: 'center' , justifyContent: 'center' , backgroundColor: 'transparent' }} >
+                <LottieView style={{ width: 200, height: 100 }} source={require('../Register/2.json')} autoPlay={true} loop={true}/>
+            </Modal>
+        </Portal>
+
             <Row style={{ borderBottomWidth: 1 , borderBottomColor: 'gray' }}>
                 <Avatar.Icon icon='car-arrow-left' color='red' style={{ backgroundColor: 'transparent'}} />
                 <Title style={{ ...styles.title  }}>{data.carName}</Title>
@@ -511,5 +528,6 @@ export default function( props ) {
                     입찰하기
             </Button>
         </KeyboardAwareScrollView>
+        </Provider>   
     );
 }

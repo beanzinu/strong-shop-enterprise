@@ -83,6 +83,7 @@ export default function( props ) {
 
         data = {
             introduction : info ,
+            contact: contact ,
             blogUrl : blogUrl ,
             siteUrl : siteUrl ,
             snsUrl : snsUrl ,
@@ -92,12 +93,13 @@ export default function( props ) {
             longitude: longitude
         } ;
 
+        
         try {
             const res = await fetch('auth') ;
             const auth = res.auth ;
             // 서버 ( POST/PUT )
             axios({
-                method: 'PUT' ,
+                method: 'POST' ,
                 url: `${server.url}/api/companyinfo`,
                 data: data ,
                 headers: {
@@ -140,7 +142,7 @@ export default function( props ) {
 
     return(
         <Provider>
-        <KeyboardAwareScrollView>
+        <KeyboardAwareScrollView ref={ ref => this.flatList = ref}>
             <Portal>
                 <Modal 
                     visible={visible} 
@@ -226,6 +228,7 @@ export default function( props ) {
                 theme={{ colors: { primary: colors.main , background: 'white' }}}
                 value={detailAddress}
                 onChangeText={ value=> setDetailAddress(value) }
+                onEndEditing={() => this.flatList.scrollToPosition(0) }
             />
 
             {/* <Button onPress={ () => { addInfo() }} mode='outlined'

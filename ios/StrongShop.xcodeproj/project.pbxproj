@@ -18,6 +18,7 @@
 		FCBC4A4F26E78E7C00CAFE68 /* EastSeaDokdo-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FCBC4A4E26E78E7C00CAFE68 /* EastSeaDokdo-Regular.ttf */; };
 		FCBC4A5126E7912D00CAFE68 /* SongMyung-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FCBC4A5026E7912D00CAFE68 /* SongMyung-Regular.ttf */; };
 		FCBC4A5326E794DE00CAFE68 /* DoHyeon-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FCBC4A5226E794DE00CAFE68 /* DoHyeon-Regular.ttf */; };
+		FCD1D33A27426AB70078AFD5 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = FCD1D33927426AB70078AFD5 /* GoogleService-Info.plist */; };
 		FCDA7BF126CCE88F002CCBEA /* FontAwesome.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FC91417126C424930077FF86 /* FontAwesome.ttf */; };
 		FCDA7BF226CCE88F002CCBEA /* FontAwesome5_Solid.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FC91417326C424930077FF86 /* FontAwesome5_Solid.ttf */; };
 		FCDA7BF326CCE88F002CCBEA /* Feather.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FC91417526C424930077FF86 /* Feather.ttf */; };
@@ -34,7 +35,6 @@
 		FCDA7BFE26CCE88F002CCBEA /* Entypo.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FC91417226C424930077FF86 /* Entypo.ttf */; };
 		FCDA7BFF26CCE88F002CCBEA /* MaterialIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FC91417726C424930077FF86 /* MaterialIcons.ttf */; };
 		FCDA7C0026CCE88F002CCBEA /* Fontisto.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FC91417426C424930077FF86 /* Fontisto.ttf */; };
-		FCDA7C0226CCEA1C002CCBEA /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = FCDA7C0126CCEA1C002CCBEA /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -86,8 +86,8 @@
 		FCBC4A4E26E78E7C00CAFE68 /* EastSeaDokdo-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "EastSeaDokdo-Regular.ttf"; path = "Fonts/EastSeaDokdo-Regular.ttf"; sourceTree = "<group>"; };
 		FCBC4A5026E7912D00CAFE68 /* SongMyung-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SongMyung-Regular.ttf"; sourceTree = "<group>"; };
 		FCBC4A5226E794DE00CAFE68 /* DoHyeon-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "DoHyeon-Regular.ttf"; sourceTree = "<group>"; };
+		FCD1D33927426AB70078AFD5 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		FCDA7BEE26CCD5BF002CCBEA /* StrongShop.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = StrongShop.entitlements; path = StrongShop/StrongShop.entitlements; sourceTree = "<group>"; };
-		FCDA7C0126CCEA1C002CCBEA /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -130,7 +130,7 @@
 		13B07FAE1A68108700A75B9A /* StrongShop */ = {
 			isa = PBXGroup;
 			children = (
-				FCDA7C0126CCEA1C002CCBEA /* GoogleService-Info.plist */,
+				FCD1D33927426AB70078AFD5 /* GoogleService-Info.plist */,
 				FCDA7BEE26CCD5BF002CCBEA /* StrongShop.entitlements */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
@@ -332,12 +332,12 @@
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				FCBC4A4F26E78E7C00CAFE68 /* EastSeaDokdo-Regular.ttf in Resources */,
 				FCDA7C0026CCE88F002CCBEA /* Fontisto.ttf in Resources */,
-				FCDA7C0226CCEA1C002CCBEA /* GoogleService-Info.plist in Resources */,
 				FCDA7BFC26CCE88F002CCBEA /* Octicons.ttf in Resources */,
 				FCDA7BF426CCE88F002CCBEA /* SimpleLineIcons.ttf in Resources */,
 				FCDA7BFA26CCE88F002CCBEA /* MaterialCommunityIcons.ttf in Resources */,
 				FCDA7BFF26CCE88F002CCBEA /* MaterialIcons.ttf in Resources */,
 				FCDA7BF626CCE88F002CCBEA /* EvilIcons.ttf in Resources */,
+				FCD1D33A27426AB70078AFD5 /* GoogleService-Info.plist in Resources */,
 				FCDA7BFE26CCE88F002CCBEA /* Entypo.ttf in Resources */,
 				FCDA7BF126CCE88F002CCBEA /* FontAwesome.ttf in Resources */,
 			);
@@ -609,7 +609,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.strongshop.mobile;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mobile.strongshop;
 				PRODUCT_NAME = StrongShop;
 				SWIFT_OBJC_BRIDGING_HEADER = "StrongShop-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -637,7 +637,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.strongshop.mobile;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mobile.strongshop;
 				PRODUCT_NAME = StrongShop;
 				SWIFT_OBJC_BRIDGING_HEADER = "StrongShop-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;

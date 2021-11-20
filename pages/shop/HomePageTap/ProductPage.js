@@ -1,5 +1,5 @@
 import React from 'react';
-import { DataTable , Title , Card , Button , IconButton , FAB, Avatar } from 'react-native-paper';
+import { DataTable , Title , Card , Button , IconButton , FAB, Avatar, ActivityIndicator } from 'react-native-paper';
 import styled from 'styled-components';
 import { ScrollView } from 'react-native-gesture-handler';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
@@ -90,7 +90,13 @@ function ProductItem( {item} ) {
     )
 }
 
-function Product( {DATA} ) {
+function Product( {DATA, listControl} ) {
+
+    React.useEffect(() => {
+        if ( this.flatList != null )
+            this?.flatList?.scrollToOffset({ offset:0 });
+    },[listControl]);
+
     // FlatList의 각 항목
     const RenderItem = ({item}) =>  {
         return (
@@ -109,6 +115,7 @@ function Product( {DATA} ) {
             ) :
             (
             <FlatList
+                ref={ ref => this.flatList = ref }
                 data={ DATA } 
                 renderItem = {RenderItem}
                 horizontal={false}
@@ -139,11 +146,11 @@ const options = [
 export default function( props ) {
     const [value,setValue] = React.useState(1);
     const [DATA,setDATA] = React.useState(null);
+    const [loading,setLoading] = React.useState(true);
     const MyContext = React.useContext(AppContext);
     
 
     React.useEffect( async ()=>{
-
 
         // request Product
         try {
@@ -157,6 +164,7 @@ export default function( props ) {
             .then( res => {
                 setDATA(res.data.data) ;
                 MyContext.setProduct( res.data.data ) ;
+                setLoading(false);
             })
             .catch( e =>  {
                 //
@@ -171,36 +179,45 @@ export default function( props ) {
     },[MyContext.productRefresh]);
 
     return(
-        <View style={{ flex: 1 }}>
-        
-         <View style={{ height: 60 }}> 
-         <ScrollView horizontal={true}  style={{ height : 70  , backgroundColor: 'white'  }} showsHorizontalScrollIndicator={false}>
+            <View style={{ flex: 1 , backgroundColor: 'white' }}>
             {
-                options.map((item,i)=>{
-                    return(
-                        <Button key={i} style={{ ...styles.button }} color={colors.main} onPress={ () => { setValue(i+1) }} mode = { value == i+1 && 'contained'}>
-                            {item.name}
-                        </Button>
-                    )
-                })
+            loading ? 
+            (
+                <ActivityIndicator size='large' style={{ marginTop: 20 }} color={colors.main} />
+            ) : 
+            (
+
+                <>
+                <View style={{ height: 60 }}> 
+                <ScrollView horizontal={true}  style={{ height : 70  , backgroundColor: 'white'  }} showsHorizontalScrollIndicator={false}>
+                    {
+                        options.map((item,i)=>{
+                            return(
+                                <Button key={i} style={{ ...styles.button }} color={colors.main} onPress={ () => { setValue(i+1) }} mode = { value == i+1 && 'contained'}>
+                                    {item.name}
+                                </Button>
+                            )
+                        })
+                    }
+                </ScrollView>
+                </View>
+                { value == 1 && <Product DATA={DATA?.tinting} listControl={props.listControl}/> }
+                { value == 2 && <Product DATA={DATA?.ppf} listControl={props.listControl}/> }
+                { value == 3 && <Product DATA={DATA?.blackbox} listControl={props.listControl}/> }
+                { value == 4 && <Product DATA={DATA?.battery} listControl={props.listControl}/> }
+                { value == 5 && <Product DATA={DATA?.afterblow} listControl={props.listControl}/> }
+                { value == 6 && <Product DATA={DATA?.deafening} listControl={props.listControl}/> }
+                { value == 7 && <Product DATA={DATA?.wrapping} listControl={props.listControl}/> }
+                { value == 8 && <Product DATA={DATA?.glasscoating} listControl={props.listControl}/> }
+                { value == 9 && <Product DATA={DATA?.undercoating} listControl={props.listControl}/> }
+                { value == 10 && <Product DATA={DATA?.etc} listControl={props.listControl}/> }
+
+                <FAB style={styles.fab} icon='pencil' color='white' 
+                    onPress={ () => { props.navigation.navigate('ProductRegister',{ data : DATA}) }}
+                    />
+                </>
+            )
             }
-         </ScrollView>
-         </View>
-        { value == 1 && <Product DATA={DATA?.tinting}/> }
-        { value == 2 && <Product DATA={DATA?.ppf}/> }
-        { value == 3 && <Product DATA={DATA?.blackbox}/> }
-        { value == 4 && <Product DATA={DATA?.battery}/> }
-        { value == 5 && <Product DATA={DATA?.afterblow}/> }
-        { value == 6 && <Product DATA={DATA?.deafening}/> }
-        { value == 7 && <Product DATA={DATA?.wrapping}/> }
-        { value == 8 && <Product DATA={DATA?.glasscoating}/> }
-        { value == 9 && <Product DATA={DATA?.undercoating}/> }
-        { value == 10 && <Product DATA={DATA?.etc}/> }
-
-         <FAB style={styles.fab} icon='pencil' color='white' 
-            onPress={ () => { props.navigation.navigate('ProductRegister',{ data : DATA}) }}
-         />
-
-        </View>
+            </View>   
     );
 }

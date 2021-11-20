@@ -1,12 +1,14 @@
 import React from "react";
 import styled from "styled-components";
 import { Title , Appbar, Avatar , Switch , TextInput, Divider } from "react-native-paper";
-import colors from "../../color/colors";
+import colors from "../../../color/colors";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import AppContext from "../../storage/AppContext";
-
+import AppContext from "../../../storage/AppContext";
+import axios from "axios";
+import fetch from "../../../storage/fetch";
+import server from "../../../server/server";
 const Row = styled.View`
     align-items: center;
     flex-direction: row;
@@ -32,6 +34,22 @@ const styles={
 
 export default function( props ) {
     const myContext = React.useContext(AppContext);
+    const handleDeleteUser = async () => {
+        const token = await fetch('auth') ;
+        const auth = token.auth
+        axios({
+            method: 'delete' ,
+            url: `${server.url}/api/company`,
+            headers: { Auth: auth }
+        })
+        .then( async(res) => {
+            await AsyncStorage.clear();
+            myContext.LOGOUT()
+        })
+        .catch( e => {
+            console.log(e);
+        })
+    }
 
     const handleLogout = () => {
         Alert.alert('로그아웃하시겠습니까?','',[
@@ -68,8 +86,13 @@ export default function( props ) {
         <Appbar.Header style={{ backgroundColor: colors.main }}>
         <Appbar.BackAction onPress={()=>{ props.navigation.goBack() }}/>        
         </Appbar.Header>  
-            <Avatar.Image style={styles.image} source={{ uri : 'https://picsum.photos/0'}} size={60}/>
-            <Title style={styles.title}>최강샵</Title>
+            {
+                props.route?.params?.picture == null ? (
+                    <Avatar.Icon style={styles.image} icon='account-outline' color={colors.main} />
+                ):
+                <Avatar.Image style={styles.image} source={{ uri : props.route.params.picture }} size={60}/>
+            }
+            <Title style={styles.title}>{props.route.params.name}</Title>
             <Row style={{ alignItems: 'center'}}>
                 <Title style={styles.title}>휴대전화번호</Title>
                 <Title style={{...styles.title , backgroundColor: 'lightgray' }}>01012341234</Title>
@@ -104,6 +127,7 @@ export default function( props ) {
                 <Title style={styles.title}>FAQ</Title>
             </Row>
             <Title style={{ color: 'gray' , alignSelf: 'flex-end' , padding: 5 , fontSize: 15 , margin : 10 }} onPress={handleLogout}>로그아웃</Title>
+            <Title style={{ color: 'gray' , alignSelf: 'flex-end' , padding: 5 , fontSize: 15 , margin : 30 }} onPress={handleDeleteUser}>회원탈퇴</Title>
             </KeyboardAwareScrollView>
     );
 }

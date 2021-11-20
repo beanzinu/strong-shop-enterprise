@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Avatar , Button, Title , Appbar , Icon , TextInput , Text , IconButton , ActivityIndicator} from 'react-native-paper';
 import {  GiftedChat , SystemMessage , MessageContainer, Message } from 'react-native-gifted-chat';
 import { Send , Bubble } from 'react-native-gifted-chat';
-import colors from '../../color/colors';
+import colors from '../../../color/colors';
 import database from '@react-native-firebase/database';
 import _, { forEach } from 'lodash';
 

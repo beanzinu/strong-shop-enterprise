@@ -68,7 +68,7 @@ const TEXT = {
     second : '신차검수 현황을 올려보세요.' ,
     third : '고객님이 인수여부를 결정중이에요.' ,
     fourth : '시공진행 상황을 올려보세요.' ,
-    fifth : '시공완료 소식을 알려보세요.'
+    fifth : '고객님이 출고를 위해 방문할 예정이에요.'
 }
 
 // 진행 상황 
@@ -108,19 +108,32 @@ export default function( props ) {
     const [data,setData] = React.useState(null) ;
     // 현재단계
     const[state,setState] = React.useState(1);
-    // 주소
+    // 현재 사진들
     const[pictures,setPictures] = React.useState(null);
+    // 업로드할 사진들 
+    const[newPictures,setNewPictures] = React.useState(null);
+
     const[refresh,setRefresh] = React.useState(false);
     // Modal
     const[visible,setVisible] = React.useState(false);
+    // UploadModal
+    const [modalVisible,setModalVisible] = React.useState(false);
+
+    const [loadRefresh,setLoadRefresh] = React.useState(false);
+
     const [index,setIndex] = React.useState(0);
 
-    React.useEffect(async() => {
+    React.useEffect(() => {
         setData( props.route.params.data) ;
         // 서버로부터 받은 현재 시공단계
         setState(states[props.route.params.data.state]);
 
     },[]);
+
+    React.useEffect(() => {
+        if ( states[props.route.params.data.state]== 2 ||  states[props.route.params.data.state] == 4 )
+            requestImage();
+    },[loadRefresh]);
 
     // 사진 추가하기
     openNew = async () => {
@@ -146,28 +159,81 @@ export default function( props ) {
                    id: index 
                });
            });
-           if ( pictures != null ) {
-           files = pictures ;
-           url.map(file=>{
-               files.push({
-                   path: file.path ,
-                   id : file.index 
-               });
-           })
-           setPictures(files);
-
-
-           //refresh
-           setRefresh(true);
-           setRefresh(false);
-           }
-           else {
-               setPictures(url);
-           }
+          
+           setNewPictures(url);
+           
+           setModalVisible(true);
+         
 
         }) 
         .catch(e => { });
        
+    }
+
+    // 새로운 사진 추가
+    async function requestUploadImage(images) {
+
+        const token = await fetch('auth');
+        const auth = token.auth;
+        // 폼데이터 생성
+        var body = new FormData();
+        // 현재 사용자가 불러온 이미지 리스트들 => 각각 폼데이터에 넣어준다.
+        images?.map( (picture,index) =>{
+            var photo = {
+                uri: picture.path ,
+                type: 'multipart/form-data',
+                name: `${index}.jpg` ,
+                
+            }
+            body.append('files',photo);
+        })
+
+        setRefresh(true);
+        axios.post(`${server.url}/api/contract/${state ==2 ?'4':'6'}/${data.id}`,body,{
+            headers: {'content-type': 'multipart/form-data' , Auth: auth }
+        })
+        .then(res => {
+            if ( res.data.statusCode == 200 )
+            {
+                setLoadRefresh(!loadRefresh);
+                setRefresh(false);
+                setModalVisible(false);
+            }
+        })
+        .catch(e=>{
+            // console.log(e);
+        })
+
+    }
+
+    // 서버로부터 이미지 불러오기
+    function requestImage() {
+        fetch('auth')
+        .then(res => {
+            const auth = res.auth ;
+            
+            axios({
+                method: 'get' ,
+                url: `${server.url}/api/contract/${states[props.route.params.data.state] ==2 ?'4':'6'}/${props.route.params.data.id}` ,
+                Auth: { Auth: auth }
+            })
+            .then(res => {
+                let data = [] ;
+                res.data.data.imageUrlResponseDtos.map( (picture,id) => {
+                    data.push({ path : picture.imageUrl , id : id });
+                })
+                setPictures(data);
+                  //refresh
+                  // setRefresh(true);
+                  // setRefresh(false);
+            })
+            .catch(e=>{
+                // console.log(e);
+            })
+        })
+        .catch(e => {
+
+        })
     }
 
 
@@ -194,19 +260,20 @@ export default function( props ) {
             data: { id : data.id } 
         })
         .then( res => {
-            console.log('검수완료 : ' , res ) ;
+            // console.log('검수완료 : ' , res ) ;
             // 성공
-            setState(3);
+            if ( res.data.statusCode == 200)
+                setState(3);
         })
         .catch( e => { 
-            console.log(e);
+
         });
     }
 
     //시공완료
 
     function requestConstructFin(){
-        Alert.alert('시공완료','고객님이 .',[
+        Alert.alert('시공완료','고객님에게 출고소식을 알릴게요.',[
             {
                 text: '확인' ,
                 onPress: () => { requestConstructFinServer() }
@@ -226,9 +293,9 @@ export default function( props ) {
             data: { id : data.id } 
         })
         .then( res => {
-            console.log('시공완료',res) ;
             // 성공
-            setState(5);
+            if ( res.data.statusCode == 200)
+                setState(5);
         })
         .catch( e => { 
 
@@ -238,7 +305,7 @@ export default function( props ) {
 
     const RenderItem = ({item}) =>  {
         return(
-            <CButton onPress={ () =>  { setIndex(item.id) ; setVisible(true) }}>
+            <CButton key={item.id} onPress={ () =>  { setIndex(item.id) ; setVisible(true) }}>
                 <Image source={{ uri : item.path }} style={{ width: '100%' , height: '100%' }}/>
             </CButton>
         )
@@ -272,9 +339,42 @@ export default function( props ) {
             </Swiper>
             </SwiperView>
         </Modal>
+        <Modal visible={modalVisible} onDismiss={() => { setModalVisible(false); setRefresh(false); }} contentContainerStyle={{ width: '100%', height: '100%' , backgroundColor: 'transparent' }}>
+            <IconButton icon='close' style={{ alignSelf: 'flex-end'}} color='white' onPress={ () => { setModalVisible(false);  setRefresh(false); }} />
+            <SwiperView style={{ width: '90%' , height: 300 , alignSelf: 'center' }}>
+            {
+                refresh && 
+                <LottieView source={require('../Register/2.json')} autoPlay={true} loop={true} style={{ position: 'absolute' , right: 50, top: 50  }}/>
+            }
+            <Swiper 
+                horizontal={true}
+                // index={index}
+                key={item=>item.key}
+                loop={false}
+                // prevButton={<IconButton icon='chevron-left' color={'gray'}/>}
+                // nextButton={<IconButton icon='chevron-right' color={'gray'}/>}
+            >
+                    {
+                        newPictures != null &&
+                        newPictures.map(picture => {
+                            return(
+                                <SwiperView style={{ width: '90%' , height: 300 , alignSelf: 'center' }}>
+                                    <Image source={{ uri: picture.path }} style={{ width: '100%' , height: '100%' }} />
+                                </SwiperView>
+                            )
+                        })
+                    } 
+            </Swiper>
+            </SwiperView>
+            <Button style={{ alignSelf: 'center' , width: '80%' , marginTop: 20 }} mode='contained' color={colors.main}
+                onPress={ () => { requestUploadImage(newPictures) }}
+            >
+                전송하기
+            </Button>
+        </Modal>
         </Portal>
 
-        <ScrollView>
+        <>
             <Appbar.Header style={{ backgroundColor: colors.main , height: 50 }}>
             <Appbar.BackAction onPress={() => { props.navigation.goBack() }} />
             <Appbar.Content title={`${data?.userResponseDto?.nickname} 고객님`} titleStyle={{ fontFamily : 'DoHyeon-Regular' , fontSize: 24}} />
@@ -283,7 +383,7 @@ export default function( props ) {
                 <Badge size={10} style={{ position: 'absolute' , right: 0 , top: 0 }}/>
             </View>
             </Appbar.Header>  
-            <ProgressBar style={styles.progress} progress={state/4} color='red'  
+            <ProgressBar style={styles.progress} progress={state/5} color='red'  
                 theme = {{ animation : { scale : 5 }  }}
             />
             <Title style={styles.title}>시공 진행상황</Title>
@@ -375,7 +475,7 @@ export default function( props ) {
             }
             </Swiper>
             </SwiperView>
-        </ScrollView>
+        </>
         </Provider>
     );
 }

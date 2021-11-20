@@ -5,6 +5,8 @@ import axios from 'axios';
 import server from '../../../server/server';
 import fetch from '../../../storage/fetch';
 import colors from '../../../color/colors';
+import moment from 'moment';
+import _ from 'lodash';
 
 const styles = {
     listAccordionStyle : {
@@ -19,11 +21,11 @@ const styles = {
     listStyle : {
         // fontWeight: 'bold',
         fontSize: 17 , 
+
     } ,
     itemText: {
         fontSize: 17 ,
         fontWeight: 'bold' ,
-        alignSelf: 'center'
     } ,
     labelStyle : {
         borderWidth: 1 , 
@@ -31,61 +33,73 @@ const styles = {
     }
 }
 
-
-
 export default function() {
-    const [data,setData] =  React.useState(null);
-
+    const [data,setData] = React.useState(null);
 
     function parseData( value ) {
-       
-            value.map( item => {
-                item['detail'] = JSON.parse( item['detail'] ) ;
-            })
-            setData(value);        
+
+        
+        value.map( item => {
+            item['details'] = JSON.parse( item['details'] ) ;
+            item['createdTime'] = moment(item['createdTime']).format('YYYY-MM-DD');
+        })
+        value = _.sortBy(value, function(o){ return o.createdTime } ) ;
+        console.log(value);
+        setData( _.reverse(value));        
     }
 
 
 
-    React.useEffect(async() => {
-    
-        const token = await fetch('auth') ;
-        const auth = token.auth ;
-        
-        // 내가 입찰한 정보
-        axios({
-            method: 'get' ,
-            url: `${server.url}/api/bidding`,
-            headers : { Auth : auth } 
-        })
-        .then(res => {
-            parseData(res.data.data) ;
-        })
-        .catch(e => {
-            //
-        })
+    React.useEffect(() => {
 
-    
+        fetch('auth')
+        .then( res => {
+            const auth = res.auth ;
+            // 내가 입찰한 정보
+            axios({
+                method: 'get' ,
+                url: `${server.url}/api/biddinghistory`,
+                headers : { Auth : auth } 
+            })
+            .then(res => {
+                parseData( res.data.data ) ;
+            })
+            .catch(e => {
+                //
+            })
+        }) ;
+
     },[]);
 
     return(
         <KeyboardAwareScrollView>
             {
                 data != null && (
-                    data.map( items => {
-                        const item = items.detail ;
+                    data.map( ( row,index) => {
+                        const item = row.details ;
+                        console.log(item);
+                        console.log(item.tintingPrice);
+                        let prevDate ;
+                        if (index == 0 ) prevDate = moment(data[index].createdAt).add(1,'days') ;
+                        else if ( index != 0 ) prevDate = data[index-1].createdTime ;
+
                         return(
                             <List.Section>
+                                {
+                                    moment(row.createdTime).isBefore(prevDate) && 
+                                    <Title style={{ padding: 5 , fontSize: 15 }}>{ row.createdTime }</Title>
+                                }
                                 <List.Accordion style={styles.listAccordionStyle} 
                                     title={item.carName} 
+                                    left={ props => (<Text style={{ padding: 5 , color: row.biddingStatus=='SUCCESS' ? 'blue' : 'red' }}>{row.biddingStatus =='SUCCESS' ? '낙찰' : '실패' }</Text> ) }
                                     titleStyle= {{ fontWeight : 'bold' , fontFamily: 'DoHyeon-Regular' , fontSize: 20 }}
                                     theme={{ colors: { primary: 'red' }}}
-                                >
+                                >   
                                     {
                                         item.tinting != null && (
                                             <>
                                                 <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='틴팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
-                                                <List.Item titleStyle={styles.listStyle} title ={item.tinting} right={props => <Text style={styles.itemText}>{item.tintingPrice}{' 만원'}</Text>} />
+                                                <List.Item titleStyle={styles.listStyle} title ={item.tinting} right={ props => <Text style={styles.itemText}>{item.tintingPrice}{'만원'}</Text>} />
                                             </>
                                         )
                                     }
@@ -153,7 +167,7 @@ export default function() {
                                             </>
                                         )
                                     }
-                                    <Divider style={{ margin: 5 }} />
+                                    <Divider style={{ margin: 10 }} />
                                     <List.Item titleStyle={styles.listStyle} title ='최종가격: ' right={props => <Text style={styles.itemText}>{item.totalPrice}{' 만원'}</Text>}/>
                                 </List.Accordion>
                             </List.Section>

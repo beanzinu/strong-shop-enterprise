@@ -8,13 +8,14 @@ import { NavigationContainer } from '@react-navigation/native';
 import database from '@react-native-firebase/database';
 import axios from 'axios';
 import { Image } from 'react-native';
-import server from '../../server/server';
+import server from '../../../server/server';
 import { useIsFocused } from '@react-navigation/native';
+import AppContext from '../../../storage/AppContext';
 // pages 
 import ChatDetailPage from './ChatDetailPage';
-import ProgressPage from './ProgressPage/ProgressPage';
-import colors from '../../color/colors';
-import fetch from '../../storage/fetch';
+import ProgressPage from './ProgressPage';
+import colors from '../../../color/colors';
+import fetch from '../../../storage/fetch';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 const styles = {
     Button : {
@@ -50,8 +51,10 @@ const ChatView = ( props ) =>   {
     const [temp,setTemp] = React.useState({});
     const [data,setData]  = React.useState([]);
     const isFocused = useIsFocused();
+    const MyContext = React.useContext(AppContext);
 
     React.useEffect(async () => {
+        
 
     // 채팅
         // database().goOnline();
@@ -59,6 +62,7 @@ const ChatView = ( props ) =>   {
         //     record = Object.values(snapshot.val())[0];
         //     setTemp(record);
         // });
+
         if ( isFocused == true ) {
             const token = await fetch('auth') ;
             const auth = token.auth ;
@@ -77,7 +81,7 @@ const ChatView = ( props ) =>   {
             })
         }
 
-    },[isFocused]);
+    },[isFocused , MyContext.chatRef ]);
 
     return(
     <KeyboardAwareScrollView>

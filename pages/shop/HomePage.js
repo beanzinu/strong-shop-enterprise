@@ -1,12 +1,16 @@
 import React from 'react' ;
 import styled from 'styled-components';
-import { Appbar , Card , Title , Avatar} from 'react-native-paper';
+import { Appbar , Card , Title , Avatar , Badge } from 'react-native-paper';
 import { Alert, SafeAreaView } from 'react-native';
 import Collapsible from 'react-native-collapsible';
 import colors from '../../color/colors';
 import Swiper from 'react-native-swiper';
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import MultipleImagePicker from '@baronha/react-native-multiple-image-picker';
+import AppContext from '../../storage/AppContext';
+import FastImage from 'react-native-fast-image';
+import { useIsFocused } from '@react-navigation/native';
+
 // Pages
 import InfoPage from './HomePageTap/InfoPage';
 import PostGalleryPage from './HomePageTap/PostGalleryPage';
@@ -51,10 +55,11 @@ const styles = {
         borderWidth: 1 ,
         borderColor: 'lightgray' ,
         borderRadius: 0 ,
-        height : 300 ,
+        height : 320 ,
     } ,
     cover : {
-        height: 300 ,
+        height: 280 ,
+        marginBottom: 20 ,
     } 
 }
 
@@ -66,17 +71,73 @@ export default function( props  ) {
     const [collapsed,setCollapsed] = React.useState(true);
     // 업체 썸네일
     const [picture,setPicture] = React.useState(null);
+    // 업체이름
+    const [shopName,setShopName] = React.useState('');
+    const MyContext = React.useContext(AppContext);
+    // 알람존재여부
+    const [isalarm,setIsAlarm] = React.useState(false);
+    const isFocused = useIsFocused();
 
     React.useEffect(() => {
 
         fetch('Info')
-        .then( res => {
-            if (res.backgroundImageUrl != null) {
+        .then( async(res) => {
+            if (res?.backgroundImageUrl != null) {
                 setPicture( res.backgroundImageUrl);
+            }
+            if (res?.company_name != null)
+                setShopName(res.company_name);
+            else {
+                const token = await fetch('auth') ;
+                const auth = await token.auth ;
+                // 1. 서버에게 요청하여 Info 정보 받아옴.
+                axios({
+                    method: 'get',
+                    url: `${server.url}/api/companyinfo`,
+                    headers: {
+                        Auth:  auth ,
+                    }
+                })
+                .then( res => {
+                    // 2. Info 정보를 setData()
+                    try {
+                        if ( res.data.statusCode == 200 ) {
+                            setShopName(res.data.data.company_name)
+                        }
+                    }
+                    catch(e) {
+                        //
+                    }
+                })
+                .catch (e => {
+                    //
+                });
             }
         })
 
     },[]);
+
+    React.useEffect(() => {
+
+        // setValue(1);
+        
+        if ( isFocused ) {
+            fetch('noti')
+            .then(res => {
+                let flag = false ;
+                if ( res.data != null) {
+                    res.data.map(item => {
+                        if ( !item.read ) flag = true ;
+                    })
+                }
+                setIsAlarm(flag);
+            })
+            .catch(e => {
+
+            })
+        }
+
+    },[MyContext.homeRef , isFocused ]);
 
     // 썸네일 등록
     function requestThumbnail(){
@@ -88,7 +149,8 @@ export default function( props  ) {
             doneTitle: "완료",
             selectedColor: "#162741",
             tapHereToChange: '여기를 눌러 변경' ,
-            cancelTitle: '취소'
+            cancelTitle: '취소' ,
+            singleSelectedMode: true
         })
         .then(async (res) => {
             // 서버에 등록 후 캐시
@@ -137,13 +199,18 @@ export default function( props  ) {
 
     return (
         <>
-        <Appbar.Header style={{ backgroundColor: 'white' , borderColor: 'lightgray' , borderBottomWidth: 1  }}>
-        <Appbar.Content onPress={()=> { setCollapsed(!collapsed) }}  title={data.shopName} titleStyle={{  fontFamily : 'DoHyeon-Regular' , fontSize: 20  }}  />
+        <Appbar.Header style={{ backgroundColor: 'white' , borderColor: 'lightgray' , borderBottomWidth: 1 , alignItems: 'center'  }}>
+        <Appbar.Content  onPress={()=> { setCollapsed(!collapsed) }}  title={shopName} titleStyle={{  fontFamily : 'DoHyeon-Regular' , fontSize: shopName.length > 10 ? 12 : shopName.length > 5 ? 20 : 25  }}  />
         <Appbar.Action icon={ collapsed ? 'chevron-down' : 'chevron-up' } onPress={() => { setCollapsed(!collapsed)}} style={{}}/>
-        <Appbar.Action  style={{ flex: 2 }}/>
+        <Appbar.Action  style={{ flex: 1 }}/>
         
-        <Appbar.Action icon="bell-outline" onPress={() => {}} />
-        <Appbar.Action icon="cog-outline" onPress={() => { props.navigation.navigate('MyPage')}} />
+        <View>
+        <Appbar.Action icon="bell-outline" color='black' onPress={() => { props.navigation.navigate('Notifications')}}  />
+        {
+            isalarm && <Badge size={ 8 } style={{ position: 'absolute' , right: 9 , top : 9  }}/>
+        }
+        </View>
+        <Appbar.Action icon="cog-outline" onPress={() => { props.navigation.navigate('MyPage',{ name: shopName , picture: picture })}} />
         </Appbar.Header>  
         
         {/* 커버사진 */}
@@ -166,7 +233,7 @@ export default function( props  ) {
                         ) :
                         (   
                                 <ImageView onPress={requestThumbnail}>
-                                    <Card.Cover source = {{ uri : picture }} style={ styles.cover }/>
+                                    <FastImage source = {{ uri : picture }} style={ styles.cover }/>
                                 </ImageView>
                         )
                     }
@@ -180,17 +247,17 @@ export default function( props  ) {
         <Row>
             <MenuButton 
                 style={{ borderBottomColor : value === 1 ? colors.main : 'white' }} 
-                onPress = { () => {setValue(1) , setScroll(0) } }>
+                onPress = { () => {setValue(1) , setListControl(!listControl) } }>
                 <Text style={{ color : value === 1 ? colors.main : 'gray'}}> 정보 </Text>
             </MenuButton>
             <MenuButton 
                 style={{ borderBottomColor : value === 2 ? colors.main  : 'white' }} 
-                onPress = { () => {setValue(2) , setScroll(0)} }>
+                onPress = { () => {setValue(2) , setListControl(!listControl) } }>
                 <Text style={{ color : value === 2 ? colors.main : 'gray'}}> 작업갤러리 </Text>
             </MenuButton>
             <MenuButton 
                 style={{ borderBottomColor : value === 3 ? colors.main  : 'white' }} 
-                onPress = { () => {setValue(3) , setScroll(0)} }>
+                onPress = { () => {setValue(3) , setListControl(!listControl) } }>
                 <Text style={{ color : value === 3 ? colors.main : 'gray'}}> 취급상품 </Text>
             </MenuButton>
             <MenuButton 
@@ -205,20 +272,20 @@ export default function( props  ) {
            {
                value === 1 && (
                     <>
-                    <InfoPage data={data} navigation={props.navigation} setScroll={setScroll} />
+                    <InfoPage data={data} navigation={props.navigation} setScroll={setScroll} listControl = {listControl} />
                     </>
                 )
            }
            {/* 작업갤러리 화면 */}
            {
                value === 2  && (
-                   <PostGalleryPage navigation={props.navigation}  data ={data} setScroll={setScroll}  />
+                   <PostGalleryPage navigation={props.navigation}  data ={data} setScroll={setScroll}  listControl = {listControl} shopName={shopName}/>
                )
            }
            {/* 취급상품 화면 */}
            {
                value === 3 && (
-                  <ProductPage navigation={props.navigation} setScroll={setScroll} />
+                  <ProductPage navigation={props.navigation} setScroll={setScroll} listControl = {listControl} />
                )
            }
            {/* 리뷰 화면 */}

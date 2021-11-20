@@ -2,16 +2,19 @@ import React from 'react';
 import MainPage from './pages/shop/MainPage' ;
 import Register from './pages/shop/Register';
 import NewRegister from './pages/shop/NewRegister';
-import fetch from './storage/fetch';
 import { View } from 'react-native';
 import { Title } from 'react-native-paper';
 import NetInfo from '@react-native-community/netinfo'
 import axios from 'axios';
 import AppContext from './storage/AppContext';
+import { Alert } from 'react-native';
+import moment from 'moment';
+import { Appearance } from 'react-native';
 //test
 import messaging from '@react-native-firebase/messaging';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import store from './storage/store';
+import fetch from './storage/fetch';
 import server from './server/server';
 
 
@@ -27,6 +30,13 @@ function App (props) {
   const [productRefresh,setProductRefresh] = React.useState(false);
   // 리뷰
   const [reviewRefresh,setReviewRefresh] = React.useState(false) ;
+  // Push Notification
+  const [noti,setNoti] = React.useState(0);
+  const [notiData,setNotiData] = React.useState(null);
+  // TabRefresh
+  const [homeRef,setHomeRef] = React.useState(false);
+  const [bidRef,setBidRef] = React.useState(false);
+  const [chatRef,setChatRef] = React.useState(false);
   
   const LOGOUT = () => {
     setMainVisible(false);
@@ -44,7 +54,10 @@ function App (props) {
     productRefresh ,
     setProductRefresh ,
     reviewRefresh,
-    setReviewRefresh
+    setReviewRefresh ,
+    noti,
+    setNoti ,
+    homeRef,setHomeRef,bidRef,setBidRef,chatRef,setChatRef
   };
 
   // RefreshToken
@@ -69,8 +82,56 @@ function App (props) {
     ) 
   }
   
+  const cacheNotifications = (remoteMessage) => {
+    const notification = remoteMessage.notification;
 
-  React.useEffect(async() => {
+    fetch('noti')
+    .then( res => {
+      let data;
+      if ( res == null ) data = [] ;
+      else data = res.data ;
+
+      data.push({
+        title : notification.title ,
+        body : notification.body ,
+        // createdAt : '2021-11-20' ,
+        createdAt : moment(new Date()).utc(true).format('YYYY-MM-DD hh:mm') ,
+        read: false ,
+      })
+
+      store('noti',{data : data})
+      
+    })
+    .catch ( e => { })
+
+  }
+
+  React.useEffect(() => {
+
+
+    // alert(Appearance.getColorScheme())
+
+    const authStatus = messaging().requestPermission();
+
+      
+
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+      const notification = remoteMessage.notification;
+      Alert.alert(remoteMessage.data.index,notification.body);
+
+      cacheNotifications(remoteMessage);
+
+    });
+
+    // 알람 눌러서 들어왔을때
+    messaging().onNotificationOpenedApp(remoteMessage => {
+
+        cacheNotifications(remoteMessage);
+        setNoti(2);
+        
+    });
+
+      // setNoti(2);
      
       // 인터넷 연결상태 확인
       // const unsubscribe = NetInfo.addEventListener( async (state) => {
@@ -79,7 +140,7 @@ function App (props) {
 
 
       // jwt 캐시 ( accesstoken 만료  => refreshToken => jwt accessToken )
-      await fetch('auth')
+      fetch('auth')
       .then( async(res) => {
         if ( res.auth != null ) 
         setMainVisible(true);
@@ -90,6 +151,8 @@ function App (props) {
       .catch(e => { })
       
       setLoading(true);
+
+      return unsubscribe;
       
 
 
@@ -97,7 +160,7 @@ function App (props) {
 
 
   return (
-    <AppContext.Provider value={userSettings}>
+      <AppContext.Provider value={userSettings}>
         { 
           loading ? ( 
             mainVisible ? 

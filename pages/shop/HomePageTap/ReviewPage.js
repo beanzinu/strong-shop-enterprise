@@ -3,7 +3,7 @@ import colors from "../../../color/colors";
 import React from "react";
 // import { FlatList } from "react-native-gesture-handler";
 import { FlatList } from "react-native";
-import { Card , Avatar , Divider , Button } from "react-native-paper";
+import { Card , Avatar , Divider , Button, ActivityIndicator } from "react-native-paper";
 import { Alert } from "react-native";
 import axios from "axios";
 import server from "../../../server/server";
@@ -146,7 +146,7 @@ function Reply({item,index}) {
             MyContext.setReviewRefresh(!MyContext.reviewRefresh)
         })
         .catch( e =>  {
-            console.log(e);
+            // console.log(e);
         })
     }
 
@@ -216,49 +216,74 @@ const RenderItem =  ({index,item}) => {
 }
 
 export default function( props ) {
-    const [DATA,setDATA]  = React.useState(null) ;
+    const [DATA,setDATA]  = React.useState([]) ;
+    const [loading,setLoading] = React.useState(true) ;
     const MyContext = React.useContext(AppContext) ;
 
 
     React.useEffect(() => {
-            this.flatList.scrollToOffset({ offset : 0 });      
+            this?.flatList?.scrollToOffset({ offset : 0 });      
     },[props.listControl]);
 
-    React.useEffect( async () =>  { 
+    React.useEffect( () =>  { 
+        
         
         // request Review
-        const token = await fetch('auth') ;
-        const auth = token.auth ;
-        axios({
-            url: `${server.url}/api/review`,
-            method: 'get',
-            headers: { Auth: auth } 
-        })
-        .then( res =>  {
-            setDATA(res.data.data);
-        })
-        .catch( e => {
-            //
-        })
+        fetch('auth')
+        .then(res => {
+            const auth = res.auth ;
+            
+            axios({
+                url: `${server.url}/api/review`,
+                method: 'get',
+                headers: { Auth: auth } 
+            })
+            .then( res =>  {
+                console.log(res.data.data);
+                setDATA(res.data.data);
+                setLoading(false);
+            })
+            .catch( e => {
+                //
+            })
+        }) ;
 
     },[MyContext.reviewRefresh]) ;
 
 
     return(
         <>
-            <FlatList
-                ref = { ref => this.flatList = ref }
-                data = { DATA }
-                renderItem = { RenderItem }
-                horizontal= {false}
-                keyExtractor= { (item) => item.id }
-                onScrollToIndexFailed={() => {
-                    DATA.push({
-                        id : 'new'
-                    });
-                    this.flatList.scrollToEnd();
-                }}
-            />
+            {
+                loading ? 
+                (
+                    <ActivityIndicator size='large' style={{ marginTop: 20 }} color={colors.main} />
+                ) : 
+                (
+                    DATA.length == 0 ? 
+                    (
+                        <View style={{ flex: 1 , alignItems: 'center' , justifyContent: 'center' , backgroundColor: 'white' }}>
+                            <Text>현재 리뷰가 없어요.</Text>
+                        </View>
+                    ):
+                    (
+                    <FlatList
+                        ref = { ref => this.flatList = ref }
+                        data = { DATA }
+                        renderItem = { RenderItem }
+                        horizontal= {false}
+                        keyExtractor= { (item) => item.id }
+                        onScrollToIndexFailed={() => {
+                            DATA.push({
+                                id : 'new'
+                            });
+                            setTimeout(() => {
+                                this.flatList.scrollToEnd();
+                            },1000) ;
+                        }}
+                    />
+                    )
+                )
+            }
         </>
     );
 }

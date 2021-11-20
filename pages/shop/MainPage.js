@@ -4,19 +4,21 @@ import { Appbar , BottomNavigation , Text , IconButton } from 'react-native-pape
 import { createStackNavigator  } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import colors from '../../color/colors';
+import AppContext from '../../storage/AppContext';
 // pages 
 import BidPage from './BidPage/BidPage';
 import BidRegister from './BidPage/BidRegister';
-import ChatPage from './ChatPage';
-import ChatDetailPage from './ChatDetailPage';
+import ChatPage from './ProgressPage/ChatPage'
+import ChatDetailPage from './ProgressPage/ChatDetailPage';
 import HomePage from './HomePage';
-import PostPage from './PostPage';
+import PostPage from './HomePageTap/PostPage';
 import InfoRegister from './Register/InfoRegister';
 import PostRegister from './Register/PostRegister';
 import PostPageRegister from './Register/PostPageRegister';
 import ProductRegister from './Register/ProductRegister';
 import ProductDetailRegister from './Register/ProductDetailRegister';
-import MyPage from './MyPage';
+import MyPage from './AppBarContents/MyPage';
+import Notifications from './AppBarContents/Notifications';
 
 const View = styled.SafeAreaView``;
 
@@ -38,8 +40,9 @@ const homeRoute = () => {
     <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerLeft : props => ( <IconButton {...props} icon='chevron-left' size={24} /> ) }}>
             <Stack.Screen name='Home' component={HomePage}  options={{ headerShown : false }}/>
-            <Stack.Screen name='MyPage' component={MyPage}  options={{ headerShown : false }}/>
-            <Stack.Screen name='Post' component={PostPage} />
+            <Stack.Screen name='MyPage' component={MyPage}  options={{ headerShown : false  }}/>
+            <Stack.Screen name='Notifications' component={Notifications} options={{ title: '알림센터' }}/>
+            <Stack.Screen name='Post' component={PostPage} options={{ title: '게시물' }} />
             <Stack.Screen name='InfoRegister' component={InfoRegister} options={{ headerShown: false }} />
             <Stack.Screen name='PostPageRegister' component={PostPageRegister} options={{ title: '작업갤러리 등록' }}/>
             <Stack.Screen name='PostRegister' component={PostRegister} options={{ title: '작업갤러리 상세등록' }} />
@@ -65,7 +68,7 @@ const bidRoute = () => {
 // 문의 및 채팅
 const chatRoute = () => <ChatPage/>
 
-export default function() {
+export default function( props ) {
     const [index, setIndex] = React.useState(0);
     const [routes] = React.useState([
       { key: 'home', title: '홈', icon: 'home'  },
@@ -76,7 +79,24 @@ export default function() {
         home: homeRoute,
         bid: bidRoute,
         chat: chatRoute,
-      });
+      });  
+
+    const MyContext = React.useContext(AppContext);
+
+    // 각 Tab을 다시 눌렀을때 다시 정보 load
+    const handleTabPress  = ( route ) => {
+        if ( route.key == 'home' ) MyContext.setHomeRef(!MyContext.homeRef);
+        else if ( route.key == 'bid' ) MyContext.setBidRef(!MyContext.bidRef)
+        else if ( route.key == 'chat' ) MyContext.setChatRef(!MyContext.chatRef)
+
+    } 
+    React.useEffect(() => {
+
+        if ( MyContext.noti ==2 ) {
+            setIndex(2);
+            MyContext.setNoti(0);
+        }
+    },[MyContext.noti]);
 
     return(
         <BottomNavigation
@@ -84,6 +104,7 @@ export default function() {
             activeColor={colors.main}
             navigationState={{ index, routes }}
             shifting={true}
+            onTabPress={(index) => { handleTabPress(index.route) }}
             onIndexChange={setIndex}
             renderScene={renderScene}
         />  
