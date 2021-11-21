@@ -110,10 +110,10 @@ export default function( props ) {
     }
 
     
-    React.useEffect(() => {
-        if ( this.flatList != null )
-            this?.flatList?.scrollToPosition(0);
-    },[props.listControl]);
+    // React.useEffect(() => {
+    //     if ( this?.flatList != null )
+    //         this?.flatList?.scrollToPosition(0);
+    // },[props.listControl]);
 
     React.useEffect(() =>  {
 

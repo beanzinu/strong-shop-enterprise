@@ -57,10 +57,11 @@ export default function( props ) {
         })
     }
 
-    React.useEffect(() => {
-        if ( this.flatList != null )
-            this?.flatList?.scrollToOffset({ offset: 0 });
-    },[props.listControl]);
+    // React.useEffect(() => {
+
+    //     if ( this?.flatList != null )
+    //         this?.flatList?.scrollToOffset({ offset: 0 });
+    // },[props.listControl]);
 
     React.useEffect(() =>  {
         // 사진요청

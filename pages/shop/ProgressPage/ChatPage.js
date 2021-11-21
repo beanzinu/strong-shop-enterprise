@@ -36,7 +36,7 @@ const ImageView = styled.View`
 `;
 
 const testData = [
-    {"bidding_id": 5, "constructionImageUrlResponseDtos": [], "detail": "{\"tinting\":\"루마\",\"tintingPrice\":\"100\",\"totalPrice\":\"100\",\"carName\":\"AVANTE HYBRID\"}", "id": 6, "inspectionImageUrlRequestDtos": [], "order_id": 4, "shipmentLocation": null, "state": "DESIGNATING_SHIPMENT_LOCATION", "userResponseDto": {"birth": null, "email": "ys05143@naver.com", "gender": null, "id": 1, "nickname": "허지훈", "phoneNumber": "01012341234", "profileImage": "http://k.kakaocdn.net/dn/bnznMs/btrazLTprkY/9wznFjIGhM1VNPc1PGZG11/img_640x640.jpg", "realName": null, "thumbnailImage": "http://k.kakaocdn.net/dn/bnznMs/btrazLTprkY/9wznFjIGhM1VNPc1PGZG11/img_110x110.jpg"}},
+    {"bidding_id": 5, "constructionImageUrlResponseDtos": [], "detail": "{\"tinting\":\"루마\",\"tintingPrice\":\"100\",\"totalPrice\":\"100\",\"carName\":\"AVANTE HYBRID\"}", "id": 6, "inspectionImageUrlRequestDtos": [], "order_id": 4, "shipmentLocation": null, "state": "CAR_EXAMINATION", "userResponseDto": {"birth": null, "email": "ys05143@naver.com", "gender": null, "id": 1, "nickname": "허지훈", "phoneNumber": "01012341234", "profileImage": "http://k.kakaocdn.net/dn/bnznMs/btrazLTprkY/9wznFjIGhM1VNPc1PGZG11/img_640x640.jpg", "realName": null, "thumbnailImage": "http://k.kakaocdn.net/dn/bnznMs/btrazLTprkY/9wznFjIGhM1VNPc1PGZG11/img_110x110.jpg"}},
 ]
 
 const state = {
@@ -111,9 +111,9 @@ export default function() {
     return (
     <NavigationContainer>
         <Stack.Navigator>
+            <Stack.Screen name='ChatDetail' component = {ChatDetailPage} options={{ headerShown : false }} />
             <Stack.Screen name='ChatList' component={ChatView} options={{ title: '채팅' }}/>
             <Stack.Screen name='ProgressPage' component={ProgressPage} options = {{ headerShown : false }}/>
-            <Stack.Screen name='ChatDetail' component = {ChatDetailPage} options={{ headerShown : false }} />
         </Stack.Navigator>
    </NavigationContainer>
     );

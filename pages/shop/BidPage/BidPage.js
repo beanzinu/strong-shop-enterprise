@@ -19,6 +19,9 @@ import store from '../../../storage/store';
 import { Dimensions } from 'react-native';
 import AppContext from '../../../storage/AppContext';
 import { useIsFocused } from '@react-navigation/native';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+
+const Tab = createMaterialTopTabNavigator();
 
 // pages
 import BidRegister_current from './BidRegister_current';
@@ -225,6 +228,7 @@ function translate(option,item){
 }
 
 
+
 // 각각의 입찰요청항목
 function Item ( { item , navigation , id } ) {
     const [expanded,setExpanded] = React.useState(false) ;
@@ -374,6 +378,7 @@ export default function ( props ) {
     const [menu,setMenu] = React.useState(1);
     const [modalVisible,setModalVisible] = React.useState(false);
     const [regions,setRegions] = React.useState(defaultRegions) ;
+    const [refresh,setRefresh] = React.useState(false);
     const MyContext = React.useContext(AppContext);
     // const isFocused = useIsFocused();
 
@@ -385,6 +390,80 @@ export default function ( props ) {
         )
     }
 
+    function BidBefore() {
+        return (
+            <>
+            {/* <Row>
+                <Button style={styles.button} mode={ menu == 1 ? 'contained' : 'outlined' } color={colors.main} onPress={()=>{ setMenu(1) }}>입찰 전</Button>
+                <Button style={styles.button} mode={ menu == 2 ? 'contained' : 'outlined' } color={colors.main} onPress={()=>{ setMenu(2) }}>입찰 중</Button>
+                <Button style={styles.button} mode={ menu == 3 ? 'contained' : 'outlined' } color={colors.main} onPress={()=>{ setMenu(3) }}>입찰 결과</Button>
+            </Row> */}
+            {/* // 입찰 전 */}
+                <Row>
+                <ScrollView horizontal={true} contentContainerStyle={{ alignItems: 'center' , height: 70 }}>
+                    <Button icon='plus' style={{  padding: 5, margin: 10 , borderRadius: 30 }} mode='contained' color={colors.main} onPress={() => { setModalVisible(true) }}>
+                        지역
+                    </Button>
+                    {
+                        regions.seoul && <Chip  style={{ padding: 3 , margin: 3 }}>서울</Chip>
+                    }
+                    {
+                        regions.incheon && <Chip style={{ padding: 3 , margin: 3 }}>인천</Chip>
+                    }
+                    {
+                        regions.daejeon && <Chip style={{ padding: 3 , margin: 3 }}>대전</Chip>
+                    }
+                    {
+                        regions.daegu && <Chip style={{ padding: 3 , margin: 3 }}>대구</Chip>
+                    }
+                    {
+                        regions.busan && <Chip style={{ padding: 3 , margin: 3 }}>부산</Chip>
+                    }
+                    {
+                        regions.gwangju && <Chip style={{ padding: 3 , margin: 3 }}>광주</Chip>
+                    }
+                    {
+                        regions.jeju && <Chip style={{ padding: 3 , margin: 3 }}>제주</Chip>
+                    }
+                </ScrollView>
+                </Row>
+                
+                {
+                    data.length == 0 ? (
+                        <View style={{ height: Dimensions.get('screen').height*0.6 , justifyContent: 'center' , alignItems: 'center'  }}>
+                            <Avatar.Icon icon='account-arrow-left' style={{ backgroundColor: 'transparent'}} color='black'/>
+                            <Title>아직 입찰요청이 없어요.</Title>
+                        </View>
+                    ) :
+                    (
+                        <View style={{ flex: 1 }}>
+                        <FlatList
+                            onRefresh={() => { requestOrders() }}
+                            refreshing={refresh}
+                            nestedScrollEnabled={true}
+                            renderItem={RenderItem}
+                            data={data}
+                            numColumns={1}
+                            keyExtractor={item => item.id }
+                            onEndReachedThreshold={0.05}
+                            onEndReached={() => { loadPartialData() }}
+                        />
+                        </View>
+    
+                        // data.map( (item,i) => {    
+                        //     let tmp = JSON.parse(item.details) ;
+                        //     return (
+                        //     <Item item={tmp} i={i} navigation={props.navigation} id={item.id}/>
+                        //     )
+                        // }
+    
+                        // )                       
+                    )
+                }       
+
+            </>
+        )
+    }
 
     const handleRegion = (region) => { 
             switch( region ) {
@@ -438,6 +517,7 @@ export default function ( props ) {
        .then( res => {
             setData(res.data.data);
             setModalVisible(false);
+            setRefresh(false);
        })
        .catch( e => {
            //
@@ -533,7 +613,6 @@ export default function ( props ) {
 
     return (
     <Provider>
-    <>
         <Portal>
             <Modal visible={modalVisible} contentContainerStyle={{ backgroundColor: 'white' , width: '100%' , height: 500 , marginRight: 10 , bottom: 0 , position: 'absolute' }}>
                 <View style={{ width: '100%' , height: 500  }}>
@@ -554,99 +633,17 @@ export default function ( props ) {
             </Modal>
         </Portal>
 
-        <>
-        <Appbar.Header style={{ backgroundColor: 'transparent' , elevation: 0 }}>
-            <Appbar.Content title={shopName} titleStyle={{ fontFamily : 'DoHyeon-Regular' , fontSize: 30 , color: 'gray'  }} />
-            {/* <Appbar.Action icon="bell-outline" color='gray' onPress={() => {}} /> */}
-            {/* <Appbar.Action icon="cog-outline" color='gray' onPress={() => { props.navigation.navigate('MyPage')}} /> */}
-        </Appbar.Header>   
-
-        <Row>
-            <Button style={styles.button} mode={ menu == 1 ? 'contained' : 'outlined' } color={colors.main} onPress={()=>{ setMenu(1) }}>입찰 전</Button>
-            <Button style={styles.button} mode={ menu == 2 ? 'contained' : 'outlined' } color={colors.main} onPress={()=>{ setMenu(2) }}>입찰 중</Button>
-            <Button style={styles.button} mode={ menu == 3 ? 'contained' : 'outlined' } color={colors.main} onPress={()=>{ setMenu(3) }}>입찰 결과</Button>
-        </Row>
-
-        {/* 입찰 전 */}
-        {
-            menu == 1 && 
-            <>
-            <Row>
-            <ScrollView horizontal={true} contentContainerStyle={{ alignItems: 'center' , height: 70 }}>
-                <Button icon='plus' style={{  padding: 5, margin: 10 , borderRadius: 30 }} mode='contained' color={colors.main} onPress={() => { setModalVisible(true) }}>
-                    지역
-                </Button>
-                {
-                    regions.seoul && <Chip  style={{ padding: 3 , margin: 3 }}>서울</Chip>
-                }
-                {
-                    regions.incheon && <Chip style={{ padding: 3 , margin: 3 }}>인천</Chip>
-                }
-                {
-                    regions.daejeon && <Chip style={{ padding: 3 , margin: 3 }}>대전</Chip>
-                }
-                {
-                    regions.daegu && <Chip style={{ padding: 3 , margin: 3 }}>대구</Chip>
-                }
-                {
-                    regions.busan && <Chip style={{ padding: 3 , margin: 3 }}>부산</Chip>
-                }
-                {
-                    regions.gwangju && <Chip style={{ padding: 3 , margin: 3 }}>광주</Chip>
-                }
-                {
-                    regions.jeju && <Chip style={{ padding: 3 , margin: 3 }}>제주</Chip>
-                }
-            </ScrollView>
-            </Row>
-            {
-                data.length == 0 ? (
-                    <View style={{ height: Dimensions.get('screen').height*0.6 , justifyContent: 'center' , alignItems: 'center'  }}>
-                        <Avatar.Icon icon='account-arrow-left' style={{ backgroundColor: 'transparent'}} color='black'/>
-                        <Title>아직 입찰요청이 없어요.</Title>
-                    </View>
-                ) :
-                (
-                    <View style={{ flex: 1 }}>
-                    <FlatList
-                        nestedScrollEnabled={true}
-                        renderItem={RenderItem}
-                        data={data}
-                        numColumns={1}
-                        keyExtractor={item => item.id }
-                        onEndReachedThreshold={0.05}
-                        onEndReached={() => { loadPartialData() }}
-                    />
-                    </View>
-
-                    // data.map( (item,i) => {    
-                    //     let tmp = JSON.parse(item.details) ;
-                    //     return (
-                    //     <Item item={tmp} i={i} navigation={props.navigation} id={item.id}/>
-                    //     )
-                    // }
-
-                    // )                       
-                )
-            }
             
-            </>
-        }
-
-        {/* 입찰 중 */}
-        {
-            menu == 2 && 
-            <BidRegister_current />
-        }
-
-        {/* 입찰 후 */}
-        {
-            menu == 3 && 
-            <BidRegister_history />
-        }
-
-        </>
-    </>  
+        <Appbar.Header style={{ backgroundColor: 'transparent' , elevation: 0 }}>
+                <Appbar.Content title={shopName} titleStyle={{ fontFamily : 'DoHyeon-Regular' , fontSize: 30 , color: 'gray'  }} />
+                {/* <Appbar.Action icon="bell-outline" color='gray' onPress={() => {}} /> */}
+                {/* <Appbar.Action icon="cog-outline" color='gray' onPress={() => { props.navigation.navigate('MyPage')}} /> */}
+        </Appbar.Header>   
+        <Tab.Navigator sceneContainerStyle={{ backgroundColor: 'white' }} screenOptions={{ tabBarActiveTintColor: colors.main , tabBarIndicatorStyle: { backgroundColor: colors.main }  }}   initialRouteName={BidBefore}>
+            <Tab.Screen name="BidBefore" component={BidBefore} options={{ title: '입찰 전' }} />
+            <Tab.Screen name="BidRegister_current" component={BidRegister_current} options={{ title: '입찰 중'  }}/>
+            <Tab.Screen name="BidRegister_history" component={BidRegister_history} options={{ title: '입찰결과' }}/>
+        </Tab.Navigator>
     </Provider>
     );
 }

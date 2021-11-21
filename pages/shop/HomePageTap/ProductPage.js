@@ -92,10 +92,10 @@ function ProductItem( {item} ) {
 
 function Product( {DATA, listControl} ) {
 
-    React.useEffect(() => {
-        if ( this.flatList != null )
-            this?.flatList?.scrollToOffset({ offset:0 });
-    },[listControl]);
+    // React.useEffect(() => {
+    //     if ( this.flatList != null )
+    //         this?.flatList?.scrollToOffset({ offset:0 });
+    // },[listControl]);
 
     // FlatList의 각 항목
     const RenderItem = ({item}) =>  {

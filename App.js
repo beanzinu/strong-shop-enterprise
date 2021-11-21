@@ -111,6 +111,11 @@ function App (props) {
 
     // alert(Appearance.getColorScheme())
 
+    messaging().getToken()
+    .then( res => {
+      console.log(res);
+    })
+
     const authStatus = messaging().requestPermission();
 
       

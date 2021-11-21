@@ -221,9 +221,10 @@ export default function( props ) {
     const MyContext = React.useContext(AppContext) ;
 
 
-    React.useEffect(() => {
-            this?.flatList?.scrollToOffset({ offset : 0 });      
-    },[props.listControl]);
+    // React.useEffect(() => {
+    //     if ( this?.flatList != null )
+    //         this?.flatList?.scrollToOffset({ offset : 0 });      
+    // },[props.listControl]);
 
     React.useEffect( () =>  { 
         

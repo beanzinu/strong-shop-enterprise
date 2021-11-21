@@ -27,15 +27,16 @@ export default function( props ) {
 
     function RenderItem({ notification , index , prevDate }) {
         const [read,setRead] = React.useState(notification.read)
+
         const handleRead = (index) => {
             let tmp = rawData ;
             tmp[index] = { ...tmp[index] , read : true } ;
             // 시간으로 정렬
-            tmp = _.sortBy(tmp, function(o) { return o.createdAt })
+            tmp = _.sortBy(tmp, function(o) { return o.createdAt  } ) ;
             setRead(true);
             store('noti',{ data : tmp });
-
         }
+
         return(
                 <>
                 {

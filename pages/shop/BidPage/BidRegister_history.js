@@ -7,6 +7,8 @@ import fetch from '../../../storage/fetch';
 import colors from '../../../color/colors';
 import moment from 'moment';
 import _ from 'lodash';
+import { useIsFocused } from '@react-navigation/native';
+
 
 const styles = {
     listAccordionStyle : {
@@ -35,6 +37,7 @@ const styles = {
 
 export default function() {
     const [data,setData] = React.useState(null);
+    const isFocused = useIsFocused();
 
     function parseData( value ) {
 
@@ -52,24 +55,26 @@ export default function() {
 
     React.useEffect(() => {
 
-        fetch('auth')
-        .then( res => {
-            const auth = res.auth ;
-            // 내가 입찰한 정보
-            axios({
-                method: 'get' ,
-                url: `${server.url}/api/biddinghistory`,
-                headers : { Auth : auth } 
-            })
-            .then(res => {
-                parseData( res.data.data ) ;
-            })
-            .catch(e => {
-                //
-            })
-        }) ;
+        if ( isFocused) {
+            fetch('auth')
+            .then( res => {
+                const auth = res.auth ;
+                // 내가 입찰한 정보
+                axios({
+                    method: 'get' ,
+                    url: `${server.url}/api/biddinghistory`,
+                    headers : { Auth : auth } 
+                })
+                .then(res => {
+                    parseData( res.data.data ) ;
+                })
+                .catch(e => {
+                    //
+                })
+            }) ;    
+        }
 
-    },[]);
+    },[ isFocused ]);
 
     return(
         <KeyboardAwareScrollView>

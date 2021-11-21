@@ -10,7 +10,6 @@ import MultipleImagePicker from '@baronha/react-native-multiple-image-picker';
 import AppContext from '../../storage/AppContext';
 import FastImage from 'react-native-fast-image';
 import { useIsFocused } from '@react-navigation/native';
-
 // Pages
 import InfoPage from './HomePageTap/InfoPage';
 import PostGalleryPage from './HomePageTap/PostGalleryPage';
@@ -20,6 +19,11 @@ import axios from 'axios';
 import server from '../../server/server';
 import fetch from '../../storage/fetch';
 import store from '../../storage/store';
+// Tab Navigator
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { useScrollToTop } from '@react-navigation/native';
+const Tab = createMaterialTopTabNavigator();
+
 const View = styled.View``;
 const ImageView = styled.TouchableOpacity``;
 const Row = styled.View`
@@ -63,7 +67,7 @@ const styles = {
     } 
 }
 
-export default function( props  ) {
+export default function( props ) {
     // 1.  정보  2. 작업갤러리 3. 취급상품 4. 리뷰
     const [value, setValue] = React.useState(1);
     const [scroll,setScroll] = React.useState(0);
@@ -114,6 +118,8 @@ export default function( props  ) {
                 });
             }
         })
+
+        
 
     },[]);
 
@@ -244,7 +250,7 @@ export default function( props  ) {
 
 
        
-        <Row>
+        {/* <Row>
             <MenuButton 
                 style={{ borderBottomColor : value === 1 ? colors.main : 'white' }} 
                 onPress = { () => {setValue(1) , setListControl(!listControl) } }>
@@ -265,35 +271,47 @@ export default function( props  ) {
                 onPress = { () => {setValue(4) , setListControl(!listControl) } }>
                 <Text style={{ color : value === 4 ? colors.main : 'gray'}}> 리뷰 </Text>
             </MenuButton>
-        </Row>
+        </Row> */}
 
-       
-           {/* 정보 화면 */}
-           {
-               value === 1 && (
-                    <>
-                    <InfoPage data={data} navigation={props.navigation} setScroll={setScroll} listControl = {listControl} />
-                    </>
-                )
-           }
-           {/* 작업갤러리 화면 */}
-           {
-               value === 2  && (
-                   <PostGalleryPage navigation={props.navigation}  data ={data} setScroll={setScroll}  listControl = {listControl} shopName={shopName}/>
-               )
-           }
-           {/* 취급상품 화면 */}
-           {
-               value === 3 && (
-                  <ProductPage navigation={props.navigation} setScroll={setScroll} listControl = {listControl} />
-               )
-           }
-           {/* 리뷰 화면 */}
-           {
-               value === 4 && (
-                   <ReviewPage setScroll={setScroll} listControl = {listControl} />
-               )
-           }
+        <Tab.Navigator sceneContainerStyle={{ backgroundColor: 'white' }} 
+            screenOptions={{ tabBarActiveTintColor: colors.main , tabBarIndicatorStyle: { backgroundColor: colors.main }  }}   
+            initialRouteName={InfoPage}
+            
+        >
+            <Tab.Screen name="InfoPage" 
+                 listeners={() => ({
+                    tabPress: e => {
+                      setListControl(!listControl);
+                    },
+                  })}
+                children={() => <InfoPage data={data} navigation={props.navigation} setScroll={setScroll} listControl = {listControl} /> } 
+                options={{ title: '정보' }}  />
+            <Tab.Screen name="PostGalleryPage" 
+                listeners={() => ({
+                    tabPress: e => {
+                      setListControl(!listControl);
+                    },
+                })}
+                children={() => <PostGalleryPage navigation={props.navigation}  data ={data} setScroll={setScroll}  listControl = {listControl} shopName={shopName}/>} 
+                options={{ title: '작업갤러리'  }}/>
+            <Tab.Screen name="ProductPage"
+                listeners={() => ({
+                    tabPress: e => {
+                    setListControl(!listControl);
+                    },
+                })} 
+                children={() => <ProductPage navigation={props.navigation} setScroll={setScroll} listControl = {listControl} />} 
+                options={{ title: '취급상품' }}/>
+            <Tab.Screen name="ReviewPage"
+            listeners={() => ({
+                tabPress: e => {
+                  setListControl(!listControl);
+                },
+                })} 
+                children={() => <ReviewPage setScroll={setScroll} listControl = {listControl} />} 
+                options={{ title: '리뷰' }}
+            />
+        </Tab.Navigator>        
         
 
         

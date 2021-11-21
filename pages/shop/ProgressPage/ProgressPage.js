@@ -14,6 +14,7 @@ import LottieView from 'lottie-react-native';
 import fetch from '../../../storage/fetch';
 import axios from 'axios';
 import server from '../../../server/server';
+import FastImage from 'react-native-fast-image';
 
 
 const Container = styled.SafeAreaView``;
@@ -201,6 +202,8 @@ export default function( props ) {
             }
         })
         .catch(e=>{
+            Alert.alert('다시 시도해주세요.')
+            setRefresh(false);
             // console.log(e);
         })
 
@@ -218,11 +221,17 @@ export default function( props ) {
                 Auth: { Auth: auth }
             })
             .then(res => {
-                let data = [] ;
-                res.data.data.imageUrlResponseDtos.map( (picture,id) => {
-                    data.push({ path : picture.imageUrl , id : id });
-                })
-                setPictures(data);
+                let tmp = [] ;
+                if ( states[props.route.params.data.state] == 2 )
+                    res.data.data.imageUrlResponseDtos.map( (picture,id) => {
+                        tmp.push({ path : picture.imageUrl , id : id });
+                    })
+                else if ( states[props.route.params.data.state] == 4 )
+                    res.data.data.responseDtos.map( (picture,id) => {
+                        tmp.push({ path : picture.imageUrl , id : id });
+                    })
+                console.log(tmp);
+                setPictures(tmp);
                   //refresh
                   // setRefresh(true);
                   // setRefresh(false);
@@ -305,8 +314,8 @@ export default function( props ) {
 
     const RenderItem = ({item}) =>  {
         return(
-            <CButton key={item.id} onPress={ () =>  { setIndex(item.id) ; setVisible(true) }}>
-                <Image source={{ uri : item.path }} style={{ width: '100%' , height: '100%' }}/>
+            <CButton onPress={ () =>  { setIndex(item.id) ; setVisible(true) }}>
+                <FastImage source={{ uri : item.path }} style={{ width: '100%' , height: '100%' }}/>
             </CButton>
         )
     }
@@ -321,7 +330,6 @@ export default function( props ) {
             <Swiper 
                 horizontal={true}
                 index={index}
-                key={item=>item.key}
                 loop={false}
                 // prevButton={<IconButton icon='chevron-left' color={'gray'}/>}
                 // nextButton={<IconButton icon='chevron-right' color={'gray'}/>}
@@ -330,8 +338,8 @@ export default function( props ) {
                         pictures != null &&
                         pictures.map(picture => {
                             return(
-                                <SwiperView>
-                                    <Image source={{ uri: picture.path }} style={{ width: '100%' , height: '100%' }} />
+                                <SwiperView key={picture.id}>
+                                    <FastImage source={{ uri: picture.path }} style={{ width: '100%' , height: '100%' }} />
                                 </SwiperView>
                             )
                         })
@@ -343,28 +351,28 @@ export default function( props ) {
             <IconButton icon='close' style={{ alignSelf: 'flex-end'}} color='white' onPress={ () => { setModalVisible(false);  setRefresh(false); }} />
             <SwiperView style={{ width: '90%' , height: 300 , alignSelf: 'center' }}>
             {
-                refresh && 
-                <LottieView source={require('../Register/2.json')} autoPlay={true} loop={true} style={{ position: 'absolute' , right: 50, top: 50  }}/>
-            }
+                refresh ? 
+                <LottieView source={require('../Register/2.json')} autoPlay={true} loop={true} /> :
+
             <Swiper 
-                horizontal={true}
-                // index={index}
-                key={item=>item.key}
-                loop={false}
-                // prevButton={<IconButton icon='chevron-left' color={'gray'}/>}
-                // nextButton={<IconButton icon='chevron-right' color={'gray'}/>}
+            horizontal={true}
+            // index={index}
+            loop={false}
+            // prevButton={<IconButton icon='chevron-left' color={'gray'}/>}
+            // nextButton={<IconButton icon='chevron-right' color={'gray'}/>}
             >
                     {
                         newPictures != null &&
                         newPictures.map(picture => {
                             return(
-                                <SwiperView style={{ width: '90%' , height: 300 , alignSelf: 'center' }}>
-                                    <Image source={{ uri: picture.path }} style={{ width: '100%' , height: '100%' }} />
+                                <SwiperView style={{ width: '90%' , height: 300 , alignSelf: 'center' }} key={picture.id}>
+                                    <FastImage source={{ uri: picture.path }} style={{ width: '100%' , height: '100%' }} />
                                 </SwiperView>
                             )
                         })
                     } 
             </Swiper>
+            }
             </SwiperView>
             <Button style={{ alignSelf: 'center' , width: '80%' , marginTop: 20 }} mode='contained' color={colors.main}
                 onPress={ () => { requestUploadImage(newPictures) }}
@@ -379,7 +387,7 @@ export default function( props ) {
             <Appbar.BackAction onPress={() => { props.navigation.goBack() }} />
             <Appbar.Content title={`${data?.userResponseDto?.nickname} 고객님`} titleStyle={{ fontFamily : 'DoHyeon-Regular' , fontSize: 24}} />
             <View>
-                <Appbar.Action icon="chat" onPress={() => { props.navigation.navigate('ChatDetail',{ name : props.route.params.name }) }} color='white' style={{ backgroundColor: 'transparent' , margin: 0}} size={25}/>
+                <Appbar.Action icon="chat" onPress={() => { props.navigation.navigate('ChatDetail',{ name : data?.userResponseDto?.nickname}) }} color='white' style={{ backgroundColor: 'transparent' , margin: 0}} size={25}/>
                 <Badge size={10} style={{ position: 'absolute' , right: 0 , top: 0 }}/>
             </View>
             </Appbar.Header>  
@@ -458,7 +466,7 @@ export default function( props ) {
                                     </Button>
                                     </Row>
                                     <FlatList
-                                        style={{ width: '80%', alignSelf: 'center' , marginLeft: 20 }}
+                                        style={{ width: '80%', alignSelf: 'center' , marginLeft: 20 , marginBottom: 40 }}
                                         nestedScrollEnabled={true}
                                         data={pictures}
                                         renderItem={RenderItem}

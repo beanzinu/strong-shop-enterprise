@@ -1,13 +1,16 @@
 import React from 'react' ;
 import styled from 'styled-components';
-import { Avatar , Button, Title , Appbar , Icon , TextInput , Text , IconButton , ActivityIndicator} from 'react-native-paper';
+import { Avatar , Button, Title , Appbar , Icon , TextInput , Text , IconButton , ActivityIndicator } from 'react-native-paper';
 import {  GiftedChat , SystemMessage , MessageContainer, Message } from 'react-native-gifted-chat';
 import { Send , Bubble } from 'react-native-gifted-chat';
 import colors from '../../../color/colors';
 import database from '@react-native-firebase/database';
 import _, { forEach } from 'lodash';
+import axios from 'axios';
+import server from '../../../server/server';
+import fetch from '../../../storage/fetch';
 
-const db = database().ref('chat');
+const db = database().ref('chat/');
 
 const RenderAvatar = () => { return ( <Avatar.Icon size={30} icon='cash' color='white' />) }
 const RenderSend = (props) =>  { 
@@ -48,6 +51,8 @@ export default function( props ) {
 
     // 화면 처음 실행 시
     React.useEffect( async () => {
+
+        
 
         // Realtime DB에 연결
         database().goOnline();
@@ -133,10 +138,40 @@ export default function( props ) {
         // 화면에 표시
         setMessages(previousMessages => GiftedChat.append(previousMessages, msg)) 
 
+        fetch('auth')
+        .then( res => {
+            const auth = res.auth;
+            axios({
+                url: `${server.url}/api/chat` ,
+                method: 'put' ,
+                headers: { Auth: auth }
+            })
+            .then( res => {
+                newReference.set({
+                    text : msg[0].text ,
+                    user : msg[0].user ,
+                    _id : msg[0]._id ,
+                    createdAt : msg[0].createdAt.toString() ,
+                })
+                .then( res  => { 
+                    // 메시지 전송 성공 시
+                    setMessages(previousMessages => (
+                        previousMessages = previousMessages.splice(1,previousMessages.length-1) 
+                        ) );
+                       msg[0] = { ...msg[0] , sent : true } ;
+                       setMessages(previousMessages => (
+                           GiftedChat.append(previousMessages,msg)
+                       ));
         
-        setTimeout(() =>  {
-            if ( !flag ) { // 메시지 전송 실패 ( 인터넷 없음 등의 이유로 )
-
+                    flag = true ; // 메시지 보냄
+                })
+                .catch( e => { 
+                    alert('error');
+                    msg[0] = { ...msg[0] , sent : false }
+                    setMessages(previousMessages => GiftedChat.append(previousMessages, msg)) 
+                 })
+            })
+            .catch( e => {
                 newReference.remove();
 
                 setMessages(previousMessages => (
@@ -146,34 +181,56 @@ export default function( props ) {
                 setMessages(previousMessages => (
                     GiftedChat.append(previousMessages,msg)
                 ));
+            })
 
+        })
+        .catch(
+            e => {
             }
-        },5000) ;
+        )
+
+        
+        
+        // setTimeout(() =>  {
+        //     if ( !flag ) { // 메시지 전송 실패 ( 인터넷 없음 등의 이유로 )
+
+        //         newReference.remove();
+
+        //         setMessages(previousMessages => (
+        //          previousMessages = previousMessages.splice(1,previousMessages.length-1) 
+        //          ) );
+        //         msg[0] = { ...msg[0] , sent : false } ;
+        //         setMessages(previousMessages => (
+        //             GiftedChat.append(previousMessages,msg)
+        //         ));
+
+        //     }
+        // },5000) ;
 
         // Realtime DB로 전송 시도
-        newReference.set({
-            text : msg[0].text ,
-            user : msg[0].user ,
-            _id : msg[0]._id ,
-            createdAt : msg[0].createdAt.toString() ,
-        })
-        .then( res  => { 
-            // 메시지 전송 성공 시
-            setMessages(previousMessages => (
-                previousMessages = previousMessages.splice(1,previousMessages.length-1) 
-                ) );
-               msg[0] = { ...msg[0] , sent : true } ;
-               setMessages(previousMessages => (
-                   GiftedChat.append(previousMessages,msg)
-               ));
+        // newReference.set({
+        //     text : msg[0].text ,
+        //     user : msg[0].user ,
+        //     _id : msg[0]._id ,
+        //     createdAt : msg[0].createdAt.toString() ,
+        // })
+        // .then( res  => { 
+        //     // 메시지 전송 성공 시
+        //     setMessages(previousMessages => (
+        //         previousMessages = previousMessages.splice(1,previousMessages.length-1) 
+        //         ) );
+        //        msg[0] = { ...msg[0] , sent : true } ;
+        //        setMessages(previousMessages => (
+        //            GiftedChat.append(previousMessages,msg)
+        //        ));
 
-            flag = true ; // 메시지 보냄
-        })
-        .catch( e => { 
-            alert('error');
-            msg[0] = { ...msg[0] , sent : false }
-            setMessages(previousMessages => GiftedChat.append(previousMessages, msg)) 
-         })
+        //     flag = true ; // 메시지 보냄
+        // })
+        // .catch( e => { 
+        //     alert('error');
+        //     msg[0] = { ...msg[0] , sent : false }
+        //     setMessages(previousMessages => GiftedChat.append(previousMessages, msg)) 
+        //  })
        
 
         // 바로 메시지를 표시
@@ -185,7 +242,7 @@ export default function( props ) {
         <>
             <Appbar.Header style={{ backgroundColor: colors.main}}>
                 <Appbar.BackAction onPress={() => { props.navigation.goBack() }} />   
-                <Appbar.Content title={ `${props.route.params.name} 고객` } /> 
+                {/* <Appbar.Content title={ `${props.route.params.name} 고객` } />  */}
             </Appbar.Header>
             <CustomChat/>
         </>

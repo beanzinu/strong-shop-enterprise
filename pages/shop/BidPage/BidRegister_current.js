@@ -1,11 +1,16 @@
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import React from 'react';
-import { Divider, List , Text, Title } from 'react-native-paper';
+import { Divider, List , Text, Title , Avatar } from 'react-native-paper';
+import styled from 'styled-components';
 import axios from 'axios';
 import server from '../../../server/server';
 import fetch from '../../../storage/fetch';
 import colors from '../../../color/colors';
+import { Dimensions } from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
 
+
+const View = styled.View``;
 const styles = {
     listAccordionStyle : {
         backgroundColor: 'white' ,
@@ -35,7 +40,7 @@ const styles = {
 
 export default function() {
     const [data,setData] =  React.useState(null);
-
+    const isFocused = useIsFocused();
 
     function parseData( value ) {
        
@@ -47,31 +52,42 @@ export default function() {
 
 
 
+
     React.useEffect(async() => {
     
-        const token = await fetch('auth') ;
-        const auth = token.auth ;
-        
-        // 내가 입찰한 정보
-        axios({
-            method: 'get' ,
-            url: `${server.url}/api/bidding`,
-            headers : { Auth : auth } 
-        })
-        .then(res => {
-            parseData(res.data.data) ;
-        })
-        .catch(e => {
-            //
-        })
+        if ( isFocused ) {
+            const token = await fetch('auth') ;
+            const auth = token.auth ;
+            
+            // 내가 입찰한 정보
+            axios({
+                method: 'get' ,
+                url: `${server.url}/api/bidding`,
+                headers : { Auth : auth } 
+            })
+            .then(res => {
+                parseData(res.data.data) ;
+            })
+            .catch(e => {
+                //
+            })
+        }   
 
     
-    },[]);
+    },[isFocused]);
 
     return(
         <KeyboardAwareScrollView>
             {
-                data != null && (
+                data == null ? 
+                (
+                    <View style={{ height: Dimensions.get('screen').height*0.6 , justifyContent: 'center' , alignItems: 'center'  }}>
+                            {/* <Avatar.Icon icon='account-arrow-left' style={{ backgroundColor: 'transparent'}} color='black'/> */}
+                            <Title>입찰 중인 건이 없어요.</Title>
+                    </View>
+                )
+                :
+                (
                     data.map( items => {
                         const item = items.detail ;
                         return(
