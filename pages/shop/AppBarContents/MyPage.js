@@ -97,7 +97,7 @@ export default function( props ) {
                 <Title style={styles.title}>휴대전화번호</Title>
                 <Title style={{...styles.title , backgroundColor: 'lightgray' }}>01012341234</Title>
             </Row>
-            <Row>
+            {/* <Row>
                 <Title style={styles.title}>전화번호</Title>
                 <TextInput style={{ flex: 1  }} 
                     placeholder='전화번호를 입력해주세요.'
@@ -106,7 +106,7 @@ export default function( props ) {
                     keyboardType='number-pad'
                     right={<TextInput.Icon icon='pencil-outline' onPress={ handleEditPhoneNum}/> }
                 />
-            </Row>
+            </Row> */}
             <Row>
                 <Title style={styles.title}>광고 수신 동의</Title>
                 <Switch style={{ position: 'absolute' , right: 10 }} />
@@ -127,7 +127,7 @@ export default function( props ) {
                 <Title style={styles.title}>FAQ</Title>
             </Row>
             <Title style={{ color: 'gray' , alignSelf: 'flex-end' , padding: 5 , fontSize: 15 , margin : 10 }} onPress={handleLogout}>로그아웃</Title>
-            <Title style={{ color: 'gray' , alignSelf: 'flex-end' , padding: 5 , fontSize: 15 , margin : 30 }} onPress={handleDeleteUser}>회원탈퇴</Title>
+            {/* <Title style={{ color: 'gray' , alignSelf: 'flex-end' , padding: 5 , fontSize: 15 , margin : 30 }} onPress={handleDeleteUser}>회원탈퇴</Title> */}
             </KeyboardAwareScrollView>
     );
 }

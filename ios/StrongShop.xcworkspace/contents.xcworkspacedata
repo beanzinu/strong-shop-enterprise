@@ -2,9 +2,12 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:StrongShop.xcodeproj">
+      location = "group:/Users/kong/project/StrongShop/ios/StrongShop.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:Pods/Pods.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:StrongShop.xcodeproj">
    </FileRef>
 </Workspace>

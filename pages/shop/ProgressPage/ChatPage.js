@@ -111,9 +111,9 @@ export default function() {
     return (
     <NavigationContainer>
         <Stack.Navigator>
-            <Stack.Screen name='ChatDetail' component = {ChatDetailPage} options={{ headerShown : false }} />
             <Stack.Screen name='ChatList' component={ChatView} options={{ title: '채팅' }}/>
             <Stack.Screen name='ProgressPage' component={ProgressPage} options = {{ headerShown : false }}/>
+            <Stack.Screen name='ChatDetail' component = {ChatDetailPage} options={{ headerShown : false }} />
         </Stack.Navigator>
    </NavigationContainer>
     );

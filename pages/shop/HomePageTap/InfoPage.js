@@ -2,7 +2,7 @@ import React from 'react';
 import NaverMapView , { Marker } from 'react-native-nmap';
 import styled from 'styled-components';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { Button , Title , ActivityIndicator, Avatar } from 'react-native-paper';
+import { Button , Title , ActivityIndicator, Avatar , TextInput } from 'react-native-paper';
 import axios from 'axios';
 import colors from '../../../color/colors';
 import { Linking } from 'react-native';
@@ -55,10 +55,10 @@ export default function( props ) {
             setCoord({ latitude: 37.53 , longitude : 127 })
     }
 
-    async function fetchInfo () {
+    function fetchInfo () {
 
         // 저장된 Info정보 확인 
-        await fetch('Info')
+        fetch('Info')
         .then( async(res) => {
             // 캐시 성공
             if (res != null) {
@@ -98,11 +98,12 @@ export default function( props ) {
                 })
                 .catch (e => {
                     //
+
                 })
             }
 
         })
-        .catch( async(e) => {
+        .catch( (e) => {
 
             
 

@@ -36,7 +36,7 @@ const PictureButton = styled.TouchableOpacity`
 `;
 const SwiperView = styled.View`
     width: 100% ;
-    height: 300px ;
+    height: 350px ;
     
 `;
 const Text = styled.Text`
@@ -160,6 +160,10 @@ export default function( props ) {
             Alert.alert('사진없음','사진을 올려주세요.')
             return;
         }
+        if ( text.length > 500 ) {
+            Alert.alert('글자 수','500자 안으로 해주세요.')
+            return;
+        }
         // 폼데이터 생성
         var body = new FormData();
         // 현재 사용자가 불러온 이미지 리스트들 => 각각 폼데이터에 넣어준다.
@@ -224,12 +228,11 @@ export default function( props ) {
             </Modal>
         </Portal>
 
-        <BottomSheetModalProvider>
             <Card style={ styles.Card }>
                 <Card.Title 
                     titleStyle={ styles.title }
                     title= { props.route.params.name } 
-                    left = { (props)=>  <Avatar.Icon {...props} icon='account' size={24} style={{ backgroundColor: colors.main}}/>  }
+                    left = { ()=>  <Avatar.Image {...props} source = {{ uri: props.route.params.imageUrl }}size={24} />  }
                     // right = { (props) => <Button onPress={removePictures} color='red'>사진 지우기</Button>}
                 />
             </Card>
@@ -237,14 +240,6 @@ export default function( props ) {
                 <OptionView onPress={() => openNew() }>
                     <IconButton icon='image-plus' />
                 </OptionView>
-                {/* {
-                    pictures != null && pictures.length > 1 && (
-                <OptionView onPress={() => ModalRef.current?.present() }>
-                    <IconButton icon='tools'/>
-                    <Text style={{ fontSize: 12 }}>사진 수정</Text>
-                </OptionView>
-                    )
-                } */}
             </Row>
             {
                 pictures != null && (
@@ -254,7 +249,7 @@ export default function( props ) {
                             pictures.map((picture) =>{
                                return(
                                     <SwiperView>
-                                        <Image resizeMode='cover' source={{ uri: picture }} style={{ flex: 1 }}/>
+                                        <Image resizeMode='contain' source={{ uri: picture }} style={{ flex: 1 }}/>
                                     </SwiperView>
                                 )
                             })
@@ -265,14 +260,17 @@ export default function( props ) {
             }
             
             
-
-            <Title style={{ padding: 10 }}> 내용 </Title>
+            <Row>
+                <Title style={{ padding: 10 }}> 내용 </Title>
+                <Title style={{ color: text.length > 500 ? 'red' : 'lightgray' , fontSize: 17 }}>{text.length}/500 </Title>
+            </Row>
                 <TextInput 
                     placeholder='내용을 입력하세요.'
-                    onBlur={() => { this.flatList.scrollToEnd(true) }}
+                    onBlur={() => { this.flatList.scrollToEnd() }}
                     style={{ height: inputHeight }}
                     value={text} 
-                    onChangeText={value => setText(value) }  
+                    onChangeText={value => setText(value) } 
+                    // onEndEditing={() => { this.flatList.scrollToPosition(inputHeight)} } 
                     onContentSizeChange={e=>{
                         if ( e.nativeEvent.contentSize.height > inputHeight ) setInputHeight(inputHeight+50);
                     }}
@@ -283,33 +281,11 @@ export default function( props ) {
                     labelStyle={{ fontWeight: 'bold' }}
                     mode='contained'
                     onPress={() =>  { uploadData() }}
+                    disabled={requesting}
                 >
                     { requesting ? '등록중...' : '등록하기'}
                 </Button>
-            <BottomSheetModal
-                ref={ModalRef}
-                snapPoints={['40%']}
-                bottomInset={inputHeight}
-            >
-                <BasicRow>
-                    <Text style={{ fontSize: 25 , margin: 20 }}>👆 순서를 바꿔보세요.</Text>
-                    <Button style={{ position: 'absolute', right: 0  }} labelStyle={{ fontSize: 15 , fontWeight: 'bold'}} color={colors.main}
-                        onPress={() => { ModalRef.current?.dismiss() }}
-                    >
-                        완료
-                    </Button>
-                </BasicRow>
-                <DraggableFlatList 
-                    nestedScrollEnabled={true}
-                    style={{ marginLeft: 20 }}
-                    horizontal={true}
-                    data={pictures}
-                    onDragEnd={ ({data})=>{ setPictures(data) }}
-                    keyExtractor={(item)=>item.uri}
-                    renderItem={RenderItem}
-                />
-            </BottomSheetModal>
-        </BottomSheetModalProvider>            
+           
         </KeyboardAwareScrollView>
         </Provider>
     );

@@ -33,28 +33,37 @@ const styles = {
 export default function( props ) {
    const [loading,setLoading] = React.useState(true);
    const [postData,setPostData] = React.useState([]);
+   const [shopName,setShopName] = React.useState();
+   const [imageUrl,setImageUrl] = React.useState();
    const MyContext = React.useContext(AppContext);
    
 
-    requestImage = async() =>  {
+    requestImage = () =>  {
 
-        const token = await fetch('auth') ;
-        const auth = token.auth ;
 
-        axios({
-            url: `${server.url}/api/gallery`,
-            method: 'get' ,
-            headers : {
-                Auth : auth
-            }
+        fetch('auth')
+        .then( res => {
+            const auth = res.auth ;
+            axios({
+                url: `${server.url}/api/gallery`,
+                method: 'get' ,
+                headers : {
+                    Auth : auth
+                }
+            })
+            .then ( res =>  {
+                setPostData(res.data.data) ;
+                setLoading(false);
+            })
+            .catch(e  => {
+                //
+            })
         })
-        .then ( res =>  {
-            setPostData(res.data.data) ;
-            setLoading(false);
+        .catch( e => {
+
         })
-        .catch(e  => {
-            //
-        })
+
+        
     }
 
     // React.useEffect(() => {
@@ -64,6 +73,13 @@ export default function( props ) {
     // },[props.listControl]);
 
     React.useEffect(() =>  {
+
+        fetch('Info')
+        .then(res => {
+            setShopName(res.company_name)
+            setImageUrl(res.backgroundImageUrl);
+        })
+
         // 사진요청
         requestImage();
 
@@ -73,7 +89,7 @@ export default function( props ) {
   // 1개의 게시물 
   const RenderItem = ({ item }) =>  {
         return(
-        <PostButton onPress= { () =>  { props.navigation.navigate('Post',{ data: props.data  , uri : item.imageUrls , content : item.content , name : props.shopName }) }}>
+        <PostButton onPress= { () =>  { props.navigation.navigate('Post',{ imageUrl: imageUrl  , uri : item.imageUrls , content : item.content , name : shopName , id : item.id }) }}>
             <FastImage resizeMode='cover' source= { { uri: item?.imageUrls[0]?.imageUrl }  } style={{ width: '100%' , height: '100%' }} />
         </PostButton>    
         );
@@ -95,14 +111,14 @@ export default function( props ) {
                 <Button icon='pencil-plus-outline' 
                     style={ styles.button }
                     color={ colors.main }
-                    onPress={ () =>  { props.navigation.navigate('PostRegister', { data : props.data ,  name : props.shopName   }) }}
+                    onPress={ () =>  { props.navigation.navigate('PostRegister', { data : props.data ,  name : shopName , imageUrl: imageUrl  }) }}
                 >
                     작성하기
                 </Button>
                 {
                     postData.length == 0 ? (
                         <PostView style={{ backgroundColor: 'white' , justifyContent: 'center' , alignItems: 'center' , flex: 1}}
-                            onPress={() => { props.navigation.navigate('PostRegister', { data : props.data ,  name : props.shopName  }) }}
+                            onPress={() => { props.navigation.navigate('PostRegister', { data : props.data ,  name : shopName , imageUrl : imageUrl  }) }}
                         >
                             <Avatar.Icon icon='camera-plus' style={{ backgroundColor: 'transparent'}} color={colors.main}/>
                             <Title>시공사진을 등록해보세요.</Title>
@@ -111,7 +127,7 @@ export default function( props ) {
                     (
                         <FlatList
                         ref={ ref => this.flatList = ref }
-                        onScrollEndDrag={this.handleScroll}
+                        // onScrollEndDrag={this.handleScroll}
                         data={ postData } 
                         renderItem = {RenderItem}
                         horizontal={false}

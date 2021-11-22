@@ -387,7 +387,7 @@ export default function( props ) {
             <Appbar.BackAction onPress={() => { props.navigation.goBack() }} />
             <Appbar.Content title={`${data?.userResponseDto?.nickname} 고객님`} titleStyle={{ fontFamily : 'DoHyeon-Regular' , fontSize: 24}} />
             <View>
-                <Appbar.Action icon="chat" onPress={() => { props.navigation.navigate('ChatDetail',{ name : data?.userResponseDto?.nickname}) }} color='white' style={{ backgroundColor: 'transparent' , margin: 0}} size={25}/>
+                <Appbar.Action icon="chat" onPress={() => { props.navigation.navigate('ChatDetail',{ name : data?.userResponseDto?.nickname , id : props.route.params.data.id }) }} color='white' style={{ backgroundColor: 'transparent' , margin: 0}} size={25}/>
                 <Badge size={10} style={{ position: 'absolute' , right: 0 , top: 0 }}/>
             </View>
             </Appbar.Header>  

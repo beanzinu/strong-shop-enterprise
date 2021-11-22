@@ -1,7 +1,7 @@
 import React from 'react' ;
 import styled from 'styled-components';
 import { Appbar , Card , Title , Avatar , Badge } from 'react-native-paper';
-import { Alert, SafeAreaView } from 'react-native';
+import { Alert, SafeAreaView  ,useWindowDimensions} from 'react-native';
 import Collapsible from 'react-native-collapsible';
 import colors from '../../color/colors';
 import Swiper from 'react-native-swiper';
@@ -9,6 +9,7 @@ import { getStatusBarHeight } from 'react-native-status-bar-height';
 import MultipleImagePicker from '@baronha/react-native-multiple-image-picker';
 import AppContext from '../../storage/AppContext';
 import FastImage from 'react-native-fast-image';
+import { TabView , SceneMap , TabBar } from 'react-native-tab-view';
 import { useIsFocused } from '@react-navigation/native';
 // Pages
 import InfoPage from './HomePageTap/InfoPage';
@@ -67,6 +68,53 @@ const styles = {
     } 
 }
 
+
+  
+function TabViews({ navigation, listControl }) {
+    const layout = useWindowDimensions();
+    const [index, setIndex] = React.useState(0);
+    const [routes] = React.useState([
+      { key: 'first', title: '정보' },
+      { key: 'second', title: '작업갤러리' },
+      { key: 'third', title: '취급상품' },
+      { key: 'fourth', title: '리뷰' },
+    ]);
+  
+    const renderScene = ({ route }) => {
+        switch (route.key) {
+          case 'first':
+            return  <InfoPage navigation={navigation} listControl = {listControl} />;
+          case 'second':
+            return <PostGalleryPage navigation={navigation} listControl = {listControl} />
+          case 'third':
+            return <ProductPage navigation={navigation}  listControl = {listControl} />
+          case 'fourth':
+            return <ReviewPage navigation={navigation} listControl = {listControl} />
+          
+          default:
+            return null;
+        }
+    };
+    return (
+      <TabView
+        navigationState={{ index, routes }}
+        renderScene={renderScene}
+        onIndexChange={setIndex}
+        // lazy={true}
+        renderTabBar={ props => 
+            <TabBar {...props}
+            indicatorStyle={{ backgroundColor: colors.main }}
+            style={{ backgroundColor: 'white' , borderColor: colors.main  }} 
+            activeColor={colors.main} 
+            inactiveColor='lightgray'/>
+        }
+        initialLayout={{ width: layout.width }}
+      />
+    );
+}
+  
+
+
 export default function( props ) {
     // 1.  정보  2. 작업갤러리 3. 취급상품 4. 리뷰
     const [value, setValue] = React.useState(1);
@@ -81,6 +129,8 @@ export default function( props ) {
     // 알람존재여부
     const [isalarm,setIsAlarm] = React.useState(false);
     const isFocused = useIsFocused();
+
+    
 
     React.useEffect(() => {
 
@@ -156,7 +206,7 @@ export default function( props ) {
             selectedColor: "#162741",
             tapHereToChange: '여기를 눌러 변경' ,
             cancelTitle: '취소' ,
-            singleSelectedMode: true
+            singleSelectedMode: true ,
         })
         .then(async (res) => {
             // 서버에 등록 후 캐시
@@ -223,7 +273,7 @@ export default function( props ) {
         <Collapsible 
             collapsed={collapsed}
             // collapsed={ scroll > 0  ? true : false }
-            collapsedHeight={0}
+            // collapsedHeight={0}
             duration={1000}
         >
 
@@ -239,7 +289,7 @@ export default function( props ) {
                         ) :
                         (   
                                 <ImageView onPress={requestThumbnail}>
-                                    <FastImage source = {{ uri : picture }} style={ styles.cover }/>
+                                    <FastImage source = {{ uri : picture }} style={ styles.cover } resizeMode='contain' />
                                 </ImageView>
                         )
                     }
@@ -273,8 +323,11 @@ export default function( props ) {
             </MenuButton>
         </Row> */}
 
-        <Tab.Navigator sceneContainerStyle={{ backgroundColor: 'white' }} 
-            screenOptions={{ tabBarActiveTintColor: colors.main , tabBarIndicatorStyle: { backgroundColor: colors.main }  }}   
+        <TabViews listControl={listControl} navigation={props.navigation}/>
+
+        {/* <Tab.Navigator sceneContainerStyle={{ backgroundColor: 'white' }} 
+            screenOptions={{  tabBarActiveTintColor: colors.main , tabBarIndicatorStyle: { backgroundColor: colors.main }  }}   
+            keyboardDismissMode='none'
             initialRouteName={InfoPage}
             
         >
@@ -312,7 +365,7 @@ export default function( props ) {
                 options={{ title: '리뷰' }}
             />
         </Tab.Navigator>        
-        
+         */}
 
         
         </>

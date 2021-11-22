@@ -142,9 +142,12 @@ export default function( props ) {
         .then( res => {
             const auth = res.auth;
             axios({
-                url: `${server.url}/api/chat` ,
+                url: `${server.url}/api/chat/${props.route.params.id}?content=${msg[0].text}` ,
                 method: 'put' ,
-                headers: { Auth: auth }
+                headers: { Auth: auth } ,
+                // data :  {
+                //     content: msg[0].text
+                // }
             })
             .then( res => {
                 newReference.set({

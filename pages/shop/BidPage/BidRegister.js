@@ -524,8 +524,10 @@ export default function( props ) {
                 style={{ margin : 3 , marginTop: 20 , marginBottom: 20 }}
                 labelStyle = {{ fontSize: 17 }}
                 onPress={ () => { checkRegister() }}
-                mode='contained' >
-                    입찰하기
+                mode='contained' 
+                disabled={requesting}
+            >
+                    { requesting ? '입찰 중...' : '입찰하기'}
             </Button>
         </KeyboardAwareScrollView>
         </Provider>   

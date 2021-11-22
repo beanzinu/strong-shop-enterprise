@@ -160,6 +160,7 @@ function Reply({item,index}) {
                 </View>
             ) : (
                 <>
+                <View style={{ flex: 1 }}>
                 <TextInput placeholder='리뷰에 대한 답변을 작성해주세요.'
                 value={reply}
                 onChangeText = { value => setReply(value) }
@@ -173,6 +174,7 @@ function Reply({item,index}) {
                     this.flatList.scrollToIndex({ index: index+0.5 });
                 } }
                 />
+                </View>
                 {
                 item.reply == null && (
                     <View style={{ alignItems: 'flex-end' ,width: '100%' }}>
@@ -218,6 +220,7 @@ const RenderItem =  ({index,item}) => {
 export default function( props ) {
     const [DATA,setDATA]  = React.useState([]) ;
     const [loading,setLoading] = React.useState(true) ;
+    const [refresh,setRefresh] = React.useState(false);
     const MyContext = React.useContext(AppContext) ;
 
 
@@ -225,10 +228,7 @@ export default function( props ) {
     //     if ( this?.flatList != null )
     //         this?.flatList?.scrollToOffset({ offset : 0 });      
     // },[props.listControl]);
-
-    React.useEffect( () =>  { 
-        
-        
+    function requestReviews() {
         // request Review
         fetch('auth')
         .then(res => {
@@ -240,14 +240,29 @@ export default function( props ) {
                 headers: { Auth: auth } 
             })
             .then( res =>  {
-                console.log(res.data.data);
                 setDATA(res.data.data);
                 setLoading(false);
+                setRefresh(false);
             })
             .catch( e => {
                 //
+                Alert.alert('다시 시도해주세요.')
+                setRefresh(false);
             })
+
         }) ;
+
+    }
+
+    handleRefresh = () =>  {
+        setRefresh(true);
+        requestReviews()
+    }
+
+    React.useEffect( () =>  { 
+        
+        requestReviews()
+        
 
     },[MyContext.reviewRefresh]) ;
 
@@ -267,7 +282,10 @@ export default function( props ) {
                         </View>
                     ):
                     (
+                    <>
                     <FlatList
+                        refreshing={refresh}
+                        onRefresh={handleRefresh}
                         ref = { ref => this.flatList = ref }
                         data = { DATA }
                         renderItem = { RenderItem }
@@ -277,11 +295,12 @@ export default function( props ) {
                             DATA.push({
                                 id : 'new'
                             });
-                            setTimeout(() => {
-                                this.flatList.scrollToEnd();
-                            },1000) ;
+                            // setTimeout(() => {
+                            //     this.flatList.scrollToEnd();
+                            // },1000) ;
                         }}
                     />
+                    </>
                     )
                 )
             }

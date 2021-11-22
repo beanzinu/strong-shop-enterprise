@@ -150,25 +150,29 @@ export default function( props ) {
     const MyContext = React.useContext(AppContext);
     
 
-    React.useEffect( async ()=>{
+    React.useEffect( ()=>{
 
         // request Product
         try {
-            const token = await fetch('auth') ;
-            const auth = token.auth ;
-            axios({
-                url: `${server.url}/api/product`,
-                method: 'get',
-                headers: { Auth: auth }
-            })
+            fetch('auth')
             .then( res => {
-                setDATA(res.data.data) ;
-                MyContext.setProduct( res.data.data ) ;
-                setLoading(false);
-            })
-            .catch( e =>  {
-                //
-            })
+                auth = res.auth ;
+                axios({
+                    url: `${server.url}/api/product`,
+                    method: 'get',
+                    headers: { Auth: auth }
+                })
+                .then( res => {
+                    setDATA(res.data.data) ;
+                    MyContext.setProduct( res.data.data ) ;
+                    setLoading(false);
+                })
+                .catch( e =>  {
+                    //
+                })
+            }) 
+            .catch( e => { })
+            
         }
         catch {
             console.log('취급상품 불러오기 에러');
