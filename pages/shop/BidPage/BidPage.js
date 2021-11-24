@@ -11,7 +11,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import colors from '../../../color/colors';
 import { SafeAreaView } from 'react-native';
 import axios from 'axios';
-import server from '../../../server/server' ;
+import server from '../../../server/server';
 import fetch from '../../../storage/fetch' ;
 import _ from 'lodash';
 import store from '../../../storage/store';

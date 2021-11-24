@@ -4,7 +4,7 @@ import { Avatar , Button, Title , Appbar , Icon , TextInput , Text , IconButton 
 import {  GiftedChat , SystemMessage , MessageContainer, Message } from 'react-native-gifted-chat';
 import { Send , Bubble } from 'react-native-gifted-chat';
 import colors from '../../color/colors';
-import database from '@react-native-firebase/database';
+// import database from '@react-native-firebase/database';
 import _, { forEach } from 'lodash';
 
 const db = database().ref('chat');

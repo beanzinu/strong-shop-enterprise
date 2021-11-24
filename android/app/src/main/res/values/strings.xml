@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">StrongShop</string>
+    <string name="kakao_app_key">2d78be1659a3be57c8a3446dfdad968e</string>
 </resources>

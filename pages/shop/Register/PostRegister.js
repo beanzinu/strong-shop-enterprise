@@ -2,7 +2,6 @@ import React from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import styled from 'styled-components';
 import Swiper from 'react-native-swiper';
-import ImagePicker from 'react-native-image-crop-picker';
 import { Alert, Image , TouchableOpacity } from 'react-native';
 import { Card , Avatar , Title , Button , IconButton } from 'react-native-paper';
 import colors from '../../../color/colors';

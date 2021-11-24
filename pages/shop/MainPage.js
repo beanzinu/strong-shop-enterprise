@@ -8,8 +8,8 @@ import messaging from '@react-native-firebase/messaging';
 // pages 
 import BidPage from './BidPage/BidPage';
 import BidRegister from './BidPage/BidRegister';
-import ChatPage from './ChatPage';
-import ChatDetailPage from './ChatDetailPage';
+// import ChatPage from './ChatPage';
+// import ChatDetailPage from './ChatDetailPage';
 import HomePage from './HomePage';
 import PostPage from './PostPage';
 import InfoRegister from './Register/InfoRegister';
@@ -41,7 +41,7 @@ const homeRoute = () => {
             <Stack.Screen name='Home' component={HomePage}  options={{ headerShown : false }}/>
             <Stack.Screen name='MyPage' component={MyPage}  options={{ headerShown : false }}/>
             <Stack.Screen name='Post' component={PostPage} />
-            <Stack.Screen name='InfoRegister' component={InfoRegister} options={{ headerShown: false }} />
+            <Stack.Screen name='InfoRegister' component={InfoRegister} options={{ title: '업체 소개' , headerShown: false }} />
             <Stack.Screen name='PostPageRegister' component={PostPageRegister} options={{ title: '작업갤러리 등록' }}/>
             <Stack.Screen name='PostRegister' component={PostRegister} options={{ title: '작업갤러리 상세등록' }} />
             <Stack.Screen name='ProductRegister' component={ProductRegister} options={{ title: '취급상품 등록'}}/>
@@ -64,22 +64,23 @@ const bidRoute = () => {
 }
 
 // 문의 및 채팅
-const chatRoute = () => <ChatPage/>
+// const chatRoute = () => <ChatPage/>
+const chatRoute = () => <></>
 
 export default function() {
 
     React.useEffect(()=>{
         messaging().setBackgroundMessageHandler(async remoteMessage => {
             console.log('Message handled in the background!', remoteMessage);
-            setIndex(2);
+            
           });
     },[]);
     
     const [index, setIndex] = React.useState(0);
     const [routes] = React.useState([
-      { key: 'home', title: '홈', icon: 'home'  },
+      { key: 'home', title: '홈', icon: 'home' },
       { key: 'bid', title: '입찰', icon: 'alarm-plus' },
-      { key: 'chat', title: '시공', icon: 'car-door' , badge: true },
+      { key: 'chat', title: '시공', icon: 'car-door' },
     ]);
     const renderScene = BottomNavigation.SceneMap({
         home: homeRoute,
@@ -92,7 +93,6 @@ export default function() {
             barStyle= {{ backgroundColor: 'white' }}
             activeColor={colors.main}
             navigationState={{ index, routes }}
-            shifting={true}
             onIndexChange={setIndex}
             renderScene={renderScene}
         />  

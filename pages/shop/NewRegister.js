@@ -11,7 +11,7 @@ import { ActivityIndicator, Alert, ScrollView } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import ImageBackground from 'react-native/Libraries/Image/ImageBackground';
 import { login } from '@react-native-seoul/kakao-login';
-import auth from '@react-native-firebase/auth'
+// import auth from '@react-native-firebase/auth'
 import IMP from 'iamport-react-native';
 import Postcode from '@actbase/react-daum-postcode';
 //

@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import Postcode from '@actbase/react-daum-postcode';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import axios from 'axios';
-import auth from '@react-native-firebase/auth' ;
+// import auth from '@react-native-firebase/auth' 
 // components
 import { 
     Title , Divider , TextInput ,

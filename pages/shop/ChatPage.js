@@ -5,7 +5,7 @@ import { Avatar , Card , Title ,
 import {  GiftedChat } from 'react-native-gifted-chat';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
-import database from '@react-native-firebase/database';
+// import database from '@react-native-firebase/database';
 import axios from 'axios';
 import { Image } from 'react-native';
 import server from '../../server/server';
