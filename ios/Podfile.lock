@@ -222,6 +222,7 @@ PODS:
     - nanopb/encode (= 2.30908.0)
   - nanopb/decode (2.30908.0)
   - nanopb/encode (2.30908.0)
+  - naveridlogin-sdk-ios (4.1.3)
   - NMapsMap (3.13.0)
   - OpenSSL-Universal (1.1.180)
   - Permission-Camera (3.0.5):
@@ -426,6 +427,8 @@ PODS:
   - React-jsinspector (0.64.2)
   - react-native-image-base64 (0.1.4):
     - React
+  - react-native-image-compressor (0.0.2):
+    - React
   - react-native-multiple-image-picker (0.4.6):
     - React-Core
     - TLPhotoPicker (= 2.1.4)
@@ -434,6 +437,8 @@ PODS:
   - react-native-nmap (0.0.66):
     - NMapsMap
     - React
+  - react-native-pager-view (5.4.9):
+    - React-Core
   - react-native-safe-area-context (3.3.0):
     - React-Core
   - react-native-webview (11.13.0):
@@ -536,6 +541,9 @@ PODS:
     - React-Core
     - React-RCTImage
     - TOCropViewController
+  - RNNaverLogin (2.1.3):
+    - naveridlogin-sdk-ios (~> 4.1)
+    - React
   - RNPermissions (3.0.5):
     - React-Core
   - RNReanimated (2.0.0):
@@ -630,9 +638,11 @@ DEPENDENCIES:
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - react-native-image-base64 (from `../node_modules/react-native-image-base64`)
+  - "react-native-image-compressor (from `../node_modules/@nomi9995/react-native-image-compressor`)"
   - "react-native-multiple-image-picker (from `../node_modules/@baronha/react-native-multiple-image-picker`)"
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-nmap (from `../node_modules/react-native-nmap`)
+  - react-native-pager-view (from `../node_modules/react-native-pager-view`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-webview (from `../node_modules/react-native-webview`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
@@ -656,6 +666,7 @@ DEPENDENCIES:
   - "RNFBMessaging (from `../node_modules/@react-native-firebase/messaging`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNImageCropPicker (from `../node_modules/react-native-image-crop-picker`)
+  - "RNNaverLogin (from `../node_modules/@react-native-seoul/naver-login`)"
   - RNPermissions (from `../node_modules/react-native-permissions`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
@@ -699,6 +710,7 @@ SPEC REPOS:
     - libevent
     - libwebp
     - nanopb
+    - naveridlogin-sdk-ios
     - NMapsMap
     - OpenSSL-Universal
     - PromisesObjC
@@ -755,12 +767,16 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
   react-native-image-base64:
     :path: "../node_modules/react-native-image-base64"
+  react-native-image-compressor:
+    :path: "../node_modules/@nomi9995/react-native-image-compressor"
   react-native-multiple-image-picker:
     :path: "../node_modules/@baronha/react-native-multiple-image-picker"
   react-native-netinfo:
     :path: "../node_modules/@react-native-community/netinfo"
   react-native-nmap:
     :path: "../node_modules/react-native-nmap"
+  react-native-pager-view:
+    :path: "../node_modules/react-native-pager-view"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-webview:
@@ -807,6 +823,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-gesture-handler"
   RNImageCropPicker:
     :path: "../node_modules/react-native-image-crop-picker"
+  RNNaverLogin:
+    :path: "../node_modules/@react-native-seoul/naver-login"
   RNPermissions:
     :path: "../node_modules/react-native-permissions"
   RNReanimated:
@@ -862,6 +880,7 @@ SPEC CHECKSUMS:
   lottie-ios: c058aeafa76daa4cf64d773554bccc8385d0150e
   lottie-react-native: b561920bba7ec727ec94a473b683cffba00faece
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
+  naveridlogin-sdk-ios: b9d7c20677981177ed994ecb1c8c2b49f223277d
   NMapsMap: 88b5bdac7087bfa99ab058ff5cdd95fb766e0e95
   OpenSSL-Universal: 1aa4f6a6ee7256b83db99ec1ccdaa80d10f9af9b
   Permission-Camera: ac603073e4128e51e6ca3c39129778f05b4082fa
@@ -880,9 +899,11 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 80c46bd381fd06e418e0d4f53672dc1d1945c4c3
   React-jsinspector: cc614ec18a9ca96fd275100c16d74d62ee11f0ae
   react-native-image-base64: 2ff9ac788639c87a91361ab6652cc95e871b1e54
+  react-native-image-compressor: 5b7ef0275cb203b3016de38f21395f35e92f2f99
   react-native-multiple-image-picker: 516d520a1672ff8177c2cd8a113553cbbe2939e9
   react-native-netinfo: 1c7676413ab265759c7b3da205efab163f5366ef
   react-native-nmap: cfcc5402746040494c544ea90a6062f49505acdf
+  react-native-pager-view: 3ee7d4c7697fb3ef788346e834a60cca97ed8540
   react-native-safe-area-context: 61c8c484a3a9e7d1fda19f7b1794b35bbfd2262a
   react-native-webview: 133a6a5149f963259646e710b4545c67ef35d7c9
   React-perflogger: 25373e382fed75ce768a443822f07098a15ab737
@@ -906,6 +927,7 @@ SPEC CHECKSUMS:
   RNFBMessaging: 5ceb208f9b65941db520be903cbd778f7ebd0065
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNImageCropPicker: 35a3ceb837446fa11547704709bb22b5fac6d584
+  RNNaverLogin: 41f3c2dba742f0828d775b170b427ac7ebb40660
   RNPermissions: 7043bacbf928eae25808275cfe73799b8f618911
   RNReanimated: 64f6c5789f82818c07ba3c71864b73619cb23c76
   RNScreens: 01ab149b5dd5c27f5ff26741b1d2bdf2cee1af35

@@ -2,7 +2,7 @@ import React from 'react';
 import NaverMapView , { Marker } from 'react-native-nmap';
 import styled from 'styled-components';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { Button , Title , ActivityIndicator, Avatar } from 'react-native-paper';
+import { Button , Title , ActivityIndicator, Avatar , TextInput } from 'react-native-paper';
 import axios from 'axios';
 import colors from '../../../color/colors';
 import { Linking } from 'react-native';
@@ -55,10 +55,10 @@ export default function( props ) {
             setCoord({ latitude: 37.53 , longitude : 127 })
     }
 
-    async function fetchInfo () {
+    function fetchInfo () {
 
         // 저장된 Info정보 확인 
-        await fetch('Info')
+        fetch('Info')
         .then( async(res) => {
             // 캐시 성공
             if (res != null) {
@@ -85,12 +85,7 @@ export default function( props ) {
                 .then( async(res)=> {
                     // 2. Info 정보를 setData()
                     try {
-                        if ( res.status == 204 ) {
-                            // POST
-                            setData(null);
-                            setMap(null) ;
-                        }
-                        else {
+                        if ( res.data.statusCode == 200 ) {
                             // PUT
                             await store('Info',res.data.data) ;
                             setData( res.data.data );
@@ -98,27 +93,34 @@ export default function( props ) {
                         }
                     }
                     catch(e) {
-                    
+                        //
                     }
                 })
                 .catch (e => {
                     //
+
                 })
             }
 
         })
-        .catch( async(e) => {
+        .catch( (e) => {
 
             
 
         });
     }
+
     
-    React.useEffect( async () =>  {
+    // React.useEffect(() => {
+    //     if ( this?.flatList != null )
+    //         this?.flatList?.scrollToPosition(0);
+    // },[props.listControl]);
+
+    React.useEffect(() =>  {
 
         // 1. 캐시 / 서버조회 => data => POST/PUT
         // 다시 Focus 되었을 때 변경사항이 있는지 확인
-        await fetchInfo(); 
+        fetchInfo(); 
   
     },[MyContext.infoRefresh]);
 
@@ -127,6 +129,7 @@ export default function( props ) {
         {
             coord == 0 ? ( <ActivityIndicator size='large' color={colors.main} style={{ marginTop: 20 }}/> ) : (
             <KeyboardAwareScrollView 
+                ref={ ref => { this.flatList = ref }}
                 style={{ backgroundColor: 'white' }}
 
             >
@@ -142,17 +145,17 @@ export default function( props ) {
                 <Avatar.Icon icon='phone' style={{ backgroundColor: 'transparent' , marginLeft: 10 }} color={colors.main} size={30} />
                 <Button color={colors.main} >{data?.contact}</Button>
             </Row>
-            <Row>
+            <Row style={{ marginTop: 5 }}>
                 <Avatar.Icon icon='link' style={{ backgroundColor: 'transparent' , marginLeft: 10 }} color={colors.main} size={30} />
-                <Button uppercase={false} color={colors.main} onPress={()=> { Linking.openURL(data.blogUrl)}}>{data?.blogUrl}</Button>
+                <Button style={{ borderWidth: data?.blogUrl != null &&  1  , backgroundColor: data?.blogUrl != null && 'rgb(247,247,247)' }} uppercase={false} color={colors.main} onPress={()=> { data?.blogUrl != null &&  Linking.openURL('http://'+data.blogUrl)}}>{data?.blogUrl}</Button>
             </Row>
-            <Row>
+            <Row style={{ marginTop: 5 }}>
                 <Avatar.Icon icon='web' style={{ backgroundColor: 'transparent' , marginLeft: 10 }} color={colors.main} size={30} />
-                <Button uppercase={false} color={colors.main} onPress={()=> { Linking.openURL(data.siteUrl) }}>{data?.siteUrl}</Button>
+                <Button style={{ borderBottomWidth: data?.siteUrl != null && 1  ,backgroundColor: data?.siteUrl != null &&'rgb(247,247,247)' }}  uppercase={false} color={colors.main} onPress={()=> { data?.siteUrl != null && Linking.openURL('http://'+data.siteUrl) }}>{data?.siteUrl}</Button>
             </Row>
-            <Row>
+            <Row style={{ marginTop: 5 }}>
                 <Avatar.Icon icon='instagram' style={{ backgroundColor: 'transparent' , marginLeft: 10 }} color={colors.main} size={30} />
-                <Button uppercase={false} color={colors.main} onPress={()=> { Linking.openURL(data.snsUrl) }}>{data?.snsUrl}</Button>
+                <Button style={{ borderBottomWidth: data?.snsUrl != null && 1  , backgroundColor: data?.snsUrl != null &&'rgb(247,247,247)' }}  uppercase={false} color={colors.main} onPress={()=> { data?.snsUrl != null && Linking.openURL('http://instagram.com/'+data.snsUrl) }}>{ data?.snsUrl != null && '@'}{data?.snsUrl}</Button>
             </Row>
             <Title style= { styles.title }> 위치 </Title>
             <Text style={{ marginBottom: 20 }}>{data?.address == null ? '위치를 등록해주세요.' : data.address}{'\n'}{data?.detailAddress == null ? '' :  data?.detailAddress }</Text>

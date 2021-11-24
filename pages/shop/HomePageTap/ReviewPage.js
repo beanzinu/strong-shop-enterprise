@@ -3,12 +3,14 @@ import colors from "../../../color/colors";
 import React from "react";
 // import { FlatList } from "react-native-gesture-handler";
 import { FlatList } from "react-native";
-import { Card , Avatar , Divider , Button } from "react-native-paper";
+import { Card , Avatar , Divider , Button, ActivityIndicator } from "react-native-paper";
 import { Alert } from "react-native";
 import axios from "axios";
+import { KeyboardAwareScrollView  } from "react-native-keyboard-aware-scroll-view";
 import server from "../../../server/server";
 import fetch from "../../../storage/fetch";
 import AppContext from "../../../storage/AppContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Row = styled.View`
     flex-direction: row;
@@ -146,7 +148,7 @@ function Reply({item,index}) {
             MyContext.setReviewRefresh(!MyContext.reviewRefresh)
         })
         .catch( e =>  {
-            console.log(e);
+            // console.log(e);
         })
     }
 
@@ -160,6 +162,7 @@ function Reply({item,index}) {
                 </View>
             ) : (
                 <>
+                <View style={{ flex: 1 }}>
                 <TextInput placeholder='리뷰에 대한 답변을 작성해주세요.'
                 value={reply}
                 onChangeText = { value => setReply(value) }
@@ -173,6 +176,7 @@ function Reply({item,index}) {
                     this.flatList.scrollToIndex({ index: index+0.5 });
                 } }
                 />
+                </View>
                 {
                 item.reply == null && (
                     <View style={{ alignItems: 'flex-end' ,width: '100%' }}>
@@ -197,7 +201,7 @@ const RenderItem =  ({index,item}) => {
         <Card style= {{ margin: 20 }}>
         <Card.Content>
             <Row>
-                <Avatar.Image source={{ uri : item.userThumbnailImage.replace('http','https') }} size={30} />
+                <Avatar.Image source={{ uri : item.userThumbnailImage.includes('https')? item.userThumbnailImage : item.userThumbnailImage.replace('http','https') }} size={30} />
                 <Text style={styles.userName}>{item.userNickName}</Text>
             </Row>
         </Card.Content>
@@ -216,49 +220,100 @@ const RenderItem =  ({index,item}) => {
 }
 
 export default function( props ) {
-    const [DATA,setDATA]  = React.useState(null) ;
+    const [DATA,setDATA]  = React.useState([]) ;
+    const [loading,setLoading] = React.useState(true) ;
+    const [refresh,setRefresh] = React.useState(false);
     const MyContext = React.useContext(AppContext) ;
 
 
-    React.useEffect(() => {
-            this.flatList.scrollToOffset({ offset : 0 });      
-    },[props.listControl]);
-
-    React.useEffect( async () =>  { 
-        
+    // React.useEffect(() => {
+    //     if ( this?.flatList != null )
+    //         this?.flatList?.scrollToOffset({ offset : 0 });      
+    // },[props.listControl]);
+    function requestReviews() {
         // request Review
-        const token = await fetch('auth') ;
-        const auth = token.auth ;
-        axios({
-            url: `${server.url}/api/review`,
-            method: 'get',
-            headers: { Auth: auth } 
-        })
-        .then( res =>  {
-            setDATA(res.data.data);
-        })
-        .catch( e => {
-            //
-        })
+        fetch('auth')
+        .then(res => {
+            const auth = res.auth ;
+            
+            axios({
+                url: `${server.url}/api/review`,
+                method: 'get',
+                headers: { Auth: auth } 
+            })
+            .then( res =>  {
+                setDATA(res.data.data);
+                setLoading(false);
+                setRefresh(false);
+            })
+            .catch( e => {
+                //
+                if ( e.response.status == 403 ) {
+                    Alert.alert('새로운 기기','다른 기기에서 로그인하여 로그아웃 되었습니다.');
+                    setRefresh(false);
+                    AsyncStorage.clear();
+
+                    MyContext.LOGOUT();
+                }
+                else Alert.alert('다시 시도해주세요.');
+            })
+
+        }) ;
+
+    }
+
+    handleRefresh = () =>  {
+        setRefresh(true);
+        requestReviews()
+    }
+
+    React.useEffect( () =>  { 
+        
+        requestReviews()
+        
 
     },[MyContext.reviewRefresh]) ;
 
 
     return(
         <>
-            <FlatList
-                ref = { ref => this.flatList = ref }
-                data = { DATA }
-                renderItem = { RenderItem }
-                horizontal= {false}
-                keyExtractor= { (item) => item.id }
-                onScrollToIndexFailed={() => {
-                    DATA.push({
-                        id : 'new'
-                    });
-                    this.flatList.scrollToEnd();
-                }}
-            />
+            {
+                loading ? 
+                (
+                    <ActivityIndicator size='large' style={{ marginTop: 20 }} color={colors.main} />
+                ) : 
+                (
+                    DATA.length == 0 ? 
+                    (
+                        <View
+                            style={{ flex: 1 , alignItems: 'center' , justifyContent: 'center' , backgroundColor: 'white' }}
+                        >
+                            <Text>현재 리뷰가 없어요.</Text>
+                        </View>
+                    ):
+                    (
+                    <>
+                    <FlatList
+                        refreshing={refresh}
+                        onRefresh={handleRefresh}
+                        ref = { ref => this.flatList = ref }
+                        data = { DATA }
+                        renderItem = { RenderItem }
+                        horizontal= {false}
+                        keyExtractor= { (item) => item.id }
+                        onScrollToIndexFailed={() => {
+                            DATA.push({
+                                id : 'new'
+                            });
+                            // setTimeout(() => {
+                            //     this.flatList.scrollToEnd();
+                            // },1000) ;
+                        }}
+                    />
+                    </>
+                    )
+                )
+            }
         </>
     );
 }

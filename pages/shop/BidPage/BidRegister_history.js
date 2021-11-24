@@ -1,16 +1,16 @@
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import React from 'react';
-import { Divider, List , Text, Title , Avatar } from 'react-native-paper';
-import styled from 'styled-components';
+import { Divider, List , Text, Title } from 'react-native-paper';
 import axios from 'axios';
+import { View  } from 'react-native';
 import server from '../../../server/server';
 import fetch from '../../../storage/fetch';
 import colors from '../../../color/colors';
-import { Dimensions } from 'react-native';
+import moment from 'moment';
+import _ from 'lodash';
 import { useIsFocused } from '@react-navigation/native';
 
 
-const View = styled.View``;
 const styles = {
     listAccordionStyle : {
         backgroundColor: 'white' ,
@@ -24,11 +24,11 @@ const styles = {
     listStyle : {
         // fontWeight: 'bold',
         fontSize: 17 , 
+
     } ,
     itemText: {
         fontSize: 17 ,
         fontWeight: 'bold' ,
-        alignSelf: 'center'
     } ,
     labelStyle : {
         borderWidth: 1 , 
@@ -36,34 +36,34 @@ const styles = {
     }
 }
 
-
-
 export default function() {
-    const [data,setData] =  React.useState(null);
+    const [data,setData] = React.useState(null);
     const isFocused = useIsFocused();
 
     function parseData( value ) {
-       
-            value.map( item => {
-                item['detail'] = JSON.parse( item['detail'] ) ;
-            })
-            setData(value);        
+
+        
+        value.map( item => {
+            item['details'] = JSON.parse( item['details'] ) ;
+            item['createdTime'] = moment(item['createdTime']).format('YYYY-MM-DD');
+        })
+        value = _.sortBy(value, function(o){ return o.createdTime } ) ;
+        console.log(value);
+        setData( _.reverse(value));        
     }
 
 
 
-
     React.useEffect(() => {
-    
-        if ( isFocused ) {
+
+        if ( isFocused) {
             fetch('auth')
             .then( res => {
                 const auth = res.auth ;
-            
                 // 내가 입찰한 정보
                 axios({
                     method: 'get' ,
-                    url: `${server.url}/api/bidding`,
+                    url: `${server.url}/api/biddinghistory`,
                     headers : { Auth : auth } 
                 })
                 .then(res => {
@@ -75,38 +75,48 @@ export default function() {
                 .catch(e => {
                     //
                 })
-            })
-            .catch( e => { })
-        }   
+            }) ;    
+        }
 
-    },[isFocused]);
+    },[ isFocused ]);
 
     return(
         <KeyboardAwareScrollView>
             {
                 data == null ? 
                 (
-                    <View style={{ height: Dimensions.get('screen').height*0.6 , justifyContent: 'center' , alignItems: 'center'  }}>
+                    <View style={{ flex: 1 , justifyContent: 'center' , alignItems: 'center'  }}>
                             {/* <Avatar.Icon icon='account-arrow-left' style={{ backgroundColor: 'transparent'}} color='black'/> */}
-                            <Title>입찰 중인 건이 없어요.</Title>
+                            <Title>아직 입찰결과가 없어요.</Title>
                     </View>
                 )
                 :
                 (
-                    data.map( items => {
-                        const item = items.detail ;
+                    data.map( ( row,index) => {
+                        const item = row.details ;
+                        console.log(item);
+                        console.log(item.tintingPrice);
+                        let prevDate ;
+                        if (index == 0 ) prevDate = moment(data[index].createdAt).add(1,'days') ;
+                        else if ( index != 0 ) prevDate = data[index-1].createdTime ;
+
                         return(
                             <List.Section>
+                                {
+                                    moment(row.createdTime).isBefore(prevDate) && 
+                                    <Title style={{ padding: 5 , fontSize: 15 }}>{ row.createdTime }</Title>
+                                }
                                 <List.Accordion style={styles.listAccordionStyle} 
                                     title={item.carName} 
+                                    left={ props => (<Text style={{ padding: 5 , color: row.biddingStatus=='SUCCESS' ? 'blue' : 'red' }}>{row.biddingStatus =='SUCCESS' ? '낙찰' : '실패' }</Text> ) }
                                     titleStyle= {{ fontWeight : 'bold' , fontFamily: 'DoHyeon-Regular' , fontSize: 20 }}
                                     theme={{ colors: { primary: 'red' }}}
-                                >
+                                >   
                                     {
                                         item.tinting != null && (
                                             <>
                                                 <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='틴팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
-                                                <List.Item titleStyle={styles.listStyle} title ={item.tinting} right={props => <Text style={styles.itemText}>{item.tintingPrice}{' 만원'}</Text>} />
+                                                <List.Item titleStyle={styles.listStyle} title ={item.tinting} right={ props => <Text style={styles.itemText}>{item.tintingPrice}{'만원'}</Text>} />
                                             </>
                                         )
                                     }
@@ -174,7 +184,7 @@ export default function() {
                                             </>
                                         )
                                     }
-                                    <Divider style={{ margin: 5 }} />
+                                    <Divider style={{ margin: 10 }} />
                                     <List.Item titleStyle={styles.listStyle} title ='최종가격: ' right={props => <Text style={styles.itemText}>{item.totalPrice}{' 만원'}</Text>}/>
                                 </List.Accordion>
                             </List.Section>

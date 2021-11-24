@@ -9,11 +9,14 @@ import colors from '../../color/colors';
 import axios from 'axios';
 import { ActivityIndicator, Alert, ScrollView } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import InputScrollView from 'react-native-input-scroll-view';
 import ImageBackground from 'react-native/Libraries/Image/ImageBackground';
 import { login } from '@react-native-seoul/kakao-login';
 // import auth from '@react-native-firebase/auth'
 import IMP from 'iamport-react-native';
 import Postcode from '@actbase/react-daum-postcode';
+import { NaverLogin } from '@react-native-seoul/naver-login';
+import messaging from '@react-native-firebase/messaging';
 //
 import server from '../../server/server';
 import store from '../../storage/store';
@@ -66,18 +69,23 @@ const styles = {
   
 
 export default function({getMain}) {
-    const snapPoints = React.useMemo(() => ['80%'], []);
+    const snapPoints = React.useMemo(() => ['90%'], []);
+    const [loginMethod,setLoginMethod] = React.useState('kakao');
     const [name,setName] = React.useState('');
-    const [businessNumber,setBusinessNumber] = React.useState('');
+    // const [businessNumber,setBusinessNumber] = React.useState('');
+    const [businessNumber,setBusinessNumber] = React.useState('1234512345');
     const [openDate,setOpenDate] = React.useState('');
     const [bossName,setBossName] = React.useState('');
 
     const [bottomPage,setBottomPage] = React.useState(1);
     const [dtoData,setDtoData] = React.useState(null);
 
-    const [address,setAddress] = React.useState('');
+    // const [address,setAddress] = React.useState('');
+    const [address,setAddress] = React.useState('서울시 강남구 삼성로 11');
+    // const [detailAddress,setDetailAddress] = React.useState('');
     const [detailAddress,setDetailAddress] = React.useState('');
     const [visible,setVisible] = React.useState(false);
+
 
     let latitude = null ;
     let longitude = null ;
@@ -89,6 +97,22 @@ export default function({getMain}) {
     const handleDismissModalPress = React.useCallback(() => {
         bottomSheetModalRef.current?.dismiss();
     }, []);  
+
+
+    const iosKeys = {
+        kConsumerKey: "s8f8vTXD3RmumyHONbsG",
+        kConsumerSecret: "ZrD2iZk_ep",
+        kServiceAppName: "최강샵",
+        kServiceAppUrlScheme: "strongshop" // only for iOS
+    };
+      
+      const androidKeys = {
+        kConsumerKey: "QfXNXVO8RnqfbPS9x0LR",
+        kConsumerSecret: "6ZGEYZabM9",
+        kServiceAppName: "테스트앱(안드로이드)"
+    };
+      
+      const initials = Platform.OS === "ios" ? iosKeys : androidKeys;
 
 
     // API Request
@@ -114,17 +138,27 @@ export default function({getMain}) {
     }
 
     // 카카오 AccessToken => 서버 
-    function requestAccessToken(accessToken) {
+    async function requestAccessToken(accessToken,method) {
+
+        let FCM_Token ;
+
+        await messaging().getToken().then( res =>{
+            FCM_Token = res ;
+        })
+
         axios({
             method : 'GET' ,
-            url : `${server.url}/api/login/company/kakao` ,
+            url : `${server.url}/api/login/company/${method}` ,
             headers : {
-                Authorization : accessToken
+                Authorization : accessToken ,
+                FCM : FCM_Token
             } ,
         })
         .then( async (res) =>  {
             // 캐시삭제
-            AsyncStorage.clear().catch(e => { });
+            // await AsyncStorage.clear().catch(e => { });
+
+            // console.log(res);
             // 회원가입 필요
             if ( res.data.statusCode == 201 ) {
                 // 추가정보를 사용자로부터 받음.
@@ -150,19 +184,29 @@ export default function({getMain}) {
         })
         .catch( e =>  {
             // 서버 통신에러
+            console.log(e);
         })
     }
 
-    function requestSignIn() {
+    async function requestSignIn() {
+
+
+        let FCM_Token ;
+
+        await messaging().getToken().then( res =>{
+            FCM_Token = res ;
+        })
+
         // 서버에게 dtoData 전달
         axios({
             method: 'POST',
-            url : `${server.url}/api/login/company/kakao` ,
+            url : `${server.url}/api/login/company/${loginMethod}` ,
             data : {
                 ...dtoData ,
                 businessNumber: businessNumber ,
                 bossName: bossName ,
-                name: name
+                name: name ,
+                fcmToken: FCM_Token 
             }
         })
         .then(async(res) =>{
@@ -208,13 +252,14 @@ export default function({getMain}) {
                 resolve();
             })
             .catch( e => {
-                alert('POST 에러');
+                // alert('POST 에러');
             })
         })
     }
 
 
     const handleKakaoLogin = async() =>  {
+        setLoginMethod('kakao');
         // 카카오 인증요청
         const token = await login().catch(e=>{console.log(e) });
         // 카카오 인증취소 / 인증실패 
@@ -222,13 +267,28 @@ export default function({getMain}) {
         const accessToken = 'Bearer ' + token.accessToken ;        
         try {
             // token 서버에게 전달 
-            requestAccessToken(accessToken);
+            requestAccessToken(accessToken,'kakao');
         }
         catch {
             Alert.alert('다시 요청해주세요.');
         }
 
     }
+    const handleNaverLogin = props => {
+        setLoginMethod('naver');
+        return new Promise((resolve, reject) => {
+            NaverLogin.login(props, (err, token) => {
+              const accessToken = 'Bearer ' + token.accessToken ;   
+              requestAccessToken(accessToken,'naver');
+              if (err) {
+                reject(err);
+                return;
+              }
+              resolve(token);
+            });
+          });
+      };
+    
 
     // 휴대폰인증
     function phoneAuth(response) {
@@ -330,8 +390,11 @@ export default function({getMain}) {
                 <Button style={styles.loginButton} color='white' icon='chat' onPress={handleKakaoLogin}>
                     카카오로 시작하기
                 </Button>
-                <Button style={styles.loginButton} color='white' icon='alpha-n-box' onPress={handlePresentModalPress}>
+                <Button style={styles.loginButton} color='white' icon='alpha-n-box' onPress={() => handleNaverLogin(initials) }>
                     네이버로 시작하기
+                </Button>
+                <Button style={styles.loginButton} color='white' icon='alpha-n-box' onPress={() => handlePresentModalPress()}>
+                   테스트
                 </Button>
             {/* </ImageBackground> */}
 
@@ -353,6 +416,7 @@ export default function({getMain}) {
                         value={businessNumber}
                         mode='flat'
                         onChangeText={value=>{setBusinessNumber(value)}}
+                        onEndEditing={() => { }}
                         keyboardType='number-pad'
                         placeholder='10자리를 입력하세요 (-없이) '
                     />
@@ -369,15 +433,17 @@ export default function({getMain}) {
                     <TextInput theme={{ colors: { primary : colors.main , disabled: 'white'  }  }}
                         // value={bossName}
                         mode='flat'
+                        // onFocus={() => { this.scrollView.scrollToPosition(0,this.scrollView.state.keyboardSpace+10)  }}
                         onChangeText={value=>{setBossName(value)}}
                         placeholder='홍길동'
                     />
-                    <Button style={{ marginTop: 10 , height: 50 , justifyContent: 'center'  }} 
+                    <Button style={{ marginTop: 30 , height: 50 , justifyContent: 'center'  }} 
                         onPress={() => {verify()}}
                         mode={businessNumber.length&&openDate.length&&bossName.length ? 'contained' : 'outlined'}  
                         color={colors.main}>
                         다음
                     </Button>
+
                     </>
                     )
                 }
@@ -414,7 +480,7 @@ export default function({getMain}) {
                         <Modal 
                             visible={visible} 
                             onDismiss={ () => {setVisible(false)}}
-                            style= {{ alignItems : 'center' , justifyContent: 'center' , marginTop: 200   }}
+                            contentContainerStyle= {{ alignItems : 'center' , justifyContent: 'center'   }}
                             >
                             <KeyboardAwareScrollView>
                                 <Postcode
@@ -447,7 +513,7 @@ export default function({getMain}) {
                             <TextInput  
                                 placeholder='상세주소'
                                 theme={{ colors: { primary: colors.main , background: 'white' }}}
-                                value={detailAddress}
+                                // value={detailAddress}
                                 onChangeText={ value=> setDetailAddress(value) }
                             />
                                 <Button style={{ marginTop: 10 , height: 50 , justifyContent: 'center'  }} 

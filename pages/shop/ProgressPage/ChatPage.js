@@ -8,13 +8,14 @@ import { NavigationContainer } from '@react-navigation/native';
 // import database from '@react-native-firebase/database';
 import axios from 'axios';
 import { Image } from 'react-native';
-import server from '../../server/server';
+import server from '../../../server/server';
 import { useIsFocused } from '@react-navigation/native';
+import AppContext from '../../../storage/AppContext';
 // pages 
 import ChatDetailPage from './ChatDetailPage';
-import ProgressPage from './ProgressPage/ProgressPage';
-import colors from '../../color/colors';
-import fetch from '../../storage/fetch';
+import ProgressPage from './ProgressPage';
+import colors from '../../../color/colors';
+import fetch from '../../../storage/fetch';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 const styles = {
     Button : {
@@ -35,7 +36,7 @@ const ImageView = styled.View`
 `;
 
 const testData = [
-    {"bidding_id": 5, "constructionImageUrlResponseDtos": [], "detail": "{\"tinting\":\"루마\",\"tintingPrice\":\"100\",\"totalPrice\":\"100\",\"carName\":\"AVANTE HYBRID\"}", "id": 6, "inspectionImageUrlRequestDtos": [], "order_id": 4, "shipmentLocation": null, "state": "DESIGNATING_SHIPMENT_LOCATION", "userResponseDto": {"birth": null, "email": "ys05143@naver.com", "gender": null, "id": 1, "nickname": "허지훈", "phoneNumber": "01012341234", "profileImage": "http://k.kakaocdn.net/dn/bnznMs/btrazLTprkY/9wznFjIGhM1VNPc1PGZG11/img_640x640.jpg", "realName": null, "thumbnailImage": "http://k.kakaocdn.net/dn/bnznMs/btrazLTprkY/9wznFjIGhM1VNPc1PGZG11/img_110x110.jpg"}},
+    {"bidding_id": 5, "constructionImageUrlResponseDtos": [], "detail": "{\"tinting\":\"루마\",\"tintingPrice\":\"100\",\"totalPrice\":\"100\",\"carName\":\"AVANTE HYBRID\"}", "id": 6, "inspectionImageUrlRequestDtos": [], "order_id": 4, "shipmentLocation": null, "state": "CAR_EXAMINATION", "userResponseDto": {"birth": null, "email": "ys05143@naver.com", "gender": null, "id": 1, "nickname": "허지훈", "phoneNumber": "01012341234", "profileImage": "http://k.kakaocdn.net/dn/bnznMs/btrazLTprkY/9wznFjIGhM1VNPc1PGZG11/img_640x640.jpg", "realName": null, "thumbnailImage": "http://k.kakaocdn.net/dn/bnznMs/btrazLTprkY/9wznFjIGhM1VNPc1PGZG11/img_110x110.jpg"}},
 ]
 
 const state = {
@@ -50,8 +51,10 @@ const ChatView = ( props ) =>   {
     const [temp,setTemp] = React.useState({});
     const [data,setData]  = React.useState([]);
     const isFocused = useIsFocused();
+    const MyContext = React.useContext(AppContext);
 
     React.useEffect(async () => {
+        
 
     // 채팅
         // database().goOnline();
@@ -59,6 +62,7 @@ const ChatView = ( props ) =>   {
         //     record = Object.values(snapshot.val())[0];
         //     setTemp(record);
         // });
+
         if ( isFocused == true ) {
             const token = await fetch('auth') ;
             const auth = token.auth ;
@@ -77,7 +81,7 @@ const ChatView = ( props ) =>   {
             })
         }
 
-    },[isFocused]);
+    },[isFocused , MyContext.chatRef ]);
 
     return(
     <KeyboardAwareScrollView>
@@ -86,10 +90,10 @@ const ChatView = ( props ) =>   {
             return (
                 <Card 
                     key = {i} // key로 구분
-                    onPress={ () => { props.navigation.navigate('ProgressPage' , { data: chat })  } }>
+                    onPress={ () => { props.navigation.navigate('ProgressPage' , { data: chat , imageUrl : chat.userResponseDto.profileImage.includes('https') ? chat.userResponseDto.profileImage : chat.userResponseDto.profileImage.replace('http','https') })  } }>
                     <Card.Title title={`${chat.userResponseDto.nickname} 고객`} subtitle={state[chat.state]} 
                                 titleStyle={{ margin: 10 }} subtitleStyle= {{ margin: 10 }}
-                                left={ props => <ImageView><Image source={{ uri: chat.userResponseDto.profileImage.replace('http','https') }} style={{ width: '100%', height: '100%' }} /></ImageView>  } 
+                                left={ props => <ImageView><Image source={{ uri: chat.userResponseDto.profileImage.includes('https') ? chat.userResponseDto.profileImage : chat.userResponseDto.profileImage.replace('http','https') }} style={{ width: '100%', height: '100%' }} /></ImageView>  } 
                                 right={ props => <Avatar.Text {...props} label={'3'} style={{ marginRight: 10  , backgroundColor : colors.main }} /> }
                     />
                 </Card>

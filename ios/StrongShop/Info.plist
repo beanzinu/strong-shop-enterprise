@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>StrongShop</string>
+	<string>최강샵(업체)</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -23,37 +23,33 @@
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
-		<key>CFBundleURLSchemes</key>
-		<array>
-		<string>strongshop</string>
-		</array>
-		</dict>
-		<!-- <dict>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.googleusercontent.apps.26629226700-ifmtnuvgf4otqa7oujg57vatdcai8pjs</string>
+				<string>kakao2d78be1659a3be57c8a3446dfdad968e</string>
 			</array>
-		</dict> -->
+		</dict>
 		<dict>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-			<string>kakao2d78be1659a3be57c8a3446dfdad968e</string>
+				<string>strongshop</string>
 			</array>
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>1</string>
-	 <key>KAKAO_APP_KEY</key>
+	<key>KAKAO_APP_KEY</key>
 	<string>2d78be1659a3be57c8a3446dfdad968e</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
-	<string>kakaokompassauth</string>
-	<string>storykompassauth</string>
-	<string>kakaolink</string>
+		<string>kakaokompassauth</string>
+		<string>storykompassauth</string>
+		<string>kakaolink</string>
+		<string>naversearchapp</string>
+		<string>naversearchthirdlogin</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
@@ -61,9 +57,9 @@
 	<string>6qlgkpokp9</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
-		<key>NSAllowsArbitraryLoadsInWebContent</key>
-		<true/>
 		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+		<key>NSAllowsArbitraryLoadsInWebContent</key>
 		<true/>
 		<key>NSExceptionDomains</key>
 		<dict>
@@ -76,8 +72,6 @@
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>사진 등록을 위해 동의해주세요.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>사진 등록을 위해 동의해주세요.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
@@ -106,7 +100,6 @@
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>
-		<string>fetch</string>
 		<string>remote-notification</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
@@ -121,6 +114,8 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>UIUserInterfaceStyle</key>
+	<string>Light</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 </dict>

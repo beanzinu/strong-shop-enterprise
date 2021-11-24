@@ -30,10 +30,10 @@ const styles = {
     title : {
         fontWeight : 'bold' ,
         padding: 10 ,
-        marginTop: 10 ,
+        // marginTop: 10 ,
         color : colors.main , 
         fontFamily : 'DoHyeon-Regular' ,
-        fontSize: 30
+        fontSize: 27
     } ,
     textInput : {
         borderWidth: 1 ,
@@ -50,6 +50,7 @@ export default function( props ) {
     const [snsUrl,setSnsUrl] = React.useState(null);
     const [address,setAddress] = React.useState(null);
     const [detailAddress,setDetailAddress] = React.useState(null);
+    const [inputHeight,setInputHeight] = React.useState(200);
     let latitude = null ;
     let longitude = null ;
     const [visible,setVisible] = React.useState(false) ;
@@ -79,10 +80,17 @@ export default function( props ) {
 
     const addInfo = async () => {
 
+        // 사전체크
+        if ( info.length > 2000 ) {
+            Alert.alert('글자수 제한','2000자 미만으로 해주세요.');
+            return;
+        }
+
         if ( address != null ) await getCoord(address) ;
 
         data = {
             introduction : info ,
+            contact: contact ,
             blogUrl : blogUrl ,
             siteUrl : siteUrl ,
             snsUrl : snsUrl ,
@@ -92,12 +100,13 @@ export default function( props ) {
             longitude: longitude
         } ;
 
+        
         try {
             const res = await fetch('auth') ;
             const auth = res.auth ;
             // 서버 ( POST/PUT )
             axios({
-                method: 'PUT' ,
+                method: 'POST' ,
                 url: `${server.url}/api/companyinfo`,
                 data: data ,
                 headers: {
@@ -140,7 +149,7 @@ export default function( props ) {
 
     return(
         <Provider>
-        <KeyboardAwareScrollView>
+        <KeyboardAwareScrollView ref={ ref => this.flatList = ref}>
             <Portal>
                 <Modal 
                     visible={visible} 
@@ -156,16 +165,18 @@ export default function( props ) {
                     </KeyboardAwareScrollView>
                 </Modal>
             </Portal>
-            <Appbar.Header style={{ backgroundColor: 'white' }}>
-                <Appbar.BackAction onPress={() => { props.navigation.goBack() }}/>
+            <Appbar.Header style={{ backgroundColor: colors.main  }}>
+                <Appbar.BackAction size={17} onPress={() => { props.navigation.goBack() }}/>
                 <Appbar.Content title='업체 소개'  style={{ flex:1 }}/>
                 <View>
-                    <Button color='black' onPress={addInfo} >수정하기</Button>
+                    <Button color='white'  onPress={addInfo} >수정하기</Button>
                 </View>
             </Appbar.Header>
-            <Row>
+            <Row style={{ alignItems: 'center' , marginTop: 20 }}> 
                 <Title style={ styles.title }> 업체 소개를 해주세요.</Title>
-                <Button color='red' 
+                <Title style={{ color: info?.length > 2000 ? 'red' : 'lightgray' , fontSize: 15 }}>( { info == null ? '0' : info?.length}/2000 )</Title>
+                {/* <Button color='red' 
+                style={{ position: 'absolute' , right: 0  }}
                 onPress={ () => { Alert.alert('모두 지우시겠습니까?','',[
                     {
                         text : '확인' ,
@@ -177,15 +188,20 @@ export default function( props ) {
                 ])  } } 
                 >
                     모두 지우기
-                </Button>
+                </Button> */}
             </Row>
             <Input
                 multiline={true}
                 value= {info}
                 onChangeText = { value => setInfo(value) }
+                style={{ height: inputHeight }}
+                onContentSizeChange={e=>{
+                    if ( e.nativeEvent.contentSize.height > inputHeight ) setInputHeight(inputHeight+50);
+                }}
                 placeholder='업체 소개를 해주세요.'
             />
             <TextInput  left={<TextInput.Icon icon='phone' size={24}/>}
+                style={{ marginTop: 20 , fontSize: 15 }}
                 placeholder='업체 전화번호'
                 theme={{ colors: { primary: colors.main , background: 'white' }}}
                 keyboardType='number-pad'
@@ -193,23 +209,26 @@ export default function( props ) {
                 onChangeText={ value=> setContact(value)  }
             />
             <TextInput  left={<TextInput.Icon icon='link' size={24}/>}
-                placeholder='블로그/카페 주소'
+                style={{  fontSize: 15 }}
+                placeholder='블로그/카페 주소 (ex) blog.naver.com/strongshop'
                 theme={{ colors: { primary: colors.main , background: 'white' }}}
-                keyboardType='email-address'
+                // keyboardType='email-address'
                 value={blogUrl}
                 onChangeText={ value=> setBlogUrl(value) }
             />
             <TextInput  left={<TextInput.Icon icon='web' size={24}/>}
-                placeholder='자체사이트 주소'
+                style={{  fontSize: 15 }}
+                placeholder='자체사이트 주소 (ex) www.strongshop.com'
                 theme={{ colors: { primary: colors.main , background: 'white' }}}
-                keyboardType='email-address'
+                // keyboardType='email-address'
                 value={siteUrl}
                 onChangeText={ value=> setSiteUrl(value) }
             />
             <TextInput  left={<TextInput.Icon icon='instagram' size={24}/>}
-                placeholder='SNS 주소'
+                style={{  fontSize: 15 }}
+                placeholder='인스타그램 주소 ( 인스타아이디만 입력 )'
                 theme={{ colors: { primary: colors.main , background: 'white' }}}
-                keyboardType='email-address'
+                // keyboardType='email-address'
                 value={snsUrl}
                 onChangeText={ value=> setSnsUrl(value) }
             />
@@ -224,8 +243,10 @@ export default function( props ) {
             <TextInput  
                 placeholder='상세주소'
                 theme={{ colors: { primary: colors.main , background: 'white' }}}
+                style={{ marginBottom: 30 }}
                 value={detailAddress}
                 onChangeText={ value=> setDetailAddress(value) }
+                // onEndEditing={() => this?.flatList?.scrollToPosition(0) }
             />
 
             {/* <Button onPress={ () => { addInfo() }} mode='outlined'

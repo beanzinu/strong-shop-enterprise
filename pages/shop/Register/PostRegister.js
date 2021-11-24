@@ -2,14 +2,17 @@ import React from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import styled from 'styled-components';
 import Swiper from 'react-native-swiper';
-import { Alert, Image , TouchableOpacity } from 'react-native';
-import { Card , Avatar , Title , Button , IconButton } from 'react-native-paper';
+import ImagePicker from 'react-native-image-crop-picker';
+import { Alert, Dimensions, Image , TouchableOpacity } from 'react-native';
+import { Card , Avatar , Title , Button , IconButton , Provider , Modal , Portal } from 'react-native-paper';
 import colors from '../../../color/colors';
+import LottieView from 'lottie-react-native';
 import {check, PERMISSIONS, RESULTS , request , openSettings } from 'react-native-permissions';
 import {
     BottomSheetModal,
     BottomSheetModalProvider,
 } from '@gorhom/bottom-sheet';
+import ImageCompressor from "@nomi9995/react-native-image-compressor";
 import DraggableFlatList , {ScaleDecorator} from 'react-native-draggable-flatlist';
 import axios from 'axios';
 import { LogBox } from 'react-native';
@@ -33,7 +36,7 @@ const PictureButton = styled.TouchableOpacity`
 `;
 const SwiperView = styled.View`
     width: 100% ;
-    height: 300px ;
+    height: 350px ;
     
 `;
 const Text = styled.Text`
@@ -91,6 +94,7 @@ export default function( props ) {
     const [text,setText] = React.useState('');
     const [inputHeight,setInputHeight] = React.useState(120);
     const [refresh,setRefresh] = React.useState(false);
+    const [requesting,setRequesting] = React.useState(false) ;
     const ModalRef = React.useRef(null);
     const MyContext = React.useContext(AppContext)
     
@@ -106,15 +110,25 @@ export default function( props ) {
             maximumMessage: '' ,
             cancelTitle: '취소' ,
             numberOfColumn: 3 ,
+            
         })
         .then(res => {
            setCache(res);
+
            url = [] ;
            res.map( async ( file ) =>  {
                newPath = file.path.replace('file://','').replace('file:///','file://');
+
+            //    const result = await ImageCompressor.compress(
+            //     file.path,
+            //     {
+            //       quality: 1.0 ,
+            //     })
+            //     ;
                
-               url.push(newPath);
-            //    url.push(file.path);
+            //    url.push(result);
+
+               url.push(file.path);
            });
           
            setPictures(url);
@@ -133,7 +147,7 @@ export default function( props ) {
         Alert.alert('사진을 모두 지우시겠습니까?','',[
             {
                 text: '확인' ,
-                onPress: () => { setPictures(null) }
+                onPress: () => { setPictures(null); setCache([]); }
             }
             ,{
                 text: '취소'
@@ -142,6 +156,14 @@ export default function( props ) {
     }
 
     uploadData = async() =>  {
+        if( pictures == null ) {
+            Alert.alert('사진없음','사진을 올려주세요.')
+            return;
+        }
+        if ( text.length > 500 ) {
+            Alert.alert('글자 수','500자 안으로 해주세요.')
+            return;
+        }
         // 폼데이터 생성
         var body = new FormData();
         // 현재 사용자가 불러온 이미지 리스트들 => 각각 폼데이터에 넣어준다.
@@ -157,6 +179,7 @@ export default function( props ) {
         body.append('content',text);
        
         // 서버에게 전송
+        setRequesting(true);
         await fetch('auth')
         .then(res => {
             const auth = res.auth ;
@@ -167,10 +190,11 @@ export default function( props ) {
                 if ( res.data.statusCode == 201 ) {
                     MyContext.setRefresh(!MyContext.refresh);
                     props.navigation.goBack();
+                    
                 }
             })
             .catch(e => {
-                console.log(e);
+                setRequesting(false);
             })
 
         })
@@ -193,28 +217,29 @@ export default function( props ) {
       };
     
     return(
-        <KeyboardAwareScrollView style={{ backgroundColor: 'white' }}>
-        <BottomSheetModalProvider>
+        <Provider>
+        <KeyboardAwareScrollView 
+        ref={ ref => this.flatList = ref }
+        style={{ backgroundColor: 'white' }}>
+
+        <Portal>
+            <Modal visible={requesting} style={{ alignItems: 'center' , justifyContent: 'center' , backgroundColor: 'transparent' }} >
+                <LottieView style={{ width: 200, height: 100 }} source={require('./2.json')} autoPlay={true} loop={true}/>
+            </Modal>
+        </Portal>
+
             <Card style={ styles.Card }>
                 <Card.Title 
                     titleStyle={ styles.title }
-                    title= { props.route.params.data.shopName } 
-                    left = { (props)=>  <Avatar.Icon {...props} icon='account' size={24} style={{ backgroundColor: colors.main}}/>  }
-                    right = { (props) => <Button onPress={removePictures} color='red'>사진 지우기</Button>}
+                    title= { props.route.params.name } 
+                    left = { ()=>  <Avatar.Image {...props} source = {{ uri: props.route.params.imageUrl }}size={24} />  }
+                    // right = { (props) => <Button onPress={removePictures} color='red'>사진 지우기</Button>}
                 />
             </Card>
             <Row>
                 <OptionView onPress={() => openNew() }>
                     <IconButton icon='image-plus' />
                 </OptionView>
-                {/* {
-                    pictures != null && pictures.length > 1 && (
-                <OptionView onPress={() => ModalRef.current?.present() }>
-                    <IconButton icon='tools'/>
-                    <Text style={{ fontSize: 12 }}>사진 수정</Text>
-                </OptionView>
-                    )
-                } */}
             </Row>
             {
                 pictures != null && (
@@ -224,7 +249,7 @@ export default function( props ) {
                             pictures.map((picture) =>{
                                return(
                                     <SwiperView>
-                                        <Image source={{ uri: picture }} style={{ flex: 1 }}/>
+                                        <Image resizeMode='contain' source={{ uri: picture }} style={{ flex: 1 }}/>
                                     </SwiperView>
                                 )
                             })
@@ -235,13 +260,17 @@ export default function( props ) {
             }
             
             
-
-            <Title style={{ padding: 10 }}> 내용 </Title>
+            <Row>
+                <Title style={{ padding: 10 }}> 내용 </Title>
+                <Title style={{ color: text.length > 500 ? 'red' : 'lightgray' , fontSize: 15 }}>( {text.length}/500 )</Title>
+            </Row>
                 <TextInput 
                     placeholder='내용을 입력하세요.'
+                    onBlur={() => { this.flatList.scrollToEnd() }}
                     style={{ height: inputHeight }}
                     value={text} 
-                    onChangeText={value => setText(value) }  
+                    onChangeText={value => setText(value) } 
+                    // onEndEditing={() => { this.flatList.scrollToPosition(inputHeight)} } 
                     onContentSizeChange={e=>{
                         if ( e.nativeEvent.contentSize.height > inputHeight ) setInputHeight(inputHeight+50);
                     }}
@@ -252,33 +281,12 @@ export default function( props ) {
                     labelStyle={{ fontWeight: 'bold' }}
                     mode='contained'
                     onPress={() =>  { uploadData() }}
+                    disabled={requesting}
                 >
-                    등록하기
+                    { requesting ? '등록중...' : '등록하기'}
                 </Button>
-            <BottomSheetModal
-                ref={ModalRef}
-                snapPoints={['40%']}
-                bottomInset={inputHeight}
-            >
-                <BasicRow>
-                    <Text style={{ fontSize: 25 , margin: 20 }}>👆 순서를 바꿔보세요.</Text>
-                    <Button style={{ position: 'absolute', right: 0  }} labelStyle={{ fontSize: 15 , fontWeight: 'bold'}} color={colors.main}
-                        onPress={() => { ModalRef.current?.dismiss() }}
-                    >
-                        완료
-                    </Button>
-                </BasicRow>
-                <DraggableFlatList 
-                    nestedScrollEnabled={true}
-                    style={{ marginLeft: 20 }}
-                    horizontal={true}
-                    data={pictures}
-                    onDragEnd={ ({data})=>{ setPictures(data) }}
-                    keyExtractor={(item)=>item.uri}
-                    renderItem={RenderItem}
-                />
-            </BottomSheetModal>
-        </BottomSheetModalProvider>            
+           
         </KeyboardAwareScrollView>
+        </Provider>
     );
 }
