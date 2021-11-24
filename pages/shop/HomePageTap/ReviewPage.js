@@ -6,9 +6,11 @@ import { FlatList } from "react-native";
 import { Card , Avatar , Divider , Button, ActivityIndicator } from "react-native-paper";
 import { Alert } from "react-native";
 import axios from "axios";
+import { KeyboardAwareScrollView  } from "react-native-keyboard-aware-scroll-view";
 import server from "../../../server/server";
 import fetch from "../../../storage/fetch";
 import AppContext from "../../../storage/AppContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Row = styled.View`
     flex-direction: row;
@@ -199,7 +201,7 @@ const RenderItem =  ({index,item}) => {
         <Card style= {{ margin: 20 }}>
         <Card.Content>
             <Row>
-                <Avatar.Image source={{ uri : item.userThumbnailImage.replace('http','https') }} size={30} />
+                <Avatar.Image source={{ uri : item.userThumbnailImage.includes('https')? item.userThumbnailImage : item.userThumbnailImage.replace('http','https') }} size={30} />
                 <Text style={styles.userName}>{item.userNickName}</Text>
             </Row>
         </Card.Content>
@@ -246,8 +248,14 @@ export default function( props ) {
             })
             .catch( e => {
                 //
-                Alert.alert('다시 시도해주세요.')
-                setRefresh(false);
+                if ( e.response.status == 403 ) {
+                    Alert.alert('새로운 기기','다른 기기에서 로그인하여 로그아웃 되었습니다.');
+                    setRefresh(false);
+                    AsyncStorage.clear();
+
+                    MyContext.LOGOUT();
+                }
+                else Alert.alert('다시 시도해주세요.');
             })
 
         }) ;
@@ -277,7 +285,9 @@ export default function( props ) {
                 (
                     DATA.length == 0 ? 
                     (
-                        <View style={{ flex: 1 , alignItems: 'center' , justifyContent: 'center' , backgroundColor: 'white' }}>
+                        <View
+                            style={{ flex: 1 , alignItems: 'center' , justifyContent: 'center' , backgroundColor: 'white' }}
+                        >
                             <Text>현재 리뷰가 없어요.</Text>
                         </View>
                     ):

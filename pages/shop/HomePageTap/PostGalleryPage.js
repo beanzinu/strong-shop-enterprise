@@ -48,7 +48,7 @@ export default function( props ) {
                 url: `${server.url}/api/gallery`,
                 method: 'get' ,
                 headers : {
-                    Auth : auth
+                    Auth : auth 
                 }
             })
             .then ( res =>  {
@@ -76,8 +76,8 @@ export default function( props ) {
 
         fetch('Info')
         .then(res => {
-            setShopName(res.company_name)
-            setImageUrl(res.backgroundImageUrl);
+            setShopName(res?.company_name)
+            setImageUrl(res?.backgroundImageUrl);
         })
 
         // 사진요청
@@ -95,9 +95,6 @@ export default function( props ) {
         );
     }
 
-    handleScroll = function( event ) {
-        props.setScroll(event.nativeEvent.contentOffset.y);
-    } ;
 
 
     return (

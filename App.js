@@ -95,7 +95,8 @@ function App (props) {
         title : notification.title ,
         body : notification.body ,
         // createdAt : '2021-11-20' ,
-        createdAt : moment(new Date()).utc(true).format('YYYY-MM-DD hh:mm') ,
+        // createdAt : moment(new Date()).utc(true).format('YYYY-MM-DD hh:mm') ,
+        createdAt : moment(remoteMessage.data.time).format('YYYY-MM-DD hh:mm') ,
         read: false ,
       })
 
@@ -117,19 +118,31 @@ function App (props) {
 
     const unsubscribe = messaging().onMessage(async remoteMessage => {
       const notification = remoteMessage.notification;
-      Alert.alert(remoteMessage.data.index,notification.body);
+      // Alert.alert(remoteMessage.data.index,notification.body);
 
+      console.log('inApp',remoteMessage);
       cacheNotifications(remoteMessage);
 
     });
 
     // 알람 눌러서 들어왔을때
-    messaging().onNotificationOpenedApp(remoteMessage => {
+    const onNotification = messaging().onNotificationOpenedApp(remoteMessage => {
+
+      console.log('onNoti',remoteMessage);
 
         cacheNotifications(remoteMessage);
         setNoti(2);
         
     });
+
+    // const backgroundHandler =  messaging().setBackgroundMessageHandler(async (remoteMessage) => {
+
+    //   // alert('hi');
+    //   console.log('Background',remoteMessage);
+
+    //   cacheNotifications(remoteMessage);
+
+    // })
 
       // setNoti(2);
      
@@ -152,7 +165,7 @@ function App (props) {
       
       setLoading(true);
 
-      return unsubscribe;
+      return unsubscribe,onNotification;
       
 
 

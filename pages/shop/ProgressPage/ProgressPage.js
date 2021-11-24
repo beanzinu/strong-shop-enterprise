@@ -348,7 +348,10 @@ export default function( props ) {
             </SwiperView>
         </Modal>
         <Modal visible={modalVisible} onDismiss={() => { setModalVisible(false); setRefresh(false); }} contentContainerStyle={{ width: '100%', height: '100%' , backgroundColor: 'transparent' }}>
-            <IconButton icon='close' style={{ alignSelf: 'flex-end'}} color='white' onPress={ () => { setModalVisible(false);  setRefresh(false); }} />
+            {
+                !refresh &&
+                <IconButton icon='close' style={{ alignSelf: 'flex-end'}} color='white' onPress={ () => { setModalVisible(false);  setRefresh(false); }} />
+            }
             <SwiperView style={{ width: '90%' , height: 300 , alignSelf: 'center' }}>
             {
                 refresh ? 
@@ -375,6 +378,7 @@ export default function( props ) {
             }
             </SwiperView>
             <Button style={{ alignSelf: 'center' , width: '80%' , marginTop: 20 }} mode='contained' color={colors.main}
+                disabled={refresh}
                 onPress={ () => { requestUploadImage(newPictures) }}
             >
                 전송하기
@@ -384,10 +388,10 @@ export default function( props ) {
 
         <>
             <Appbar.Header style={{ backgroundColor: colors.main , height: 50 }}>
-            <Appbar.BackAction onPress={() => { props.navigation.goBack() }} />
+            <Appbar.BackAction color='white' onPress={() => { props.navigation.goBack() }} />
             <Appbar.Content title={`${data?.userResponseDto?.nickname} 고객님`} titleStyle={{ fontFamily : 'DoHyeon-Regular' , fontSize: 24}} />
             <View>
-                <Appbar.Action icon="chat" onPress={() => { props.navigation.navigate('ChatDetail',{ name : data?.userResponseDto?.nickname , id : props.route.params.data.id }) }} color='white' style={{ backgroundColor: 'transparent' , margin: 0}} size={25}/>
+                <Appbar.Action icon="chat" onPress={() => { props.navigation.navigate('ChatDetail',{ name : data?.userResponseDto?.nickname , id : props.route.params.data.id , imageUrl : props.route.params.imageUrl }) }} color='white' style={{ backgroundColor: 'transparent' , margin: 0}} size={25}/>
                 <Badge size={10} style={{ position: 'absolute' , right: 0 , top: 0 }}/>
             </View>
             </Appbar.Header>  
@@ -404,7 +408,7 @@ export default function( props ) {
                 showsPagination={false}
                 prevButton={<IconButton icon='chevron-left' color={'gray'}/>}
                 nextButton={<IconButton icon='chevron-right' color={'gray'}/>}
-                overScrollMode='auto'
+                // overScrollMode='auto'
                 // renderPagination = { (index,total) => <Title style={{ alignSelf: 'center'}}>{ index+1}/{total}</Title>}
 
             >

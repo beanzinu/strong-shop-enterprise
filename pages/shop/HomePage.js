@@ -9,6 +9,7 @@ import { getStatusBarHeight } from 'react-native-status-bar-height';
 import MultipleImagePicker from '@baronha/react-native-multiple-image-picker';
 import AppContext from '../../storage/AppContext';
 import FastImage from 'react-native-fast-image';
+import LottieView from 'lottie-react-native';
 import { TabView , SceneMap , TabBar } from 'react-native-tab-view';
 import { useIsFocused } from '@react-navigation/native';
 // Pages
@@ -69,10 +70,13 @@ const styles = {
 }
 
 
+
   
 function TabViews({ navigation, listControl }) {
     const layout = useWindowDimensions();
     const [index, setIndex] = React.useState(0);
+    const MyContext = React.useContext(AppContext);
+
     const [routes] = React.useState([
       { key: 'first', title: '정보' },
       { key: 'second', title: '작업갤러리' },
@@ -99,7 +103,11 @@ function TabViews({ navigation, listControl }) {
       <TabView
         navigationState={{ index, routes }}
         renderScene={renderScene}
-        onIndexChange={setIndex}
+        onIndexChange={(index) => {
+            if ( index == 1 ) MyContext.setRefresh(!MyContext.refresh);
+            if ( index == 3 ) MyContext.setReviewRefresh(!MyContext.reviewRefresh);
+            setIndex(index);
+        }}
         // lazy={true}
         renderTabBar={ props => 
             <TabBar {...props}
@@ -123,12 +131,13 @@ export default function( props ) {
     const [collapsed,setCollapsed] = React.useState(true);
     // 업체 썸네일
     const [picture,setPicture] = React.useState(null);
+    const [loading,setLoading] = React.useState(false);
     // 업체이름
     const [shopName,setShopName] = React.useState('');
-    const MyContext = React.useContext(AppContext);
     // 알람존재여부
     const [isalarm,setIsAlarm] = React.useState(false);
     const isFocused = useIsFocused();
+    const MyContext = React.useContext(AppContext);
 
     
 
@@ -139,15 +148,15 @@ export default function( props ) {
             if (res?.backgroundImageUrl != null) {
                 setPicture( res.backgroundImageUrl);
             }
-            if (res?.company_name != null)
-                setShopName(res.company_name);
+            if (res?.company_name != null )
+                setShopName(res['company_name']);
             else {
                 const token = await fetch('auth') ;
                 const auth = await token.auth ;
                 // 1. 서버에게 요청하여 Info 정보 받아옴.
                 axios({
                     method: 'get',
-                    url: `${server.url}/api/companyinfo`,
+                    url: `${server.url}/api/companyinfo` ,
                     headers: {
                         Auth:  auth ,
                     }
@@ -157,6 +166,8 @@ export default function( props ) {
                     try {
                         if ( res.data.statusCode == 200 ) {
                             setShopName(res.data.data.company_name)
+                            setPicture( res.data.data.backgroundImageUrl);
+
                         }
                     }
                     catch(e) {
@@ -177,7 +188,7 @@ export default function( props ) {
 
         // setValue(1);
         
-        if ( isFocused ) {
+        
             fetch('noti')
             .then(res => {
                 let flag = false ;
@@ -189,14 +200,13 @@ export default function( props ) {
                 setIsAlarm(flag);
             })
             .catch(e => {
-
             })
-        }
 
-    },[MyContext.homeRef , isFocused ]);
+    },[MyContext.homeRef]);
 
     // 썸네일 등록
     function requestThumbnail(){
+        setLoading(true);
         MultipleImagePicker.openPicker({
             mediaType: 'image' ,
             maxSelectedAssets: 1 ,
@@ -209,8 +219,8 @@ export default function( props ) {
             singleSelectedMode: true ,
         })
         .then(async (res) => {
+            setLoading(false);
             // 서버에 등록 후 캐시
-
             const token = await fetch('auth');
             const auth = token.auth;
                 // 폼데이터 생성
@@ -249,19 +259,23 @@ export default function( props ) {
      
         })
         .catch( e => {
+            setLoading(false);
 
         })
+        setLoading(false);
     }
 
     return (
         <>
-        <Appbar.Header style={{ backgroundColor: 'white' , borderColor: 'lightgray' , borderBottomWidth: 1 , alignItems: 'center'  }}>
+        <Appbar.Header style={{ backgroundColor: colors.main , borderColor: 'lightgray' , borderBottomWidth: 1 , alignItems: 'center'  }}>
         <Appbar.Content  onPress={()=> { setCollapsed(!collapsed) }}  title={shopName} titleStyle={{  fontFamily : 'DoHyeon-Regular' , fontSize: shopName.length > 10 ? 12 : shopName.length > 5 ? 20 : 25  }}  />
         <Appbar.Action icon={ collapsed ? 'chevron-down' : 'chevron-up' } onPress={() => { setCollapsed(!collapsed)}} style={{}}/>
         <Appbar.Action  style={{ flex: 1 }}/>
         
+
+
         <View>
-        <Appbar.Action icon="bell-outline" color='black' onPress={() => { props.navigation.navigate('Notifications')}}  />
+        <Appbar.Action color='white' icon="bell-outline" onPress={() => { props.navigation.navigate('Notifications')}}  />
         {
             isalarm && <Badge size={ 8 } style={{ position: 'absolute' , right: 9 , top : 9  }}/>
         }
@@ -269,11 +283,13 @@ export default function( props ) {
         <Appbar.Action icon="cog-outline" onPress={() => { props.navigation.navigate('MyPage',{ name: shopName , picture: picture })}} />
         </Appbar.Header>  
         
+        
+
         {/* 커버사진 */}
         <Collapsible 
             collapsed={collapsed}
             // collapsed={ scroll > 0  ? true : false }
-            // collapsedHeight={0}
+            // collapsedHeight={10}
             duration={1000}
         >
 
@@ -282,10 +298,19 @@ export default function( props ) {
                     {
                         picture == null ? 
                         (
-                            <ImageView style={{flex: 1 , justifyContent: 'center' , alignItems:'center'}} onPress={requestThumbnail}>
-                                <Avatar.Icon icon='gesture-tap' style={{ backgroundColor: 'transparent'}} color='black'/>
-                                <Title>업체 썸네일을 등록해보세요.</Title>
+                            
+                            // loading ?
+                            <>
+                            <ImageView onPress={requestThumbnail} style={{flex: 1 , justifyContent: 'center' , alignItems:'center'}}>
+                            <LottieView source={require('../../LottieJson/4.json')} style={{ position: 'absolute' }}  autoPlay={true} loop={true}/>
+                            {/* <Avatar.Icon size={100} icon='gesture-tap' style={{ backgroundColor: 'transparent', position: 'absolute', bottom: 10 }} color='lightgray'/> */}
+                            <Title style={{position: 'absolute', bottom: 10 , textAlign: 'center' , fontSize: 15 }} >여기를 눌러{'\n'}업체 썸네일을 등록해보세요.</Title>
                             </ImageView>
+                            </>
+                            // :
+                            // <ImageView style={{flex: 1 , justifyContent: 'center' , alignItems:'center'}} onPress={requestThumbnail}>
+                            // </ImageView>
+                            
                         ) :
                         (   
                                 <ImageView onPress={requestThumbnail}>

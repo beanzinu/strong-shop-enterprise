@@ -262,7 +262,7 @@ export default function( props ) {
             
             <Row>
                 <Title style={{ padding: 10 }}> 내용 </Title>
-                <Title style={{ color: text.length > 500 ? 'red' : 'lightgray' , fontSize: 17 }}>{text.length}/500 </Title>
+                <Title style={{ color: text.length > 500 ? 'red' : 'lightgray' , fontSize: 15 }}>( {text.length}/500 )</Title>
             </Row>
                 <TextInput 
                     placeholder='내용을 입력하세요.'

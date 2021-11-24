@@ -2,6 +2,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import React from 'react';
 import { Divider, List , Text, Title } from 'react-native-paper';
 import axios from 'axios';
+import { View  } from 'react-native';
 import server from '../../../server/server';
 import fetch from '../../../storage/fetch';
 import colors from '../../../color/colors';
@@ -66,7 +67,10 @@ export default function() {
                     headers : { Auth : auth } 
                 })
                 .then(res => {
-                    parseData( res.data.data ) ;
+                    if ( res.data.statusCode == 200 ) {
+                        if ( res.data.data == null || res.data.data.length == 0 ) return;
+                        else parseData(res.data.data) ;
+                    }
                 })
                 .catch(e => {
                     //
@@ -79,7 +83,15 @@ export default function() {
     return(
         <KeyboardAwareScrollView>
             {
-                data != null && (
+                data == null ? 
+                (
+                    <View style={{ flex: 1 , justifyContent: 'center' , alignItems: 'center'  }}>
+                            {/* <Avatar.Icon icon='account-arrow-left' style={{ backgroundColor: 'transparent'}} color='black'/> */}
+                            <Title>아직 입찰결과가 없어요.</Title>
+                    </View>
+                )
+                :
+                (
                     data.map( ( row,index) => {
                         const item = row.details ;
                         console.log(item);

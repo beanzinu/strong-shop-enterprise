@@ -2,6 +2,7 @@ import React from 'react';
 import { Avatar, Card , Divider, Text , IconButton } from 'react-native-paper';
 import Swiper from 'react-native-swiper';
 import { Alert, Image } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import colors from '../../../color/colors';
 import styled from 'styled-components';
 import AppContext from '../../../storage/AppContext';
@@ -13,10 +14,16 @@ import server from '../../../server/server';
 const ImageView = styled.View`
     width: 100%;
     height: 350px;
+    background-color: white;
+`;
+const Row = styled.View`
+    flex-direction: row;
 `;
 
 const styles= {
     Card : {
+        // borderBottomWidth: 1 ,
+        // borderColor: 'lightgray'
     } ,
     Image : {
         flex: 1
@@ -26,15 +33,13 @@ const styles= {
         fontWeight: 'bold'
     } ,
     text : {
-        margin: 5 ,
-        padding: 10 ,
+        margin: 3 ,
         // fontWeight: 'bold' ,
     },
     label: {
-        marginTop: 20 ,
+        marginTop: 5 ,
         fontWeight: 'bold',
         marginLeft: 15 ,
-        marginRight: 15 ,
     }
 
 }
@@ -77,13 +82,13 @@ export default function( props ) {
     }
 
     return(
-        <>
+        <KeyboardAwareScrollView style={{ backgroundColor: 'white' }}>
             <Card style={ styles.Card } >
                 <Card.Title 
                     titleStyle={ styles.title }
                     title= {props.route.params.name} 
-                    left = { ()=>  <Avatar.Image source={{ uri: props?.route?.params?.imageUrl }} size={24} />  }
-                    right= { () => <IconButton onPress={() => { handleDeleteMsg() }} icon='delete' size={24}  style={{ marginRight: 10 , backgroundColor: 'transparent' }} color='red'/> }
+                    left = { ()=>  <Avatar.Image source={{ uri: props?.route?.params?.imageUrl }} size={30} />  }
+                    right= { () => <IconButton onPress={() => { handleDeleteMsg() }} icon='delete' size={20}  style={{ marginRight: 10 , backgroundColor: 'transparent' }} color='red'/> }
                 />
             </Card>
             <ImageView>
@@ -102,10 +107,12 @@ export default function( props ) {
                 </Swiper>
             </ImageView>
 
-            <Divider style={{ marginTop: 10 }} />
+            {/* <Divider style={{ marginTop: 5 }} /> */}
+            <Row style={{ marginTop: 10 }}>
             <Text style={styles.label} >{props.route.params.name}</Text>
             <Text style={styles.text} >{props.route.params.content}</Text>
+            </Row>
 
-        </>
+        </KeyboardAwareScrollView>
     );
 }

@@ -53,27 +53,32 @@ export default function() {
 
 
 
-    React.useEffect(async() => {
+    React.useEffect(() => {
     
         if ( isFocused ) {
-            const token = await fetch('auth') ;
-            const auth = token.auth ;
+            fetch('auth')
+            .then( res => {
+                const auth = res.auth ;
             
-            // 내가 입찰한 정보
-            axios({
-                method: 'get' ,
-                url: `${server.url}/api/bidding`,
-                headers : { Auth : auth } 
+                // 내가 입찰한 정보
+                axios({
+                    method: 'get' ,
+                    url: `${server.url}/api/bidding`,
+                    headers : { Auth : auth } 
+                })
+                .then(res => {
+                    if ( res.data.statusCode == 200 ) {
+                        if ( res.data.data == null || res.data.data.length == 0 ) return;
+                        else parseData(res.data.data) ;
+                    }
+                })
+                .catch(e => {
+                    //
+                })
             })
-            .then(res => {
-                parseData(res.data.data) ;
-            })
-            .catch(e => {
-                //
-            })
+            .catch( e => { })
         }   
 
-    
     },[isFocused]);
 
     return(

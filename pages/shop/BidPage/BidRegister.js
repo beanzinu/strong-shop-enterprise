@@ -223,19 +223,26 @@ export default function( props ) {
             headers: { Auth : auth }
         })
         .then( res => {
+
             if ( res.data.statusCode == 201) {
                 Alert.alert('입찰완료');
-                props.navigation.goBack();
                 MyContext.setBidRef(!MyContext.bidRef);
+                props.navigation.goBack();
             }
-            else {
+
+        })
+        .catch ( e =>  {
+
+            if ( e.response.status == 403 ) {
+                Alert.alert('입찰오류','이미 낙찰되었거나 취소된 입찰입니다.');
+                MyContext.setBidRef(!MyContext.bidRef);
+                setRequesting(false);
+                props.navigation.goBack();
+            }
+            else{
                 Alert.alert('다시 시도해주세요.');
                 setRequesting(false);
             }
-        })
-        .catch ( e =>  {
-            Alert.alert('다시 시도해주세요.');
-            setRequesting(false);
         })
 
         

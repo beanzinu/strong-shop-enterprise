@@ -9,8 +9,10 @@ import {
 from 'react-native-paper';
 import { ScrollView } from 'react-native-gesture-handler';
 import colors from '../../../color/colors';
-import { SafeAreaView } from 'react-native';
+import { Alert } from 'react-native';
+import { SafeAreaView , RefreshControl } from 'react-native';
 import { FlatList } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import server from '../../../server/server' ;
 import fetch from '../../../storage/fetch' ;
@@ -28,6 +30,7 @@ import BidRegister_current from './BidRegister_current';
 import BidRegister_history from './BidRegister_history';
 
 const View = styled.SafeAreaView``;
+const BidBeforeView = styled.TouchableOpacity``;
 const Row = styled.View`
     align-items: center;
     flex-direction: row;
@@ -372,6 +375,7 @@ const defaultRegions = {
 export default function ( props ) {
     // 로드 threshold 
     const loadThresh = 10 ;
+    
     const [fullData,setFullData] = React.useState([]);
     const [data,setData] = React.useState([]);
     const [shopName,setShopName] = React.useState('');
@@ -388,6 +392,12 @@ export default function ( props ) {
         return (
             <Item item={tmp} navigation={props.navigation} key={item.id} id = {item.id}/>
         )
+    }
+
+    const checkRegions = () => {
+        if ( regions.seoul || regions.incheon || regions.daejeon || regions.busan || regions.daegu || regions.gwangju || regions.jeju )
+            return false 
+        return true ;
     }
 
     function BidBefore() {
@@ -430,10 +440,21 @@ export default function ( props ) {
                 
                 {
                     data.length == 0 ? (
-                        <View style={{ height: Dimensions.get('screen').height*0.6 , justifyContent: 'center' , alignItems: 'center'  }}>
-                            <Avatar.Icon icon='account-arrow-left' style={{ backgroundColor: 'transparent'}} color='black'/>
-                            <Title>아직 입찰요청이 없어요.</Title>
-                        </View>
+                        <ScrollView 
+                            refreshControl={<RefreshControl 
+                                refreshing={refresh}
+                                onRefresh={ () => { requestOrders() } }
+                            />}
+                        contentContainerStyle={{ height: Dimensions.get('screen').height*0.6 , justifyContent: 'center' , alignItems: 'center'  }}
+                        >   
+                            <BidBeforeView onPress={() => {  setModalVisible(true) }}>
+                            <Title>
+                                {
+                                    checkRegions() ? '지역을 선택해 주세요.' : '아직 입찰요청이 없어요.'
+                                }
+                            </Title>
+                            </BidBeforeView>
+                        </ScrollView>
                     ) :
                     (
                         <View style={{ flex: 1 }}>
@@ -499,7 +520,15 @@ export default function ( props ) {
         setRegions(data);
     }
 
+    // 서버
+    // 특정 Order에 입찰요청
     async function requestOrders() {
+
+        if ( checkRegions() ) {
+            setModalVisible(false);
+            return;
+        }
+        setRefresh(true);
 
        let tmp = [] ;
        for ( key in regions ) {
@@ -515,14 +544,43 @@ export default function ( props ) {
            headers: { Auth: auth  }
        })
        .then( res => {
-            setData(res.data.data);
+
+            let rawData = res.data.data;
+            // 새로운 데이터 X
+            if ( rawData.length == 0 ) setData([]);
+            // 10개씩 로드 
+            else if ( rawData.length > loadThresh ) {
+                let tmp =  _.slice(rawData,0,loadThresh) ;
+                setData ( tmp );
+                setFullData( _.drop(rawData,loadThresh) ) ;
+            }
+            // 10개미만 모두 로드
+            else {
+                setData( rawData );
+                setFullData([]);
+            }
+
             setModalVisible(false);
-            setRefresh(false);
+            setTimeout(()=>{
+            
+                setRefresh(false);
+            },1000)
        })
        .catch( e => {
            //
-           alert('다시 시도해주세요.');
+        if ( e.response.status == 403 ) {
+            Alert.alert('새로운 기기','다른 기기에서 로그인하여 로그아웃 되었습니다.');
+            AsyncStorage.clear();
+            MyContext.LOGOUT();
+        }
+        else { 
+            Alert.alert('다시 시도해주세요.');
+            setModalVisible(false);
+            setRefresh(false);
+        }
+        
        })
+
 
     }
 
@@ -595,6 +653,16 @@ export default function ( props ) {
                             })
                         .catch( e => {
                                 //
+                                if ( e.response.status == 403 ) {
+                                    Alert.alert('새로운 기기','다른 기기에서 로그인하여 로그아웃 되었습니다.');
+                                    AsyncStorage.clear();
+                                    MyContext.LOGOUT();
+                                }
+                                else { 
+                                    Alert.alert('다시 시도해주세요.');
+                                    setModalVisible(false);
+                                    setRefresh(false);
+                                }
                         })
                     })
                     .catch(e => { }) ;
@@ -608,7 +676,7 @@ export default function ( props ) {
     }
         
         
-    },[MyContext.bidRef]);
+    },[MyContext.bidRef , isFocused]);
 
 
     return (

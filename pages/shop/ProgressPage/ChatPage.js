@@ -90,10 +90,10 @@ const ChatView = ( props ) =>   {
             return (
                 <Card 
                     key = {i} // key로 구분
-                    onPress={ () => { props.navigation.navigate('ProgressPage' , { data: chat })  } }>
+                    onPress={ () => { props.navigation.navigate('ProgressPage' , { data: chat , imageUrl : chat.userResponseDto.profileImage.includes('https') ? chat.userResponseDto.profileImage : chat.userResponseDto.profileImage.replace('http','https') })  } }>
                     <Card.Title title={`${chat.userResponseDto.nickname} 고객`} subtitle={state[chat.state]} 
                                 titleStyle={{ margin: 10 }} subtitleStyle= {{ margin: 10 }}
-                                left={ props => <ImageView><Image source={{ uri: chat.userResponseDto.profileImage.replace('http','https') }} style={{ width: '100%', height: '100%' }} /></ImageView>  } 
+                                left={ props => <ImageView><Image source={{ uri: chat.userResponseDto.profileImage.includes('https') ? chat.userResponseDto.profileImage : chat.userResponseDto.profileImage.replace('http','https') }} style={{ width: '100%', height: '100%' }} /></ImageView>  } 
                                 right={ props => <Avatar.Text {...props} label={'3'} style={{ marginRight: 10  , backgroundColor : colors.main }} /> }
                     />
                 </Card>

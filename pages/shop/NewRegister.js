@@ -138,16 +138,23 @@ export default function({getMain}) {
     }
 
     // 카카오 AccessToken => 서버 
-    function requestAccessToken(accessToken,method) {
+    async function requestAccessToken(accessToken,method) {
+
+        let FCM_Token ;
+
+        await messaging().getToken().then( res =>{
+            FCM_Token = res ;
+        })
+
         axios({
             method : 'GET' ,
             url : `${server.url}/api/login/company/${method}` ,
             headers : {
-                Authorization : accessToken
+                Authorization : accessToken ,
+                FCM : FCM_Token
             } ,
         })
         .then( async (res) =>  {
-
             // 캐시삭제
             // await AsyncStorage.clear().catch(e => { });
 
@@ -177,6 +184,7 @@ export default function({getMain}) {
         })
         .catch( e =>  {
             // 서버 통신에러
+            console.log(e);
         })
     }
 
@@ -244,7 +252,7 @@ export default function({getMain}) {
                 resolve();
             })
             .catch( e => {
-                alert('POST 에러');
+                // alert('POST 에러');
             })
         })
     }

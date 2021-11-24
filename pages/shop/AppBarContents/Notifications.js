@@ -4,6 +4,7 @@ import { List , Title } from 'react-native-paper';
 import fetch from '../../../storage/fetch';
 import store from '../../../storage/store';
 import moment from 'moment';
+import AppContext from '../../../storage/AppContext';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 export default function( props ) {
@@ -27,14 +28,20 @@ export default function( props ) {
 
     function RenderItem({ notification , index , prevDate }) {
         const [read,setRead] = React.useState(notification.read)
+        const MyContext = React.useContext(AppContext);
 
         const handleRead = (index) => {
             let tmp = rawData ;
             tmp[index] = { ...tmp[index] , read : true } ;
             // 시간으로 정렬
             tmp = _.sortBy(tmp, function(o) { return o.createdAt  } ) ;
+
             setRead(true);
-            store('noti',{ data : tmp });
+            store('noti',{ data : tmp })
+            .then( res => {
+                MyContext.setHomeRef(!MyContext.homeRef);  
+            });
+            
         }
 
         return(
@@ -48,7 +55,7 @@ export default function( props ) {
                             title={notification.title}   
                             onPress={ () => {handleRead(index)} }
                             description={notification.body}
-                            titleStyle={{  fontWeight: 'bold' }} 
+                            titleStyle={{  fontWeight: 'bold'  }} 
                             descriptionStyle={{ paddingTop: 3 , fontWeight: 'bold' }} 
                     />    
                 </>
@@ -57,7 +64,7 @@ export default function( props ) {
 
 
     return(
-        <KeyboardAwareScrollView>
+        <KeyboardAwareScrollView style={{ backgroundColor: 'white' }}>
             {/* <List.Section> */}
                 {
                     data.map( (notification,index) =>{
