@@ -189,7 +189,7 @@ function App (props) {
         } 
 
         {/* <NewRegister />  */}
-        <MainPage state={mainVisible}/>
+        {/* <MainPage state={mainVisible}/> */}
       </AppContext.Provider>
   );
 };

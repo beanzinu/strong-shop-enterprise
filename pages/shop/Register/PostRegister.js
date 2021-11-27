@@ -2,8 +2,7 @@ import React from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import styled from 'styled-components';
 import Swiper from 'react-native-swiper';
-import ImagePicker from 'react-native-image-crop-picker';
-import { Alert, Dimensions, Image , TouchableOpacity } from 'react-native';
+import { Alert, Dimensions, Image , Platform, TouchableOpacity } from 'react-native';
 import { Card , Avatar , Title , Button , IconButton , Provider , Modal , Portal } from 'react-native-paper';
 import colors from '../../../color/colors';
 import LottieView from 'lottie-react-native';
@@ -113,12 +112,14 @@ export default function( props ) {
             
         })
         .then(res => {
+            console.log(res);
            setCache(res);
 
            url = [] ;
            res.map( async ( file ) =>  {
-               newPath = file.path.replace('file://','').replace('file:///','file://');
-
+                let newPath = '';
+                if ( Platform.OS == 'ios')   newPath = file.path.replace('file://','').replace('file:///','file://');
+                else  newPath = 'file://' + file.path ;
             //    const result = await ImageCompressor.compress(
             //     file.path,
             //     {
@@ -128,7 +129,7 @@ export default function( props ) {
                
             //    url.push(result);
 
-               url.push(file.path);
+               url.push(newPath);
            });
           
            setPictures(url);
@@ -244,7 +245,7 @@ export default function( props ) {
             {
                 pictures != null && (
                     <SwiperView>
-                    <Swiper horizontal={true} refreshControl={refresh} showsHorizontalScrollIndicator={true} loop={false}>
+                    <Swiper horizontal={true} showsHorizontalScrollIndicator={true} loop={false}>
                         {
                             pictures.map((picture) =>{
                                return(
@@ -254,8 +255,8 @@ export default function( props ) {
                                 )
                             })
                         }
-                    </Swiper> 
-                    </SwiperView>
+                     </Swiper> 
+                    </SwiperView> 
                 )
             }
             

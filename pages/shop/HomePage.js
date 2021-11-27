@@ -23,7 +23,6 @@ import fetch from '../../storage/fetch';
 import store from '../../storage/store';
 // Tab Navigator
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { useScrollToTop } from '@react-navigation/native';
 const Tab = createMaterialTopTabNavigator();
 
 const View = styled.View``;
@@ -60,7 +59,7 @@ const styles = {
         // backgroundColor : colors.main , 
         borderWidth: 1 ,
         borderColor: 'lightgray' ,
-        borderRadius: 0 ,
+        // borderRadius: 0 ,
         height : 320 ,
     } ,
     cover : {
@@ -73,7 +72,7 @@ const styles = {
 
   
 function TabViews({ navigation, listControl }) {
-    const layout = useWindowDimensions();
+    // const layout = useWindowDimensions();
     const [index, setIndex] = React.useState(0);
     const MyContext = React.useContext(AppContext);
 
@@ -99,6 +98,8 @@ function TabViews({ navigation, listControl }) {
             return null;
         }
     };
+ 
+
     return (
       <TabView
         navigationState={{ index, routes }}
@@ -116,7 +117,7 @@ function TabViews({ navigation, listControl }) {
             activeColor={colors.main} 
             inactiveColor='lightgray'/>
         }
-        initialLayout={{ width: layout.width }}
+        // initialLayout={{ width: layout.width }}
       />
     );
 }
@@ -126,7 +127,6 @@ function TabViews({ navigation, listControl }) {
 export default function( props ) {
     // 1.  정보  2. 작업갤러리 3. 취급상품 4. 리뷰
     const [value, setValue] = React.useState(1);
-    const [scroll,setScroll] = React.useState(0);
     const [listControl,setListControl] = React.useState(false);
     const [collapsed,setCollapsed] = React.useState(true);
     // 업체 썸네일
@@ -302,7 +302,7 @@ export default function( props ) {
                             // loading ?
                             <>
                             <ImageView onPress={requestThumbnail} style={{flex: 1 , justifyContent: 'center' , alignItems:'center'}}>
-                            <LottieView source={require('../../LottieJson/4.json')} style={{ position: 'absolute' }}  autoPlay={true} loop={true}/>
+                            {/* <LottieView source={require('../../LottieJson/4.json')} style={{ position: 'absolute' }}  autoPlay={true} loop={true}/> */}
                             {/* <Avatar.Icon size={100} icon='gesture-tap' style={{ backgroundColor: 'transparent', position: 'absolute', bottom: 10 }} color='lightgray'/> */}
                             <Title style={{position: 'absolute', bottom: 10 , textAlign: 'center' , fontSize: 15 }} >여기를 눌러{'\n'}업체 썸네일을 등록해보세요.</Title>
                             </ImageView>
@@ -389,8 +389,8 @@ export default function( props ) {
                 children={() => <ReviewPage setScroll={setScroll} listControl = {listControl} />} 
                 options={{ title: '리뷰' }}
             />
-        </Tab.Navigator>        
-         */}
+        </Tab.Navigator>         */}
+        
 
         
         </>

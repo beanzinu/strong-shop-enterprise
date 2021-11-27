@@ -147,20 +147,19 @@ export default function( props ) {
             </Row>
             <Row style={{ marginTop: 5 }}>
                 <Avatar.Icon icon='link' style={{ backgroundColor: 'transparent' , marginLeft: 10 }} color={colors.main} size={30} />
-                <Button style={{ borderWidth: data?.blogUrl != null &&  1  , backgroundColor: data?.blogUrl != null && 'rgb(247,247,247)' }} uppercase={false} color={colors.main} onPress={()=> { data?.blogUrl != null &&  Linking.openURL('http://'+data.blogUrl)}}>{data?.blogUrl}</Button>
+                <Button style={{ borderWidth: data?.blogUrl != null ?  1 : 0  , backgroundColor: data?.blogUrl != null && 'rgb(247,247,247)' }} uppercase={false} color={colors.main} onPress={()=> { data?.blogUrl != null &&  Linking.openURL('http://'+data.blogUrl)}}>{data?.blogUrl}</Button>
             </Row>
             <Row style={{ marginTop: 5 }}>
                 <Avatar.Icon icon='web' style={{ backgroundColor: 'transparent' , marginLeft: 10 }} color={colors.main} size={30} />
-                <Button style={{ borderBottomWidth: data?.siteUrl != null && 1  ,backgroundColor: data?.siteUrl != null &&'rgb(247,247,247)' }}  uppercase={false} color={colors.main} onPress={()=> { data?.siteUrl != null && Linking.openURL('http://'+data.siteUrl) }}>{data?.siteUrl}</Button>
+                <Button style={{ borderBottomWidth: data?.siteUrl != null ? 1 : 0  ,backgroundColor: data?.siteUrl != null &&'rgb(247,247,247)' }}  uppercase={false} color={colors.main} onPress={()=> { data?.siteUrl != null && Linking.openURL('http://'+data.siteUrl) }}>{data?.siteUrl}</Button>
             </Row>
             <Row style={{ marginTop: 5 }}>
                 <Avatar.Icon icon='instagram' style={{ backgroundColor: 'transparent' , marginLeft: 10 }} color={colors.main} size={30} />
-                <Button style={{ borderBottomWidth: data?.snsUrl != null && 1  , backgroundColor: data?.snsUrl != null &&'rgb(247,247,247)' }}  uppercase={false} color={colors.main} onPress={()=> { data?.snsUrl != null && Linking.openURL('http://instagram.com/'+data.snsUrl) }}>{ data?.snsUrl != null && '@'}{data?.snsUrl}</Button>
+                <Button style={{ borderBottomWidth: data?.snsUrl != null ? 1 : 0  , backgroundColor: data?.snsUrl != null &&'rgb(247,247,247)' }}  uppercase={false} color={colors.main} onPress={()=> { data?.snsUrl != null && Linking.openURL('http://instagram.com/'+data.snsUrl) }}>{ data?.snsUrl != null && '@'}{data?.snsUrl}</Button>
             </Row>
             <Title style= { styles.title }> 위치 </Title>
             <Text style={{ marginBottom: 20 }}>{data?.address == null ? '위치를 등록해주세요.' : data.address}{'\n'}{data?.detailAddress == null ? '' :  data?.detailAddress }</Text>
             <NaverMapView style={{width: '80%', height: 300 , alignSelf : 'center' , borderWidth: 2 , borderColor: 'lightgray' , marginBottom: 20 }}
-            showsMyLocationButton={true}
             center={{...coord, zoom: 13 }}
             showsMyLocationButton={false}
             >

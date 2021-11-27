@@ -35,6 +35,7 @@ const styles = {
 } ; 
 
 // 홈
+// const homeRoute = () => <></>
 const homeRoute = () => {
     return(
     <NavigationContainer>
@@ -54,6 +55,7 @@ const homeRoute = () => {
 }
 
 //  입찰
+// const bidRoute = () => <></>
 const bidRoute = () => {
     return(
         <NavigationContainer>
@@ -66,8 +68,8 @@ const bidRoute = () => {
 }
 
 // 문의 및 채팅
-// const chatRoute = () => <ChatPage/>
-const chatRoute = () => <></>
+const chatRoute = () => <ChatPage/>
+// const chatRoute = () => <></>
 
 export default function( props ) {
     const [index, setIndex] = React.useState(0);
