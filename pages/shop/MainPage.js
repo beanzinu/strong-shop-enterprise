@@ -18,6 +18,7 @@ import PostPageRegister from './Register/PostPageRegister';
 import ProductRegister from './Register/ProductRegister';
 import ProductDetailRegister from './Register/ProductDetailRegister';
 import MyPage from './AppBarContents/MyPage';
+import Receipt from './AppBarContents/Receipt';
 import Notifications from './AppBarContents/Notifications';
 
 const View = styled.SafeAreaView``;
@@ -40,7 +41,8 @@ function HomeRoute() {
     <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerLeft : props => ( <IconButton {...props} icon='chevron-left' size={24} /> ) }}>
             <Stack.Screen name='Home' component={HomePage}  options={{ headerShown : false }}/>
-            <Stack.Screen name='MyPage' component={MyPage}  options={{ headerShown : false  }}/>
+            <Stack.Screen name='MyPage' component={MyPage}  options={{ title: '마이페이지' }}/>
+            <Stack.Screen name='Receipt' component={Receipt}  options={{ title: '과거 시공내역'  }}/>
             <Stack.Screen name='Notifications' component={Notifications} options={{ title: '알림센터' }}/>
             <Stack.Screen name='Post' component={PostPage} options={{ title: '게시물' }} />
             <Stack.Screen name='InfoRegister' component={InfoRegister} options={{ headerShown: false }} />
@@ -109,13 +111,14 @@ export default function( props ) {
 
     // } 
 
-    // React.useEffect(() => {
+    React.useEffect(() => {
 
-    //     if ( MyContext.noti ==2 ) {
-    //         setIndex(2);
-    //         MyContext.setNoti(0);
-    //     }
-    // },[MyContext.noti]);
+        if ( MyContext.noti ==2 ) {
+            setIndex(2);
+            MyContext.setNoti(0);
+        }
+
+    },[MyContext.noti]);
 
 
     return(

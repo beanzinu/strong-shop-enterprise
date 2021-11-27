@@ -227,11 +227,13 @@ export default function( props ) {
                 var body = new FormData();
                  // 현재 사용자가 불러온 이미지 리스트들 => 각각 폼데이터에 넣어준다.
     
+                if ( Platform.OS == 'ios' ) var response = res[0];
+                else var response = res ;
                 var url ;
                 // ios
-                if ( Platform.OS == 'ios' ) url = res.path.replace('file://','').replace('file:///','file://');
+                if ( Platform.OS == 'ios' ) url = response.path.replace('file://','').replace('file:///','file://');
                 // android
-                else url = 'file://' + res.path ;
+                else url = 'file://' + response.path ;
 
                 var photo = {
                     uri: url ,

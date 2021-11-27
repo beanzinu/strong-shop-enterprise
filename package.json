@@ -39,6 +39,13 @@
     "react-native-gesture-handler": "^1.10.3",
     "react-native-gifted-chat": "^0.16.3",
     "react-native-image-base64": "^0.1.4",
+<<<<<<< HEAD
+=======
+    "react-native-image-crop-picker": "^0.36.2",
+    "react-native-image-modal": "^2.0.4",
+    "react-native-image-zoom-viewer": "^3.0.1",
+    "react-native-in-app-message": "^1.0.33",
+>>>>>>> cf67556a6f42e95a1c4f0dc5048ee67bed2349ba
     "react-native-input-scroll-view": "^1.11.0",
     "react-native-keyboard-aware-scroll-view": "^0.9.4",
     "react-native-nmap": "^0.0.66",

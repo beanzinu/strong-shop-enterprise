@@ -4,7 +4,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { 
     Appbar , Title , Divider , List,
     Button ,  IconButton , Chip ,
-    Provider , Modal , Portal, Avatar, ActivityIndicator 
+    Provider , Modal , Portal, Avatar, ActivityIndicator , Text
 } 
 from 'react-native-paper';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -244,6 +244,10 @@ function Item ( { item , navigation , id } ) {
                             expanded={expanded}
                             onPress={()=>{setExpanded(!expanded)}}
                             description='자세한 정보를 확인하세요.'
+                            right ={ props => <Row>
+                                <Text>{translate('region',item.region)}</Text>
+                                <List.Icon icon='chevron-down' />
+                            </Row> }
                             
                             // left={props => <List.Icon {...props} icon="car-hatchback" color={'black'}  />}
                            >
@@ -653,7 +657,7 @@ export default function ( props ) {
                             })
                         .catch( e => {
                                 //
-                                if ( e.response.status == 403 ) {
+                                if ( e.response.hasOwnProperty('status') && e.response.status == 403 ) {
                                     Alert.alert('새로운 기기','다른 기기에서 로그인하여 로그아웃 되었습니다.');
                                     AsyncStorage.clear();
                                     MyContext.LOGOUT();

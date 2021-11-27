@@ -56,7 +56,6 @@ const ChatView = ( props  ) =>   {
     const [reload,setReload] = React.useState(false);
     const isFocused = useIsFocused();
 
-
     const handleUnRead = (value) => {
         
         database().goOnline();
@@ -66,19 +65,22 @@ const ChatView = ( props  ) =>   {
             var count = 0 ;
             var obj ;
             database().ref(`chat${item.id}`).once('value',snapshot => {
+                if ( snapshot.toJSON() &&  snapshot.toJSON() !== null  )  {
 
-                obj = Object.values( snapshot.toJSON() ) ;
-                obj.map( msg => {
-                    if ( msg.user._id == 2 && msg.received != true ) count = count + 1 ; 
-                }) ;
-                tmp[item.id] = count ;
+                    obj = Object.values( snapshot.toJSON() ) ;
+                    obj.map( msg => {
+                        if ( msg.user._id == 2 && msg.received != true ) count = count + 1 ; 
+                    }) ;
+                    tmp[item.id] = count ;
+                    
+                }
                 // Last Index
                 if ( index == value.length-1 ) {
                     total = 0 ;
                     for ( key in tmp )
                         total += tmp[key];
                     MyContext.setBadge(total);
-
+    
                     setData(value);
                     setTemp(tmp) ;
                 }
@@ -93,7 +95,7 @@ const ChatView = ( props  ) =>   {
     React.useEffect( () => {
 
     // 채팅
-        // database().goOnline();
+        database().goOnline();
         // database().ref('chat').orderByKey('createdAt').limitToLast(1).once('value',snapshot=>{
         //     record = Object.values(snapshot.val())[0];
         //     setTemp(record);
@@ -113,6 +115,7 @@ const ChatView = ( props  ) =>   {
                     // if ( JSON.stringify(data ) !== JSON.stringify(res.data.data) )
                     // {
                         // alert('reload');
+                        // setData(res.data.data);
                         handleUnRead(res.data.data);
                     // }
     
@@ -144,7 +147,7 @@ const ChatView = ( props  ) =>   {
         return (
                 <Card 
                     key = {i} // key로 구분
-                    onPress={ () => { props.navigation.navigate('ProgressPage' , { data: item, imageUrl : item.userResponseDto.profileImage.includes('https') ? item.userResponseDto.profileImage : item.userResponseDto.profileImage.replace('http','https') })  } }>
+                    onPress={ () => { props.navigation.navigate('ProgressPage' , { id : item.id , data: item, imageUrl : item.userResponseDto.profileImage.includes('https') ? item.userResponseDto.profileImage : item.userResponseDto.profileImage.replace('http','https') })  } }>
                     <Card.Title title={`${item.userResponseDto.nickname} 고객`} subtitle={state[item.state]} 
                                 titleStyle={{ margin: 10 }} subtitleStyle= {{ margin: 10 }}
                                 left={ props => <ImageView><Image source={{ uri: item.userResponseDto.profileImage.includes('https') ? item.userResponseDto.profileImage : item.userResponseDto.profileImage.replace('http','https') }} style={{ width: '100%', height: '100%' }} /></ImageView>  } 

@@ -9,7 +9,9 @@ import axios from 'axios';
 import AppContext from './storage/AppContext';
 import { Alert } from 'react-native';
 import moment from 'moment';
+import {Notification} from "react-native-in-app-message";
 import { Appearance } from 'react-native';
+import colors from './color/colors';
 //test
 import messaging from '@react-native-firebase/messaging';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -21,6 +23,7 @@ import server from './server/server';
 function App (props) {
   const [mainVisible,setMainVisible] = React.useState(false);
   const [loading,setLoading] = React.useState(false);
+  const [inApp,setInApp] = React.useState('');
   // 정보
   const [infoRefresh,setInfoRefresh] = React.useState(false);
   // 갤러리
@@ -98,7 +101,7 @@ function App (props) {
 
       data.push({
         title : notification.title ,
-        body : notification.body ,
+        body : `${remoteMessage.data.name} 고객님이 ${notification.body}하셨습니다.`  ,
         // createdAt : '2021-11-20' ,
         // createdAt : moment(new Date()).utc(true).format('YYYY-MM-DD hh:mm') ,
         createdAt : moment(remoteMessage.data.time).format('YYYY-MM-DD hh:mm') ,
@@ -119,42 +122,32 @@ function App (props) {
 
     const authStatus = messaging().requestPermission();
 
-      
+    // this.ref?.show();
+
 
     const unsubscribe = messaging().onMessage(async remoteMessage => {
       const notification = remoteMessage.notification;
-      // Alert.alert(remoteMessage.data.index,notification.body);
+      const index = remoteMessage.data.index ;
+      if ( index === '002' || index === '120' ) return;
+      setInApp(`${remoteMessage.data.name} 고객님이 ${notification.body}하셨습니다.` )
+      this.ref?.show();
 
-      console.log('inApp',remoteMessage);
+      // console.log('inApp',remoteMessage);
       cacheNotifications(remoteMessage);
 
     });
 
     // 알람 눌러서 들어왔을때
     const onNotification = messaging().onNotificationOpenedApp(remoteMessage => {
+      const notification = remoteMessage.notification;
+      const index = remoteMessage.data.index ;
 
-      console.log('onNoti',remoteMessage);
+      if ( index == '002' || index === '120' ) return;
 
         cacheNotifications(remoteMessage);
         setNoti(2);
         
     });
-
-    // const backgroundHandler =  messaging().setBackgroundMessageHandler(async (remoteMessage) => {
-
-    //   // alert('hi');
-    //   console.log('Background',remoteMessage);
-
-    //   cacheNotifications(remoteMessage);
-
-    // })
-
-      // setNoti(2);
-     
-      // 인터넷 연결상태 확인
-      // const unsubscribe = NetInfo.addEventListener( async (state) => {
-      //   if ( !state.isInternetReachable ) setLoading(false);
-      // });
 
 
       // jwt 캐시 ( accesstoken 만료  => refreshToken => jwt accessToken )
@@ -162,9 +155,6 @@ function App (props) {
       .then( async(res) => {
         if ( res.auth != null ) 
         setMainVisible(true);
-      //     await requestNewToken(res.auth)
-      //     .then( ()=> { alert('refreshToken 성공'); setMainVisible(true); })
-      //     .catch( () => { } )
       })
       .catch(e => { })
       
@@ -182,7 +172,11 @@ function App (props) {
         { 
           loading ? ( 
             mainVisible ? 
-              <MainPage/> : 
+              <>
+              <MainPage/>
+              <Notification hideStatusBar={false} duration={2000} style={{   backgroundColor: 'rgb(244,244,244)' , margin: 10  }} textColor={colors.main}     text={inApp} ref={ref => this.ref = ref } onPress={() => { setNoti(2); this.ref.hide() }}/> 
+              </>
+              : 
               <NewRegister getMain={setMainVisible}/>
           ) 
           : 
