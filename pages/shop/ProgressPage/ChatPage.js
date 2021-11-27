@@ -5,7 +5,7 @@ import { Avatar , Card , Title ,
 import {  GiftedChat } from 'react-native-gifted-chat';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
-// import database from '@react-native-firebase/database';
+import database from '@react-native-firebase/database';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ActivityIndicator, Alert, Image } from 'react-native';
@@ -72,7 +72,6 @@ const ChatView = ( props  ) =>   {
                     if ( msg.user._id == 2 && msg.received != true ) count = count + 1 ; 
                 }) ;
                 tmp[item.id] = count ;
-                total = total + count ;
                 // Last Index
                 if ( index == value.length-1 ) {
                     total = 0 ;
@@ -119,7 +118,7 @@ const ChatView = ( props  ) =>   {
     
                 })
                 .catch( e => {
-                    // console.log(e);
+                    console.log(e);
                     if ( e?.response?.hasOwnProperty('status') && e?.response?.status == 403 ) {
                         Alert.alert('새로운 기기','다른 기기에서 로그인하여 로그아웃 되었습니다.');
                         AsyncStorage.clear();

@@ -229,9 +229,9 @@ export default function( props ) {
     
                 var url ;
                 // ios
-                if ( Platform.OS == 'ios' ) url = res[0].path.replace('file://','').replace('file:///','file://');
+                if ( Platform.OS == 'ios' ) url = res.path.replace('file://','').replace('file:///','file://');
                 // android
-                else url = 'file://' + res[0].path ;
+                else url = 'file://' + res.path ;
 
                 var photo = {
                     uri: url ,
