@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Title  , ProgressBar, Avatar , Appbar , List , Badge , Button , IconButton , Modal , Portal , Provider}  
+import { Title  , ProgressBar, Avatar , Appbar , List , Badge , Button , IconButton , Modal , Portal , Provider , FAB }  
 from 'react-native-paper';
 import { Alert, FlatList , ScrollView } from 'react-native';
 import colors from '../../../color/colors';
@@ -154,9 +154,14 @@ export default function( props ) {
         .then(res => {
            url = [] ;
            res.map((file,index) =>  {
-            //    newPath = file.path.replace('file://','').replace('file:///','file://');
+                let newPath ;
+                // ios
+                if ( Platform.OS == 'ios' ) newPath = file.path.replace('file://','').replace('file:///','file://');
+                // android
+                else newPath = 'file://' + file.path ;
+
                url.push({
-                   path: file.path ,
+                   path: newPath ,
                    id: index 
                });
            });
@@ -211,14 +216,14 @@ export default function( props ) {
 
     // 서버로부터 이미지 불러오기
     function requestImage() {
+
         fetch('auth')
         .then(res => {
             const auth = res.auth ;
-            
             axios({
-                method: 'get' ,
+                method: 'GET' ,
                 url: `${server.url}/api/contract/${states[props.route.params.data.state] ==2 ?'4':'6'}/${props.route.params.data.id}` ,
-                Auth: { Auth: auth }
+                headers : { Auth: auth }
             })
             .then(res => {
                 let tmp = [] ;
@@ -230,14 +235,13 @@ export default function( props ) {
                     res.data.data.responseDtos.map( (picture,id) => {
                         tmp.push({ path : picture.imageUrl , id : id });
                     })
-                console.log(tmp);
                 setPictures(tmp);
                   //refresh
                   // setRefresh(true);
                   // setRefresh(false);
             })
             .catch(e=>{
-                // console.log(e);
+                // console.log(e.response.status);
             })
         })
         .catch(e => {
@@ -390,10 +394,10 @@ export default function( props ) {
             <Appbar.Header style={{ backgroundColor: colors.main , height: 50 }}>
             <Appbar.BackAction color='white' onPress={() => { props.navigation.goBack() }} />
             <Appbar.Content title={`${data?.userResponseDto?.nickname} 고객님`} titleStyle={{ fontFamily : 'DoHyeon-Regular' , fontSize: 24}} />
-            <View>
+            {/* <View>
                 <Appbar.Action icon="chat" onPress={() => { props.navigation.navigate('ChatDetail',{ name : data?.userResponseDto?.nickname , id : props.route.params.data.id , imageUrl : props.route.params.imageUrl }) }} color='white' style={{ backgroundColor: 'transparent' , margin: 0}} size={25}/>
                 <Badge size={10} style={{ position: 'absolute' , right: 0 , top: 0 }}/>
-            </View>
+            </View> */}
             </Appbar.Header>  
             <ProgressBar style={styles.progress} progress={state/5} color='red'  
                 theme = {{ animation : { scale : 5 }  }}
@@ -452,7 +456,7 @@ export default function( props ) {
                                     (item.value ==2 || item.value == 4) && item.value == state && (
                                     <>
                                     <Row>
-                                    <Button style={{ alignSelf: 'flex-end' , padding: 3 , margin: 5 }}
+                                    <Button style={{ alignSelf: 'flex-end' , padding: 3 , margin: 5 ,  borderRadius: 10  }}
                                         onPress={ () => { openNew() } }
                                         mode='contained'
                                         color={colors.main}
@@ -460,7 +464,7 @@ export default function( props ) {
                                     >
                                         {'추가하기'}
                                     </Button>
-                                    <Button style={{ alignSelf: 'flex-end' , padding: 3 , margin: 5 }}
+                                    <Button style={{ alignSelf: 'flex-end' , padding: 3 , margin: 5 , borderRadius: 10  }}
                                         onPress={ () => { state == 2 ? requestExamFin() : requestConstructFin() } }
                                         mode='contained'
                                         color={colors.main}
@@ -487,6 +491,9 @@ export default function( props ) {
             }
             </Swiper>
             </SwiperView>
+            <FAB  icon='chat' small={false} style={{ position: 'absolute' , bottom: 20 , right: 20  , padding: 5 , borderRadius: 50 , backgroundColor: colors.main  }} 
+                onPress={() => { props.navigation.navigate('ChatDetail',{ name : data?.userResponseDto?.nickname , id : props.route.params.data.id , imageUrl : props.route.params.imageUrl }) }}
+            />
         </>
         </Provider>
     );

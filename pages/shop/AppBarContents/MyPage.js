@@ -13,7 +13,7 @@ const Row = styled.View`
     align-items: center;
     flex-direction: row;
     width: 100%;
-    height: 60px;
+    height: 50px;
     border:1px lightgray;
 `;
 
@@ -26,17 +26,21 @@ const styles={
     } ,
     image : {
         alignSelf: 'center' ,
-        margin: 20 ,
-        backgroundColor: 'transparent'
+        margin: 10 ,
+        backgroundColor: colors.main
     }
 }
 
 
 export default function( props ) {
     const myContext = React.useContext(AppContext);
+
     const handleDeleteUser = async () => {
         const token = await fetch('auth') ;
         const auth = token.auth
+
+
+        // 회원 탈퇴
         axios({
             method: 'delete' ,
             url: `${server.url}/api/company`,
@@ -47,10 +51,17 @@ export default function( props ) {
             myContext.LOGOUT()
         })
         .catch( e => {
-            console.log(e);
+            if ( e.response.hasOwnProperty('status') && e?.response?.status == 406 ) {
+                Alert.alert('탈퇴불가','진행중인 계약이 있습니다.');
+            }
+            else { 
+                Alert.alert('다시 시도해주세요.');
+            }
         })
     }
 
+
+    // 로그아웃    
     const handleLogout = () => {
         Alert.alert('로그아웃하시겠습니까?','',[
             {
@@ -58,9 +69,24 @@ export default function( props ) {
                 style: 'destructive' ,
                 onPress: async() => { 
                     // 가지고있는 모든 캐시정보 clear
-                    await AsyncStorage.clear();
-                    myContext.LOGOUT() 
-                }
+                    fetch('auth')
+                    .then( res => {
+                        const auth = res.auth ;
+                        axios({
+                            method: 'put',
+                            url: `${server.url}/api/logout/company` ,
+                            headers: { Auth: auth }
+
+                        })
+                        .then( async(res) => {
+                            await AsyncStorage.clear();
+                            myContext.LOGOUT() 
+                        })
+                        .catch( e => {
+                            Alert.alert('다시 시도해주세요.');
+                        })
+                    })// fetch
+                }// OnPress
             },
             {
                 text: '취소'
@@ -82,13 +108,13 @@ export default function( props ) {
     }
 
     return(
-        <KeyboardAwareScrollView>
+        <KeyboardAwareScrollView style={{ backgroundColor: 'white' }}> 
         <Appbar.Header style={{ backgroundColor: colors.main }}>
         <Appbar.BackAction onPress={()=>{ props.navigation.goBack() }}/>        
         </Appbar.Header>  
             {
                 props.route?.params?.picture == null ? (
-                    <Avatar.Icon style={styles.image} icon='account-outline' color={colors.main} />
+                    <Avatar.Icon  style={styles.image} icon='account-outline'/>
                 ):
                 <Avatar.Image style={styles.image} source={{ uri : props.route.params.picture }} size={60}/>
             }
@@ -112,22 +138,27 @@ export default function( props ) {
                 <Switch style={{ position: 'absolute' , right: 10 }} />
             </Row>
 
+            <Row style={{ height: 70 }}>
+                <Title style={styles.title}>과거 시공내역</Title>
+                <Avatar.Icon size={40} icon='chevron-right' style={{ backgroundColor: 'transparent' , position: 'absolute' , right: 0 }} color='black' />
+            </Row>
+
 
             <Title style={{ ...styles.title , color: 'gray' , marginTop: 40 }}>고객센터</Title>
             <Row>
-                <Avatar.Icon icon='bullhorn' style={{ backgroundColor: 'transparent'}} color={colors.main}/>
+                <Avatar.Icon size={40} icon='bullhorn' style={{ backgroundColor: 'transparent'}} color='black'/>
                 <Title style={styles.title}>공지사항</Title>
             </Row>
             <Row>
-                <Avatar.Icon icon='chat-plus' style={{ backgroundColor: 'transparent'}} color={colors.main}/>
+                <Avatar.Icon size={40} icon='chat-plus' style={{ backgroundColor: 'transparent'}} color='black'/>
                 <Title style={styles.title}>고객문의</Title>
             </Row>
-            <Row>
-                <Avatar.Icon icon='account-question' style={{ backgroundColor: 'transparent'}} color={colors.main}/>
+            {/* <Row>
+                <Avatar.Icon size={40} icon='account-question' style={{ backgroundColor: 'transparent'}} color='black'/>
                 <Title style={styles.title}>FAQ</Title>
-            </Row>
+            </Row> */}
             <Title style={{ color: 'gray' , alignSelf: 'flex-end' , padding: 5 , fontSize: 15 , margin : 10 }} onPress={handleLogout}>로그아웃</Title>
-            {/* <Title style={{ color: 'gray' , alignSelf: 'flex-end' , padding: 5 , fontSize: 15 , margin : 30 }} onPress={handleDeleteUser}>회원탈퇴</Title> */}
+            <Title style={{ color: 'red' , alignSelf: 'flex-end' , padding: 5 , fontSize: 15 , margin : 10 }} onPress={handleDeleteUser}>회원탈퇴</Title>
             </KeyboardAwareScrollView>
     );
 }

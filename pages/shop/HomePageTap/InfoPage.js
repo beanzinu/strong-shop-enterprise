@@ -147,7 +147,7 @@ export default function( props ) {
             </Row>
             <Row style={{ marginTop: 5 }}>
                 <Avatar.Icon icon='link' style={{ backgroundColor: 'transparent' , marginLeft: 10 }} color={colors.main} size={30} />
-                <Button style={{ borderWidth: data?.blogUrl != null ?  1 : 0  , backgroundColor: data?.blogUrl != null && 'rgb(247,247,247)' }} uppercase={false} color={colors.main} onPress={()=> { data?.blogUrl != null &&  Linking.openURL('http://'+data.blogUrl)}}>{data?.blogUrl}</Button>
+                <Button style={{ borderWidth: data?.blogUrl != null ? 1 : 0  , backgroundColor: data?.blogUrl != null && 'rgb(247,247,247)' }} uppercase={false} color={colors.main} onPress={()=> { data?.blogUrl != null &&  Linking.openURL('http://'+data.blogUrl)}}>{data?.blogUrl}</Button>
             </Row>
             <Row style={{ marginTop: 5 }}>
                 <Avatar.Icon icon='web' style={{ backgroundColor: 'transparent' , marginLeft: 10 }} color={colors.main} size={30} />

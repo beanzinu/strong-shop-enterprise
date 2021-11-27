@@ -193,7 +193,7 @@ export default function( props ) {
 
                 <>
                 <View style={{ height: 60 }}> 
-                <ScrollView horizontal={true}  style={{ height : 70  , backgroundColor: 'white'  }} showsHorizontalScrollIndicator={false}>
+                <ScrollView horizontal={true}  style={{ height : 80  , backgroundColor: 'white'  }} showsHorizontalScrollIndicator={false}>
                     {
                         options.map((item,i)=>{
                             return(

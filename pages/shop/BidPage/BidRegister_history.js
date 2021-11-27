@@ -6,6 +6,7 @@ import { View  } from 'react-native';
 import server from '../../../server/server';
 import fetch from '../../../storage/fetch';
 import colors from '../../../color/colors';
+import { Dimensions } from 'react-native';
 import moment from 'moment';
 import _ from 'lodash';
 import { useIsFocused } from '@react-navigation/native';
@@ -85,17 +86,15 @@ export default function() {
             {
                 data == null ? 
                 (
-                    <View style={{ flex: 1 , justifyContent: 'center' , alignItems: 'center'  }}>
+                    <View style={{ height: Dimensions.get('screen').height*0.8 , justifyContent: 'center' , alignItems: 'center'  }}>
                             {/* <Avatar.Icon icon='account-arrow-left' style={{ backgroundColor: 'transparent'}} color='black'/> */}
-                            <Title>아직 입찰결과가 없어요.</Title>
+                            <Text>현재 입찰내역이 없어요.</Text>
                     </View>
                 )
                 :
                 (
                     data.map( ( row,index) => {
                         const item = row.details ;
-                        console.log(item);
-                        console.log(item.tintingPrice);
                         let prevDate ;
                         if (index == 0 ) prevDate = moment(data[index].createdAt).add(1,'days') ;
                         else if ( index != 0 ) prevDate = data[index-1].createdTime ;

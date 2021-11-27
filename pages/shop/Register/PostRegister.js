@@ -2,7 +2,7 @@ import React from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import styled from 'styled-components';
 import Swiper from 'react-native-swiper';
-import { Alert, Dimensions, Image , Platform, TouchableOpacity } from 'react-native';
+import { Alert, Dimensions, Image , TouchableOpacity , Platform } from 'react-native';
 import { Card , Avatar , Title , Button , IconButton , Provider , Modal , Portal } from 'react-native-paper';
 import colors from '../../../color/colors';
 import LottieView from 'lottie-react-native';
@@ -117,9 +117,11 @@ export default function( props ) {
 
            url = [] ;
            res.map( async ( file ) =>  {
-                let newPath = '';
-                if ( Platform.OS == 'ios')   newPath = file.path.replace('file://','').replace('file:///','file://');
-                else  newPath = 'file://' + file.path ;
+               let newPath ;
+               // ios
+               if ( Platform.OS == 'ios' ) newPath = file.path.replace('file://','').replace('file:///','file://');
+               // android
+               else newPath = 'file://' + file.path ;
             //    const result = await ImageCompressor.compress(
             //     file.path,
             //     {
@@ -233,7 +235,7 @@ export default function( props ) {
                 <Card.Title 
                     titleStyle={ styles.title }
                     title= { props.route.params.name } 
-                    left = { ()=>  <Avatar.Image {...props} source = {{ uri: props.route.params.imageUrl }}size={24} />  }
+                    left = { ()=>  <Avatar.Image style={{ backgroundColor: colors.main }} {...props} source = {{ uri: props.route.params.imageUrl }}size={24} />  }
                     // right = { (props) => <Button onPress={removePictures} color='red'>사진 지우기</Button>}
                 />
             </Card>

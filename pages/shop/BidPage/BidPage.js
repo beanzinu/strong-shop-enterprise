@@ -301,7 +301,7 @@ function Item ( { item , navigation , id } ) {
                                 }
                                 {item.options.afterblow && 
                                     <>
-                                        <List.Item titleStyle={styles.listStyle}  title ='보조배터리' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10}/>} />
+                                        <List.Item titleStyle={styles.listStyle}  title ='애프터블로우' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10}/>} />
                                         <Row>
                                             {
                                                 _.map(item.options.detailAfterblow,(value,key) => { 
@@ -568,12 +568,12 @@ export default function ( props ) {
        })
        .catch( e => {
            //
-        if ( e.response.status == 403 ) {
+        if ( e.response.hasOwnProperty('status') && e?.response?.status == 403 ) {
             Alert.alert('새로운 기기','다른 기기에서 로그인하여 로그아웃 되었습니다.');
             AsyncStorage.clear();
             MyContext.LOGOUT();
         }
-        else { 
+        else { // 500
             Alert.alert('다시 시도해주세요.');
             setModalVisible(false);
             setRefresh(false);
