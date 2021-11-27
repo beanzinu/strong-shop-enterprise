@@ -116,7 +116,9 @@ const ChatView = ( props  ) =>   {
                     // {
                         // alert('reload');
                         // setData(res.data.data);
-                        handleUnRead(res.data.data);
+                        if ( res.data.data != null || res.data.data.length != 0 )
+                            handleUnRead(res.data.data);
+                        else setData(res.data.data);
                     // }
     
                 })
