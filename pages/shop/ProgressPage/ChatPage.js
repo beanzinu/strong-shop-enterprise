@@ -59,6 +59,7 @@ const ChatView = ( props  ) =>   {
 
     const handleUnRead = (value) => {
         
+        database().goOnline();
         
         var tmp = { };
         value.map( (item,index) => {

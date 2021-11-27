@@ -76,7 +76,6 @@ const db = database().ref(`chat${ props.route.params.id }`);
                     records = _.sortBy(records, function(dateObj) {
                         return dateObj.createdAt
                     });
-                    records.map( item => { console.log(item.createdAt) })
                     
                     records.map((record)=>{
                         msg = [{
