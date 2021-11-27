@@ -65,19 +65,22 @@ const ChatView = ( props  ) =>   {
             var count = 0 ;
             var obj ;
             database().ref(`chat${item.id}`).once('value',snapshot => {
+                if ( snapshot.toJSON() &&  snapshot.toJSON() !== null  )  {
 
-                obj = Object.values( snapshot.toJSON() ) ;
-                obj.map( msg => {
-                    if ( msg.user._id == 2 && msg.received != true ) count = count + 1 ; 
-                }) ;
-                tmp[item.id] = count ;
+                    obj = Object.values( snapshot.toJSON() ) ;
+                    obj.map( msg => {
+                        if ( msg.user._id == 2 && msg.received != true ) count = count + 1 ; 
+                    }) ;
+                    tmp[item.id] = count ;
+                    
+                }
                 // Last Index
                 if ( index == value.length-1 ) {
                     total = 0 ;
                     for ( key in tmp )
                         total += tmp[key];
                     MyContext.setBadge(total);
-
+    
                     setData(value);
                     setTemp(tmp) ;
                 }
@@ -92,7 +95,7 @@ const ChatView = ( props  ) =>   {
     React.useEffect( () => {
 
     // 채팅
-        // database().goOnline();
+        database().goOnline();
         // database().ref('chat').orderByKey('createdAt').limitToLast(1).once('value',snapshot=>{
         //     record = Object.values(snapshot.val())[0];
         //     setTemp(record);
@@ -112,7 +115,7 @@ const ChatView = ( props  ) =>   {
                     // if ( JSON.stringify(data ) !== JSON.stringify(res.data.data) )
                     // {
                         // alert('reload');
-                        setData(res.data.data);
+                        // setData(res.data.data);
                         handleUnRead(res.data.data);
                     // }
     

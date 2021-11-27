@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Title  , ProgressBar, Avatar , Appbar , List , Badge , Button , IconButton , Modal , Portal , Provider , FAB }  
+import { Title  , ProgressBar, Avatar , Appbar , List , Badge , Button , IconButton , Modal , Portal , Provider , FAB , Divider , Text }  
 from 'react-native-paper';
 import { Alert, FlatList , ScrollView } from 'react-native';
 import colors from '../../../color/colors';
@@ -10,6 +10,9 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import MultipleImagePicker from '@baronha/react-native-multiple-image-picker';
 import { request , PERMISSIONS } from 'react-native-permissions';
 import Swiper  from 'react-native-swiper';
+import { Dimensions } from 'react-native';
+import ImageViewer from 'react-native-image-zoom-viewer';
+import Collapsible from 'react-native-collapsible';
 import database from '@react-native-firebase/database';
 import LottieView from 'lottie-react-native';
 import fetch from '../../../storage/fetch';
@@ -109,6 +112,8 @@ const states = {
 
 export default function( props ) {
     const [data,setData] = React.useState(null) ;
+    const [collapsed,setCollapsed] = React.useState(true);
+    const [item,setItem] = React.useState([]);
     // 현재단계
     const[state,setState] = React.useState(1);
     // 현재 사진들
@@ -134,11 +139,13 @@ export default function( props ) {
         if ( isFocused) {
             database().ref(`chat${props.route.params.id}`).once('value',snapshot => {
                 var count = 0 ; 
+                if ( snapshot.toJSON() != null ) {
                 obj = Object.values( snapshot.toJSON() ) ;
                 obj.map( msg => {
                     if ( msg.user._id == 2 && msg.received != true ) count = count + 1 ; 
                 }) ;
                 setNewMsg(count);
+                }
                 
             
             }) // db
@@ -146,6 +153,9 @@ export default function( props ) {
     }, [ isFocused ] ) ;
 
     React.useEffect(() => {
+
+       
+        setItem( JSON.parse( props.route.params.data.detail )) ;
 
         setData( props.route.params.data) ;
         // 서버로부터 받은 현재 시공단계
@@ -252,11 +262,11 @@ export default function( props ) {
                 let tmp = [] ;
                 if ( states[props.route.params.data.state] == 2 )
                     res.data.data.imageUrlResponseDtos.map( (picture,id) => {
-                        tmp.push({ path : picture.imageUrl , id : id });
+                        tmp.push({ url : picture.imageUrl , id : id });
                     })
                 else if ( states[props.route.params.data.state] == 4 )
                     res.data.data.responseDtos.map( (picture,id) => {
-                        tmp.push({ path : picture.imageUrl , id : id });
+                        tmp.push({ url : picture.imageUrl , id : id });
                     })
                 setPictures(tmp);
                   //refresh
@@ -342,7 +352,7 @@ export default function( props ) {
     const RenderItem = ({item}) =>  {
         return(
             <CButton onPress={ () =>  { setIndex(item.id) ; setVisible(true) }}>
-                <FastImage source={{ uri : item.path }} style={{ width: '100%' , height: '100%' }}/>
+                <FastImage source={{ uri : item.url }} style={{ width: '100%' , height: '100%' }}/>
             </CButton>
         )
     }
@@ -352,8 +362,12 @@ export default function( props ) {
         {/* 사진 상세보기 */}
         <Portal>
         <Modal visible={visible} onDismiss={() => { setVisible(false) }} contentContainerStyle={{ width: '100%', height: '100%' , backgroundColor: 'black' }}>
-            <IconButton icon='close' style={{ alignSelf: 'flex-end'}} color='white' onPress={ () => { setVisible(false) }} />
-            <SwiperView>
+            {/* <IconButton icon='close' style={{   }} color='white' onPress={ () => { setVisible(false) }} /> */}
+            <ImageViewer imageUrls={pictures} enableSwipeDown={true} onCancel={ () => {setVisible(false)} } index={index} 
+                enablePreload={true}
+                renderHeader={() =><IconButton icon='close' style={{   }} color='white' onPress={ () => { setVisible(false) }} /> }
+            />
+            {/* <SwiperView>
             <Swiper 
                 horizontal={true}
                 index={index}
@@ -372,7 +386,7 @@ export default function( props ) {
                         })
                     } 
             </Swiper>
-            </SwiperView>
+            </SwiperView> */}
         </Modal>
         <Modal visible={modalVisible} onDismiss={() => { setModalVisible(false); setRefresh(false); }} contentContainerStyle={{ width: '100%', height: '100%' , backgroundColor: 'transparent' }}>
             {
@@ -417,6 +431,7 @@ export default function( props ) {
             <Appbar.Header style={{ backgroundColor: colors.main , height: 50 }}>
             <Appbar.BackAction color='white' onPress={() => { props.navigation.goBack() }} />
             <Appbar.Content title={`${data?.userResponseDto?.nickname} 고객님`} titleStyle={{ fontFamily : 'DoHyeon-Regular' , fontSize: 24}} />
+            <Appbar.Content style={{  position: 'absolute' , right: 0 }} title={'시공내역'} titleStyle={{  fontSize: 15 , right: 2 , color: collapsed ? 'white' : 'gray' }} onPress={ () =>  { setCollapsed(!collapsed) }} />
             {/* <View>
                 <Appbar.Action icon="chat" onPress={() => { props.navigation.navigate('ChatDetail',{ name : data?.userResponseDto?.nickname , id : props.route.params.data.id , imageUrl : props.route.params.imageUrl }) }} color='white' style={{ backgroundColor: 'transparent' , margin: 0}} size={25}/>
                 <Badge size={10} style={{ position: 'absolute' , right: 0 , top: 0 }}/>
@@ -425,6 +440,82 @@ export default function( props ) {
             <ProgressBar style={styles.progress} progress={state/5} color='red'  
                 theme = {{ animation : { scale : 5 }  }}
             />
+            <Collapsible collapsed={collapsed} style={{ borderWidth: 1 , borderColor: 'lightgray' }}>
+            {
+                                        item.tinting != null && (
+                                            <>
+                                                <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='틴팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                                                <List.Item titleStyle={styles.listStyle} title ={item.tinting} right={ props => <Text style={styles.itemText}>{item.tintingPrice}{'만원'}</Text>} />
+                                            </>
+                                        )
+                                    }
+                                    {
+                                        item.ppf != null && (
+                                            <>
+                                                <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='PPF' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                                                <List.Item titleStyle={styles.listStyle} title ={item.ppf} right={props => <Text style={styles.itemText}>{item.ppfPrice}{' 만원'}</Text>} />
+                                            </>
+                                        )
+                                    }
+                                    {
+                                        item.blackbox != null && (
+                                            <>
+                                                <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='블랙박스' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                                                <List.Item titleStyle={styles.listStyle} title ={item.blackbox} right={props => <Text style={styles.itemText}>{item.blackboxPrice}{' 만원'}</Text>} />
+                                            </>
+                                        )
+                                    }
+                                    {
+                                        item.battery != null && (
+                                            <>
+                                                <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='보조배터리' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                                                <List.Item titleStyle={styles.listStyle} title ={item.battery} right={props => <Text style={styles.itemText}>{item.batteryPrice}{' 만원'}</Text>} />
+                                            </>
+                                        )
+                                    }
+                                    {
+                                        item.afterblow != null && (
+                                            <>
+                                                <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='애프터블로우' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                                                <List.Item titleStyle={styles.listStyle} title ={item.afterblow} right={props => <Text style={styles.itemText}>{item.afterblowPrice}{' 만원'}</Text>} />
+                                            </>
+                                        )
+                                    }
+                                    {
+                                        item.soundproof != null && (
+                                            <>
+                                                <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='방음' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                                                <List.Item titleStyle={styles.listStyle} title ={item.soundproof} right={props => <Text style={styles.itemText}>{item.soundproofPrice}{' 만원'}</Text>} />
+                                            </>
+                                        )
+                                    }
+                                    {
+                                        item.wrapping != null && (
+                                            <>
+                                                <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='랩핑' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                                                <List.Item titleStyle={styles.listStyle} title ={item.wrapping} right={props => <Text style={styles.itemText}>{item.wrappingPrice}{' 만원'}</Text>} />
+                                            </>
+                                        )
+                                    }
+                                    {
+                                        item.glasscoating != null && (
+                                            <>
+                                                <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='유리막코팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                                                <List.Item titleStyle={styles.listStyle} title ={item.glasscoating} right={props => <Text style={styles.itemText}>{item.glasscoatingPrice}{' 만원'}</Text>} />
+                                            </>
+                                        )
+                                    }
+                                    {
+                                        item.undercoating != null && (
+                                            <>
+                                                <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='언더코팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                                                <List.Item titleStyle={styles.listStyle} title ={item.undercoating} right={props => <Text style={styles.itemText}>{item.undercoatingPrice}{' 만원'}</Text>} />
+                                            </>
+                                        )
+                                    }
+                                    <Divider style={{ margin: 10 }} />
+                                    <List.Item titleStyle={styles.listStyle} title ='최종가격: ' right={props => <Text style={styles.itemText}>{item.totalPrice}{' 만원'}</Text>}/>
+            </Collapsible>
             <Title style={styles.title}>시공 진행상황</Title>
             
             <SwiperView>

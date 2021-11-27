@@ -3,7 +3,7 @@ import colors from "../../../color/colors";
 import React from "react";
 // import { FlatList } from "react-native-gesture-handler";
 import { FlatList } from "react-native";
-import { Card , Avatar , Divider , Button, ActivityIndicator } from "react-native-paper";
+import { Card , Avatar , Divider , Button, ActivityIndicator, Provider , Modal , Portal , IconButton} from "react-native-paper";
 import { Alert } from "react-native";
 import axios from "axios";
 import { KeyboardAwareScrollView  } from "react-native-keyboard-aware-scroll-view";
@@ -192,41 +192,40 @@ function Reply({item,index}) {
     )
 }
 
-const RenderItem =  ({index,item}) => {
-    if (item.content == null) return <View style={{ height: 300 }}></View>
-    return(
-        <Card style= {{ margin: 20 }}>
-        <Card.Content>
-            <Row>
-                <Avatar.Image source={{ uri : item.userThumbnailImage.includes('https')? item.userThumbnailImage : item.userThumbnailImage.replace('http','https') }} size={30} />
-                <Text style={styles.userName}>{item.userNickName}</Text>
-            </Row>
-        </Card.Content>
-        <Card.Cover source={{ uri : item.imageUrls[0].imageUrl }} style={styles.image}/>
-        <Card.Content>
-            <Text style={styles.text}>{item.content}</Text>
-            <Divider style={{ borderColor: 'gray' , borderWidth: 1 , marginTop: 10 }}/>
-            <Row>
-                <Avatar.Icon size={24} icon='account' style={{ backgroundColor: colors.main }} />
-                <Text style={styles.userName}>사장님</Text>
-            </Row>
-            <Reply item = {item} index={index}/>
-        </Card.Content>
-        </Card>
-    )
-}
+
 
 export default function( props ) {
     const [DATA,setDATA]  = React.useState([]) ;
     const [loading,setLoading] = React.useState(true) ;
     const [refresh,setRefresh] = React.useState(false);
+
     const MyContext = React.useContext(AppContext) ;
 
 
-    // React.useEffect(() => {
-    //     if ( this?.flatList != null )
-    //         this?.flatList?.scrollToOffset({ offset : 0 });      
-    // },[props.listControl]);
+    const RenderItem =  ({index,item}) => {
+        if (item.content == null) return <View style={{ height: 300 }}></View>
+        return(
+            <Card style= {{ margin: 20 }}>
+            <Card.Content>
+                <Row>
+                    <Avatar.Image source={{ uri : item.userThumbnailImage.includes('https')? item.userThumbnailImage : item.userThumbnailImage.replace('http','https') }} size={30} />
+                    <Text style={styles.userName}>{item.userNickName}</Text>
+                </Row>
+            </Card.Content>
+            <Card.Cover  resizeMethod='auto' resizeMode='contain' source={{ uri : item.imageUrls[0].imageUrl }} style={styles.image}/>
+            <Card.Content>
+                <Text style={styles.text}>{item.content}</Text>
+                <Divider style={{ borderColor: 'gray' , borderWidth: 1 , marginTop: 10 }}/>
+                <Row>
+                    <Avatar.Icon size={24} icon='account' style={{ backgroundColor: colors.main }} />
+                    <Text style={styles.userName}>사장님</Text>
+                </Row>
+                <Reply item = {item} index={index}/>
+            </Card.Content>
+            </Card>
+        )
+    }
+  
     function requestReviews() {
         // request Review
         fetch('auth')
@@ -245,7 +244,7 @@ export default function( props ) {
             })
             .catch( e => {
                 //
-                if ( e.response.hasOwnProperty(status) && e.response.status == 403 ) {
+                if ( e.response.hasOwnProperty('status') && e?.response?.status == 403 ) {
                     Alert.alert('새로운 기기','다른 기기에서 로그인하여 로그아웃 되었습니다.');
                     setRefresh(false);
                     AsyncStorage.clear();

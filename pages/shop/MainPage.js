@@ -112,13 +112,14 @@ export default function( props ) {
 
     // } 
 
-    // React.useEffect(() => {
+    React.useEffect(() => {
 
-    //     if ( MyContext.noti ==2 ) {
-    //         setIndex(2);
-    //         MyContext.setNoti(0);
-    //     }
-    // },[MyContext.noti]);
+        if ( MyContext.noti ==2 ) {
+            setIndex(2);
+            MyContext.setNoti(0);
+        }
+
+    },[MyContext.noti]);
 
 
     return(
