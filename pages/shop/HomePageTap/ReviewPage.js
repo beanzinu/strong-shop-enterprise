@@ -5,7 +5,9 @@ import React from "react";
 import { FlatList } from "react-native";
 import { Card , Avatar , Divider , Button, ActivityIndicator, Provider , Modal , Portal , IconButton} from "react-native-paper";
 import { Alert } from "react-native";
+import moment from "moment";
 import axios from "axios";
+import _ from "lodash";
 import { KeyboardAwareScrollView  } from "react-native-keyboard-aware-scroll-view";
 import server from "../../../server/server";
 import fetch from "../../../storage/fetch";
@@ -210,6 +212,8 @@ export default function( props ) {
                 <Row>
                     <Avatar.Image source={{ uri : item.userThumbnailImage.includes('https')? item.userThumbnailImage : item.userThumbnailImage.replace('http','https') }} size={30} />
                     <Text style={styles.userName}>{item.userNickName}</Text>
+                    {/* <Text>{item.createdTime}</Text> */}
+                    <Text>{moment(item.createdTime).format('YYYY-MM-DD')}</Text>
                 </Row>
             </Card.Content>
             <Card.Cover  resizeMethod='auto' resizeMode='contain' source={{ uri : item.imageUrls[0].imageUrl }} style={styles.image}/>
@@ -238,7 +242,9 @@ export default function( props ) {
                 headers: { Auth: auth } 
             })
             .then( res =>  {
-                setDATA(res.data.data);
+                const tmp = _.reverse(res.data.data);
+                setDATA(tmp);
+
                 setLoading(false);
                 setRefresh(false);
             })

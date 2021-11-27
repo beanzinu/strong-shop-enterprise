@@ -45,6 +45,7 @@ const db = database().ref(`chat${ props.route.params.id }`);
             .once('value', snapshot => {
 
 
+                if ( snapshot.toJSON() != null ) {
                 tmp =  snapshot.toJSON() ;
                 Data = Object.values( snapshot.toJSON() ) ;
     
@@ -59,6 +60,8 @@ const db = database().ref(`chat${ props.route.params.id }`);
                         })
                         .catch( e => { }) 
                 }) ;
+                
+                }
 
 
                 end = snapshot.numChildren() ;
