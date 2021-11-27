@@ -95,9 +95,6 @@ const styles = {
 //     } ,
 // ]
 
-handleScroll = function( event ) {
-    props.setScroll(event.nativeEvent.contentOffset.y);
-} ;
 
 // 사장님 답변 컴포넌트
 function Reply({item,index}) {
@@ -248,7 +245,7 @@ export default function( props ) {
             })
             .catch( e => {
                 //
-                if ( e.response.status == 403 ) {
+                if ( e.response.hasOwnProperty(status) && e.response.status == 403 ) {
                     Alert.alert('새로운 기기','다른 기기에서 로그인하여 로그아웃 되었습니다.');
                     setRefresh(false);
                     AsyncStorage.clear();

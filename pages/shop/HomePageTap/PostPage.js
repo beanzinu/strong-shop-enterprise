@@ -87,7 +87,7 @@ export default function( props ) {
                 <Card.Title 
                     titleStyle={ styles.title }
                     title= {props.route.params.name} 
-                    left = { ()=>  <Avatar.Image source={{ uri: props?.route?.params?.imageUrl }} size={30} />  }
+                    left = { ()=>  <Avatar.Image source={{ uri: props?.route?.params?.imageUrl }} size={30} style={{ backgroundColor: colors.main }}/>  }
                     right= { () => <IconButton onPress={() => { handleDeleteMsg() }} icon='delete' size={20}  style={{ marginRight: 10 , backgroundColor: 'transparent' }} color='red'/> }
                 />
             </Card>

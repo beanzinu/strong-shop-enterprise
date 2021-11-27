@@ -37,6 +37,8 @@ function App (props) {
   const [homeRef,setHomeRef] = React.useState(false);
   const [bidRef,setBidRef] = React.useState(false);
   const [chatRef,setChatRef] = React.useState(false);
+  // badge
+  const [badge,setBadge] = React.useState(0);
   
   const LOGOUT = () => {
     setMainVisible(false);
@@ -57,7 +59,10 @@ function App (props) {
     setReviewRefresh ,
     noti,
     setNoti ,
-    homeRef,setHomeRef,bidRef,setBidRef,chatRef,setChatRef
+    homeRef,setHomeRef,bidRef,setBidRef,chatRef,setChatRef,
+    badge,
+    setBadge
+
   };
 
   // RefreshToken

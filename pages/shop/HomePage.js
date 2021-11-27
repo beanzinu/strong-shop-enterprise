@@ -1,7 +1,7 @@
 import React from 'react' ;
 import styled from 'styled-components';
 import { Appbar , Card , Title , Avatar , Badge } from 'react-native-paper';
-import { Alert, SafeAreaView  ,useWindowDimensions} from 'react-native';
+import { Alert, SafeAreaView  ,useWindowDimensions , Platform } from 'react-native';
 import Collapsible from 'react-native-collapsible';
 import colors from '../../color/colors';
 import Swiper from 'react-native-swiper';
@@ -23,7 +23,6 @@ import fetch from '../../storage/fetch';
 import store from '../../storage/store';
 // Tab Navigator
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { useScrollToTop } from '@react-navigation/native';
 const Tab = createMaterialTopTabNavigator();
 
 const View = styled.View``;
@@ -227,7 +226,12 @@ export default function( props ) {
                 var body = new FormData();
                  // 현재 사용자가 불러온 이미지 리스트들 => 각각 폼데이터에 넣어준다.
     
-                var url = res[0].path;
+                var url ;
+                // ios
+                if ( Platform.OS == 'ios' ) url = res[0].path.replace('file://','').replace('file:///','file://');
+                // android
+                else url = 'file://' + res[0].path ;
+
                 var photo = {
                     uri: url ,
                     type: 'multipart/form-data',
@@ -349,6 +353,7 @@ export default function( props ) {
         </Row> */}
 
         <TabViews listControl={listControl} navigation={props.navigation}/>
+
 
         {/* <Tab.Navigator sceneContainerStyle={{ backgroundColor: 'white' }} 
             screenOptions={{  tabBarActiveTintColor: colors.main , tabBarIndicatorStyle: { backgroundColor: colors.main }  }}   

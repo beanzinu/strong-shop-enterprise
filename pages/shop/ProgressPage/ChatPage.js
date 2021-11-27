@@ -7,7 +7,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import database from '@react-native-firebase/database';
 import axios from 'axios';
-import { Image } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ActivityIndicator, Alert, Image } from 'react-native';
 import server from '../../../server/server';
 import { useIsFocused } from '@react-navigation/native';
 import AppContext from '../../../storage/AppContext';
@@ -23,6 +24,7 @@ const styles = {
     }
 
 };
+
 const View = styled.SafeAreaView``;
 const Stack = createStackNavigator() ; 
 
@@ -47,14 +49,48 @@ const state = {
     CONSTRUCTION_COMPLETED : '시공완료/출고'
 }
 
-const ChatView = ( props ) =>   {
+const ChatView = ( props  ) =>   {
+    const MyContext = React.useContext(AppContext);
     const [temp,setTemp] = React.useState({});
     const [data,setData]  = React.useState([]);
+    const [reload,setReload] = React.useState(false);
     const isFocused = useIsFocused();
-    const MyContext = React.useContext(AppContext);
 
-    React.useEffect(async () => {
+
+    const handleUnRead = (value) => {
         
+        
+        var tmp = { };
+        value.map( (item,index) => {
+            var count = 0 ;
+            var obj ;
+            database().ref(`chat${item.id}`).once('value',snapshot => {
+
+                obj = Object.values( snapshot.toJSON() ) ;
+                obj.map( msg => {
+                    if ( msg.user._id == 2 && msg.received != true ) count = count + 1 ; 
+                }) ;
+                tmp[item.id] = count ;
+                total = total + count ;
+                // Last Index
+                if ( index == value.length-1 ) {
+                    total = 0 ;
+                    for ( key in tmp )
+                        total += tmp[key];
+                    MyContext.setBadge(total);
+
+                    setData(value);
+                    setTemp(tmp) ;
+                }
+            }) // db
+
+        } ) // value.map
+
+
+            
+    }
+
+    React.useEffect( () => {
 
     // 채팅
         // database().goOnline();
@@ -62,41 +98,72 @@ const ChatView = ( props ) =>   {
         //     record = Object.values(snapshot.val())[0];
         //     setTemp(record);
         // });
+        
+        if ( isFocused  ) {
 
-        if ( isFocused == true ) {
-            const token = await fetch('auth') ;
-            const auth = token.auth ;
-
-            axios({
-                method: 'get' ,
-                url: `${server.url}/api/contract` ,
-                headers: { Auth: auth }
-            })
+            fetch('auth')
             .then( res => {
-                setData(res.data.data);
+                const auth = res.auth ;
+                axios({
+                    method: 'get' ,
+                    url: `${server.url}/api/contract` ,
+                    headers: { Auth: auth }
+                })
+                .then( res => {
+                    // if ( JSON.stringify(data ) !== JSON.stringify(res.data.data) )
+                    // {
+                        // alert('reload');
+                        handleUnRead(res.data.data);
+                    // }
+    
+                })
+                .catch( e => {
+                    // console.log(e);
+                    if ( e?.response?.hasOwnProperty('status') && e?.response?.status == 403 ) {
+                        Alert.alert('새로운 기기','다른 기기에서 로그인하여 로그아웃 되었습니다.');
+                        AsyncStorage.clear();
+                        MyContext.LOGOUT();
+                    }
+                    else { 
+                        Alert.alert('다시 시도해주세요.');
+                    }
+                })// axios
             })
             .catch( e => {
-                //
-                console.log(e);
-            })
+
+            }) ;
+
+            
         }
 
-    },[isFocused , MyContext.chatRef ]);
+    },[ isFocused ]);
+
+ 
+
+    function RenderItem({ item , i }) {
+        return (
+                <Card 
+                    key = {i} // key로 구분
+                    onPress={ () => { props.navigation.navigate('ProgressPage' , { data: item, imageUrl : item.userResponseDto.profileImage.includes('https') ? item.userResponseDto.profileImage : item.userResponseDto.profileImage.replace('http','https') })  } }>
+                    <Card.Title title={`${item.userResponseDto.nickname} 고객`} subtitle={state[item.state]} 
+                                titleStyle={{ margin: 10 }} subtitleStyle= {{ margin: 10 }}
+                                left={ props => <ImageView><Image source={{ uri: item.userResponseDto.profileImage.includes('https') ? item.userResponseDto.profileImage : item.userResponseDto.profileImage.replace('http','https') }} style={{ width: '100%', height: '100%' }} /></ImageView>  } 
+                                right={ props => temp[item.id] > 0 && <Avatar.Text {...props} label={temp[item.id]} style={{ marginRight: 10  , backgroundColor : colors.main }} /> }
+                    />
+                </Card>
+        )
+    }
 
     return(
     <KeyboardAwareScrollView>
         {
-        data.map( ( chat , i ) =>  {
+        data == null || data.length == 0 ?
+        <ActivityIndicator  size='large' style={{ marginTop: 20 }} /> 
+        :
+        data.map( ( item , i ) =>  {
             return (
-                <Card 
-                    key = {i} // key로 구분
-                    onPress={ () => { props.navigation.navigate('ProgressPage' , { data: chat , imageUrl : chat.userResponseDto.profileImage.includes('https') ? chat.userResponseDto.profileImage : chat.userResponseDto.profileImage.replace('http','https') })  } }>
-                    <Card.Title title={`${chat.userResponseDto.nickname} 고객`} subtitle={state[chat.state]} 
-                                titleStyle={{ margin: 10 }} subtitleStyle= {{ margin: 10 }}
-                                left={ props => <ImageView><Image source={{ uri: chat.userResponseDto.profileImage.includes('https') ? chat.userResponseDto.profileImage : chat.userResponseDto.profileImage.replace('http','https') }} style={{ width: '100%', height: '100%' }} /></ImageView>  } 
-                                right={ props => <Avatar.Text {...props} label={'3'} style={{ marginRight: 10  , backgroundColor : colors.main }} /> }
-                    />
-                </Card>
+                // 고객마다 
+                <RenderItem key={item.id} item={ item } i = { i } />
             );
         }  )
         }
@@ -111,7 +178,7 @@ export default function() {
     return (
     <NavigationContainer>
         <Stack.Navigator>
-            <Stack.Screen name='ChatList' component={ChatView} options={{ title: '채팅' }}/>
+            <Stack.Screen name='ChatList' component={ChatView} options={{ title: '시공관리' }}/>
             <Stack.Screen name='ProgressPage' component={ProgressPage} options = {{ headerShown : false }}/>
             <Stack.Screen name='ChatDetail' component = {ChatDetailPage} options={{ headerShown : false }} />
         </Stack.Navigator>

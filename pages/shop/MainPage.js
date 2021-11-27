@@ -1,7 +1,7 @@
 import React from 'react' ;
 import styled from 'styled-components';
 import { Appbar , BottomNavigation , Text , IconButton } from 'react-native-paper';
-import { createStackNavigator  } from '@react-navigation/stack';
+import { createStackNavigator ,  } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import colors from '../../color/colors';
 import AppContext from '../../storage/AppContext';
@@ -35,7 +35,7 @@ const styles = {
 } ; 
 
 // 홈
-const homeRoute = () => {
+function HomeRoute() {
     return(
     <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerLeft : props => ( <IconButton {...props} icon='chevron-left' size={24} /> ) }}>
@@ -54,7 +54,7 @@ const homeRoute = () => {
 }
 
 //  입찰
-const bidRoute = () => {
+function BidRoute() {
     return(
         <NavigationContainer>
             <Stack.Navigator screenOptions={{ headerLeft : props => ( <IconButton {...props} icon='chevron-left' size={24} /> ) }}>
@@ -65,48 +65,72 @@ const bidRoute = () => {
     )
 }
 
-// 문의 및 채팅
-const chatRoute = () => <ChatPage/>
+
 
 export default function( props ) {
+    const MyContext = React.useContext(AppContext);
     const [index, setIndex] = React.useState(0);
     const [routes] = React.useState([
       { key: 'home', title: '홈', icon: 'home'  },
       { key: 'bid', title: '입찰', icon: 'alarm-plus' },
-      { key: 'chat', title: '시공', icon: 'car-door' , badge: true },
+      { key: 'chat', title: '시공', icon: 'car-door' },
     ]);
+
+
+    // 문의 및 채팅
+    function ChatRoute() { return <ChatPage /> }
+    
+    
     const renderScene = BottomNavigation.SceneMap({
-        home: homeRoute,
-        bid: bidRoute,
-        chat: chatRoute,
+        home: HomeRoute,
+        bid: BidRoute,
+        chat: ChatRoute,
       });  
 
-    const MyContext = React.useContext(AppContext);
+    // const renderScene = ({ route }) => {
+    // switch (route.key) {
+    //     case 'home':
+    //     return  <HomeRoute />;
+    //     case 'bid':
+    //     return <BidRoute />;
+    //     case 'chat':
+    //     return <ChatRoute badge={badge} setBadge={setBadge} />;
+        
+    //     default:
+    //     return null;
+    // }
+    // };
+
 
     // 각 Tab을 다시 눌렀을때 다시 정보 load
-    const handleTabPress  = ( route ) => {
-        if ( route.key == 'home' ) MyContext.setHomeRef(!MyContext.homeRef);
-        else if ( route.key == 'bid' ) MyContext.setBidRef(!MyContext.bidRef)
-        else if ( route.key == 'chat' ) MyContext.setChatRef(!MyContext.chatRef)
+    // const handleTabPress  = ( route ) => {
+    //     if ( route.key == 'home' ) MyContext.setHomeRef(!MyContext.homeRef);
+    //     else if ( route.key == 'bid' ) MyContext.setBidRef(!MyContext.bidRef)
+    //     else if ( route.key == 'chat' ) MyContext.setChatRef(!MyContext.chatRef)
 
-    } 
-    React.useEffect(() => {
+    // } 
 
-        if ( MyContext.noti ==2 ) {
-            setIndex(2);
-            MyContext.setNoti(0);
-        }
-    },[MyContext.noti]);
+    // React.useEffect(() => {
+
+    //     if ( MyContext.noti ==2 ) {
+    //         setIndex(2);
+    //         MyContext.setNoti(0);
+    //     }
+    // },[MyContext.noti]);
+
 
     return(
         <BottomNavigation
             barStyle= {{ backgroundColor: 'white' }}
+            getBadge={ (routes) => {
+                if ( routes.route.key == 'chat') return MyContext.badge
+            } } 
             activeColor={colors.main}
-            navigationState={{ index, routes }}
+            navigationState={{ index, routes  }}
             shifting={true}
-            onTabPress={(index) => { handleTabPress(index.route) }}
+            // onTabPress={(index) => { handleTabPress(index.route) }}
             onIndexChange={setIndex}
             renderScene={renderScene}
-        />  
+        />    
     );
 }

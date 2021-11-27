@@ -68,7 +68,10 @@ export default function() {
                 })
                 .then(res => {
                     if ( res.data.statusCode == 200 ) {
-                        if ( res.data.data == null || res.data.data.length == 0 ) return;
+                        if ( res.data.data == null || res.data.data.length == 0 )  {
+                            setData(null);
+                            return;
+                        }
                         else parseData(res.data.data) ;
                     }
                 })
@@ -86,9 +89,9 @@ export default function() {
             {
                 data == null ? 
                 (
-                    <View style={{ height: Dimensions.get('screen').height*0.6 , justifyContent: 'center' , alignItems: 'center'  }}>
+                    <View style={{ height: Dimensions.get('screen').height*0.8 , justifyContent: 'center' , alignItems: 'center'  }}>
                             {/* <Avatar.Icon icon='account-arrow-left' style={{ backgroundColor: 'transparent'}} color='black'/> */}
-                            <Title>입찰 중인 건이 없어요.</Title>
+                            <Text>현재 입찰중인 건이 없어요.</Text>
                     </View>
                 )
                 :
