@@ -48,6 +48,7 @@ export default function() {
             item['details'] = JSON.parse( item['details'] ) ;
             item['createdTime'] = moment(item['createdTime']).format('YYYY-MM-DD');
         })
+        value = _.filter(value,function(o) { return o.biddingStatus == 'SUCCESS' } )
         value = _.sortBy(value, function(o){ return o.createdTime } ) ;
         setData( _.reverse(value));        
     }
@@ -81,13 +82,13 @@ export default function() {
     },[ isFocused ]);
 
     return(
-        <KeyboardAwareScrollView>
+        <KeyboardAwareScrollView style={{ backgroundColor: 'white' }}>
             {
                 data == null ? 
                 (
                     <View style={{ height: Dimensions.get('screen').height*0.8 , justifyContent: 'center' , alignItems: 'center'  }}>
                             {/* <Avatar.Icon icon='account-arrow-left' style={{ backgroundColor: 'transparent'}} color='black'/> */}
-                            <Text>현재 입찰내역이 없어요.</Text>
+                            <Text>과거 시공내역이 없어요.</Text>
                     </View>
                 )
                 :
@@ -106,7 +107,7 @@ export default function() {
                                 }
                                 <List.Accordion style={styles.listAccordionStyle} 
                                     title={item.carName} 
-                                    left={ props => (<Text style={{ padding: 5 , color: row.biddingStatus=='SUCCESS' ? 'blue' : 'red' }}>{row.biddingStatus =='SUCCESS' ? '낙찰' : '실패' }</Text> ) }
+                                    // left={ props => (<Text style={{ padding: 5 , color: row.biddingStatus=='SUCCESS' ? 'blue' : 'red' }}>{row.biddingStatus =='SUCCESS' ? '낙찰' : '실패' }</Text> ) }
                                     titleStyle= {{ fontWeight : 'bold' , fontFamily: 'DoHyeon-Regular' , fontSize: 20 }}
                                     theme={{ colors: { primary: 'red' }}}
                                 >   

@@ -16,12 +16,19 @@ const Row = styled.View`
     height: 50px;
     border:1px lightgray;
 `;
+const ButtonRow = styled.TouchableOpacity`
+    align-items: center;
+    flex-direction: row;
+    width: 100%;
+    height: 50px;
+    border:1px lightgray;
+`;
 
 const styles={
     title: {
         alignSelf: 'center' ,
-        fontFamily : 'DoHyeon-Regular',
-        fontSize: 20 ,
+        // fontFamily : 'DoHyeon-Regular',
+        fontSize: 15 ,
         padding: 10 ,
     } ,
     image : {
@@ -35,7 +42,8 @@ const styles={
 export default function( props ) {
     const myContext = React.useContext(AppContext);
 
-    const handleDeleteUser = async () => {
+    const requestDeleteUser = async () => {
+        
         const token = await fetch('auth') ;
         const auth = token.auth
 
@@ -58,6 +66,19 @@ export default function( props ) {
                 Alert.alert('다시 시도해주세요.');
             }
         })
+    }
+
+    const handleDeleteUser = async () =>  {
+        Alert.alert('임시','회원탈퇴',[
+            {
+                text: '회원탈퇴' ,
+                style: 'destructive' ,
+                onPress: () => { requestDeleteUser() }
+            },
+            {
+                text: '취소'
+            }
+        ])
     }
 
 
@@ -109,16 +130,16 @@ export default function( props ) {
 
     return(
         <KeyboardAwareScrollView style={{ backgroundColor: 'white' }}> 
-        <Appbar.Header style={{ backgroundColor: colors.main }}>
+        {/* <Appbar.Header style={{ backgroundColor: colors.main }}>
         <Appbar.BackAction onPress={()=>{ props.navigation.goBack() }}/>        
-        </Appbar.Header>  
+        </Appbar.Header>   */}
             {
                 props.route?.params?.picture == null ? (
                     <Avatar.Icon  style={styles.image} icon='account-outline'/>
                 ):
                 <Avatar.Image style={styles.image} source={{ uri : props.route.params.picture }} size={60}/>
             }
-            <Title style={styles.title}>{props.route.params.name}</Title>
+            <Title style={{ ...styles.title , fontFamily: 'DoHyeon-Regular' }}>{props.route.params.name}</Title>
             <Row style={{ alignItems: 'center'}}>
                 <Title style={styles.title}>휴대전화번호</Title>
                 <Title style={{...styles.title , backgroundColor: 'lightgray' }}>01012341234</Title>
@@ -138,10 +159,10 @@ export default function( props ) {
                 <Switch style={{ position: 'absolute' , right: 10 }} />
             </Row>
 
-            <Row style={{ height: 70 }}>
+            <ButtonRow style={{ height: 70 }} onPress={ () => { props.navigation.navigate('Receipt') }}>
                 <Title style={styles.title}>과거 시공내역</Title>
                 <Avatar.Icon size={40} icon='chevron-right' style={{ backgroundColor: 'transparent' , position: 'absolute' , right: 0 }} color='black' />
-            </Row>
+            </ButtonRow>
 
 
             <Title style={{ ...styles.title , color: 'gray' , marginTop: 40 }}>고객센터</Title>

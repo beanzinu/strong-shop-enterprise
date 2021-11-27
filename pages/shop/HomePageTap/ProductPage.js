@@ -197,7 +197,7 @@ export default function( props ) {
                     {
                         options.map((item,i)=>{
                             return(
-                                <Button key={i} style={{ ...styles.button }} color={colors.main} onPress={ () => { setValue(i+1) }} mode = { value == i+1 && 'contained'}>
+                                <Button key={i} style={{ ...styles.button }} labelStyle={{ fontSize: 14 }} color={colors.main} onPress={ () => { setValue(i+1) }} mode = { value == i+1 && 'contained'}>
                                     {item.name}
                                 </Button>
                             )

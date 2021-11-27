@@ -81,7 +81,7 @@ export default function( props ) {
     const addInfo = async () => {
 
         // 사전체크
-        if ( info.length > 2000 ) {
+        if ( info?.length > 2000 ) {
             Alert.alert('글자수 제한','2000자 미만으로 해주세요.');
             return;
         }

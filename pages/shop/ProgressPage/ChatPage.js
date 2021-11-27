@@ -56,7 +56,6 @@ const ChatView = ( props  ) =>   {
     const [reload,setReload] = React.useState(false);
     const isFocused = useIsFocused();
 
-
     const handleUnRead = (value) => {
         
         database().goOnline();
@@ -72,7 +71,6 @@ const ChatView = ( props  ) =>   {
                     if ( msg.user._id == 2 && msg.received != true ) count = count + 1 ; 
                 }) ;
                 tmp[item.id] = count ;
-                total = total + count ;
                 // Last Index
                 if ( index == value.length-1 ) {
                     total = 0 ;
@@ -114,6 +112,7 @@ const ChatView = ( props  ) =>   {
                     // if ( JSON.stringify(data ) !== JSON.stringify(res.data.data) )
                     // {
                         // alert('reload');
+                        setData(res.data.data);
                         handleUnRead(res.data.data);
                     // }
     
@@ -145,7 +144,7 @@ const ChatView = ( props  ) =>   {
         return (
                 <Card 
                     key = {i} // key로 구분
-                    onPress={ () => { props.navigation.navigate('ProgressPage' , { data: item, imageUrl : item.userResponseDto.profileImage.includes('https') ? item.userResponseDto.profileImage : item.userResponseDto.profileImage.replace('http','https') })  } }>
+                    onPress={ () => { props.navigation.navigate('ProgressPage' , { id : item.id , data: item, imageUrl : item.userResponseDto.profileImage.includes('https') ? item.userResponseDto.profileImage : item.userResponseDto.profileImage.replace('http','https') })  } }>
                     <Card.Title title={`${item.userResponseDto.nickname} 고객`} subtitle={state[item.state]} 
                                 titleStyle={{ margin: 10 }} subtitleStyle= {{ margin: 10 }}
                                 left={ props => <ImageView><Image source={{ uri: item.userResponseDto.profileImage.includes('https') ? item.userResponseDto.profileImage : item.userResponseDto.profileImage.replace('http','https') }} style={{ width: '100%', height: '100%' }} /></ImageView>  } 

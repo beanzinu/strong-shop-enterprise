@@ -10,9 +10,11 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import MultipleImagePicker from '@baronha/react-native-multiple-image-picker';
 import { request , PERMISSIONS } from 'react-native-permissions';
 import Swiper  from 'react-native-swiper';
+import database from '@react-native-firebase/database';
 import LottieView from 'lottie-react-native';
 import fetch from '../../../storage/fetch';
 import axios from 'axios';
+import { useIsFocused } from '@react-navigation/native';
 import server from '../../../server/server';
 import FastImage from 'react-native-fast-image';
 
@@ -124,7 +126,27 @@ export default function( props ) {
 
     const [index,setIndex] = React.useState(0);
 
+    const [newMsg,setNewMsg] = React.useState(0);
+    const isFocused = useIsFocused();
+
+
     React.useEffect(() => {
+        if ( isFocused) {
+            database().ref(`chat${props.route.params.id}`).once('value',snapshot => {
+                var count = 0 ; 
+                obj = Object.values( snapshot.toJSON() ) ;
+                obj.map( msg => {
+                    if ( msg.user._id == 2 && msg.received != true ) count = count + 1 ; 
+                }) ;
+                setNewMsg(count);
+                
+            
+            }) // db
+        }
+    }, [ isFocused ] ) ;
+
+    React.useEffect(() => {
+
         setData( props.route.params.data) ;
         // 서버로부터 받은 현재 시공단계
         setState(states[props.route.params.data.state]);
@@ -132,6 +154,7 @@ export default function( props ) {
     },[]);
 
     React.useEffect(() => {
+        
         if ( states[props.route.params.data.state]== 2 ||  states[props.route.params.data.state] == 4 )
             requestImage();
     },[loadRefresh]);
@@ -491,9 +514,15 @@ export default function( props ) {
             }
             </Swiper>
             </SwiperView>
-            <FAB  icon='chat' small={false} style={{ position: 'absolute' , bottom: 20 , right: 20  , padding: 5 , borderRadius: 50 , backgroundColor: colors.main  }} 
+            <View style={{ position: 'absolute' , bottom: 20 , right: 20 }}>
+            <FAB   icon='chat' small={false} style={{  padding: 5 , borderRadius: 50 , backgroundColor: colors.main  }} 
                 onPress={() => { props.navigation.navigate('ChatDetail',{ name : data?.userResponseDto?.nickname , id : props.route.params.data.id , imageUrl : props.route.params.imageUrl }) }}
             />
+            {
+                newMsg > 0 &&
+                <Badge style={{ position: 'absolute'  }}>{newMsg}</Badge>
+            }
+            </View>
         </>
         </Provider>
     );

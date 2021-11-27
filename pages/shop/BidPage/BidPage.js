@@ -653,7 +653,7 @@ export default function ( props ) {
                             })
                         .catch( e => {
                                 //
-                                if ( e.response.status == 403 ) {
+                                if ( e.response.hasOwnProperty('status') && e.response.status == 403 ) {
                                     Alert.alert('새로운 기기','다른 기기에서 로그인하여 로그아웃 되었습니다.');
                                     AsyncStorage.clear();
                                     MyContext.LOGOUT();
