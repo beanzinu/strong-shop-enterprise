@@ -72,16 +72,16 @@ export default function({getMain}) {
     const snapPoints = React.useMemo(() => ['90%'], []);
     const [loginMethod,setLoginMethod] = React.useState('kakao');
     const [name,setName] = React.useState('');
-    // const [businessNumber,setBusinessNumber] = React.useState('');
-    const [businessNumber,setBusinessNumber] = React.useState('1234512345');
+    const [businessNumber,setBusinessNumber] = React.useState('');
+    // const [businessNumber,setBusinessNumber] = React.useState('1234512345');
     const [openDate,setOpenDate] = React.useState('');
     const [bossName,setBossName] = React.useState('');
 
     const [bottomPage,setBottomPage] = React.useState(1);
     const [dtoData,setDtoData] = React.useState(null);
 
-    // const [address,setAddress] = React.useState('');
-    const [address,setAddress] = React.useState('서울시 강남구 삼성로 11');
+    const [address,setAddress] = React.useState('');
+    // const [address,setAddress] = React.useState('서울시 강남구 삼성로 11');
     // const [detailAddress,setDetailAddress] = React.useState('');
     const [detailAddress,setDetailAddress] = React.useState('');
     const [visible,setVisible] = React.useState(false);
@@ -107,9 +107,9 @@ export default function({getMain}) {
     };
       
       const androidKeys = {
-        kConsumerKey: "QfXNXVO8RnqfbPS9x0LR",
-        kConsumerSecret: "6ZGEYZabM9",
-        kServiceAppName: "테스트앱(안드로이드)"
+        kConsumerKey: "s8f8vTXD3RmumyHONbsG",
+        kConsumerSecret: "ZrD2iZk_ep",
+        kServiceAppName: "최강샵"
     };
       
       const initials = Platform.OS === "ios" ? iosKeys : androidKeys;
@@ -141,7 +141,7 @@ export default function({getMain}) {
     async function requestAccessToken(accessToken,method) {
 
         let FCM_Token ;
-
+        
         await messaging().getToken().then( res =>{
             FCM_Token = res ;
         })

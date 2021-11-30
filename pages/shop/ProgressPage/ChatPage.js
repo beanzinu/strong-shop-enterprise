@@ -1,14 +1,14 @@
 import React from 'react' ;
 import styled from 'styled-components';
 import { Avatar , Card , Title , 
-    Paragraph , Button , Banner } from 'react-native-paper';
+    Paragraph , Button , Banner  , ActivityIndicator } from 'react-native-paper';
 import {  GiftedChat } from 'react-native-gifted-chat';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import database from '@react-native-firebase/database';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ActivityIndicator, Alert, Image } from 'react-native';
+import {  Alert, Image } from 'react-native';
 import server from '../../../server/server';
 import { useIsFocused } from '@react-navigation/native';
 import AppContext from '../../../storage/AppContext';
@@ -163,7 +163,7 @@ const ChatView = ( props  ) =>   {
     <KeyboardAwareScrollView>
         {
         data == null || data.length == 0 ?
-        <ActivityIndicator  size='large' style={{ marginTop: 20 }} /> 
+        <ActivityIndicator color={colors.main}  size='large' style={{ marginTop: 20 }} /> 
         :
         data.map( ( item , i ) =>  {
             return (

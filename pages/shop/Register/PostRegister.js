@@ -109,10 +109,11 @@ export default function( props ) {
             maximumMessage: '' ,
             cancelTitle: '취소' ,
             numberOfColumn: 3 ,
+            // 임시
+            usedCameraButton: false
             
         })
         .then(res => {
-            console.log(res);
            setCache(res);
 
            url = [] ;

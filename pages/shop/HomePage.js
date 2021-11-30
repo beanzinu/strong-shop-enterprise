@@ -217,6 +217,8 @@ export default function( props ) {
             tapHereToChange: '여기를 눌러 변경' ,
             cancelTitle: '취소' ,
             singleSelectedMode: true ,
+            // 임시
+            usedCameraButton: false
         })
         .then(async (res) => {
             setLoading(false);
@@ -309,7 +311,7 @@ export default function( props ) {
                             // loading ?
                             <>
                             <ImageView onPress={requestThumbnail} style={{flex: 1 , justifyContent: 'center' , alignItems:'center'}}>
-                            {/* <LottieView source={require('../../LottieJson/4.json')} style={{ position: 'absolute' }}  autoPlay={true} loop={true}/> */}
+                            <LottieView source={require('../../LottieJson/4.json')} style={{ position: 'absolute' }}  autoPlay={true} loop={true}/>
                             {/* <Avatar.Icon size={100} icon='gesture-tap' style={{ backgroundColor: 'transparent', position: 'absolute', bottom: 10 }} color='lightgray'/> */}
                             <Title style={{position: 'absolute', bottom: 10 , textAlign: 'center' , fontSize: 15 }} >여기를 눌러{'\n'}업체 썸네일을 등록해보세요.</Title>
                             </ImageView>

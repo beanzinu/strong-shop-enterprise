@@ -532,7 +532,7 @@ export default function ( props ) {
             setModalVisible(false);
             return;
         }
-        setRefresh(true);
+        // setRefresh(true);
 
        let tmp = [] ;
        for ( key in regions ) {
@@ -565,10 +565,7 @@ export default function ( props ) {
             }
 
             setModalVisible(false);
-            setTimeout(()=>{
-            
-                setRefresh(false);
-            },1000)
+            setRefresh(false);
        })
        .catch( e => {
            //
