@@ -1,6 +1,6 @@
 import React from 'react' ;
 import styled from 'styled-components';
-import { Appbar , Card , Title , Avatar , Badge } from 'react-native-paper';
+import { Appbar , Card , Title , Avatar , Badge, List } from 'react-native-paper';
 import { Alert, SafeAreaView  ,useWindowDimensions , Platform } from 'react-native';
 import Collapsible from 'react-native-collapsible';
 import colors from '../../color/colors';
@@ -299,9 +299,9 @@ export default function( props ) {
             collapsed={collapsed}
             // collapsed={ scroll > 0  ? true : false }
             // collapsedHeight={10}
-            duration={1000}
+            duration={0}
         >
-
+        
         <Card style={ styles.card }>
 
                     {

@@ -174,7 +174,7 @@ function App (props) {
             mainVisible ? 
               <>
               <MainPage/>
-              <Notification hideStatusBar={false} duration={2000} style={{   backgroundColor: 'rgb(244,244,244)' , margin: 10  }} textColor={colors.main}     text={inApp} ref={ref => this.ref = ref } onPress={() => { setNoti(2); this.ref.hide() }}/> 
+              <Notification hideStatusBar={false} duration={3000} style={{   backgroundColor: 'rgb(244,244,244)' , margin: 10  }} textColor={colors.main}     text={inApp} ref={ref => this.ref = ref } onPress={() => { setNoti(2); this.ref.hide() }}/> 
               </>
               : 
               <NewRegister getMain={setMainVisible}/>

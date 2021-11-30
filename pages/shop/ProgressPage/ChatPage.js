@@ -1,14 +1,14 @@
 import React from 'react' ;
 import styled from 'styled-components';
 import { Avatar , Card , Title , 
-    Paragraph , Button , Banner  , ActivityIndicator } from 'react-native-paper';
+    Paragraph , Button , Banner , ActivityIndicator } from 'react-native-paper';
 import {  GiftedChat } from 'react-native-gifted-chat';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import database from '@react-native-firebase/database';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {  Alert, Image } from 'react-native';
+import { Alert, Image } from 'react-native';
 import server from '../../../server/server';
 import { useIsFocused } from '@react-navigation/native';
 import AppContext from '../../../storage/AppContext';
@@ -52,7 +52,7 @@ const state = {
 const ChatView = ( props  ) =>   {
     const MyContext = React.useContext(AppContext);
     const [temp,setTemp] = React.useState({});
-    const [data,setData]  = React.useState([]);
+    const [data,setData]  = React.useState(null);
     const [reload,setReload] = React.useState(false);
     const isFocused = useIsFocused();
 
@@ -81,7 +81,6 @@ const ChatView = ( props  ) =>   {
                         total += tmp[key];
                     MyContext.setBadge(total);
     
-                    setData(value);
                     setTemp(tmp) ;
                 }
             }) // db
@@ -100,9 +99,7 @@ const ChatView = ( props  ) =>   {
         //     record = Object.values(snapshot.val())[0];
         //     setTemp(record);
         // });
-        
-        if ( isFocused  ) {
-
+        if ( isFocused ) {
             fetch('auth')
             .then( res => {
                 const auth = res.auth ;
@@ -112,14 +109,12 @@ const ChatView = ( props  ) =>   {
                     headers: { Auth: auth }
                 })
                 .then( res => {
-                    // if ( JSON.stringify(data ) !== JSON.stringify(res.data.data) )
-                    // {
-                        // alert('reload');
-                        // setData(res.data.data);
-                        if ( res.data.data != null || res.data.data.length != 0 )
-                            handleUnRead(res.data.data);
-                        else setData(res.data.data);
-                    // }
+                    if ( res.data.data.length == 0 ) setData([]);
+                    else if ( JSON.stringify(data ) !== JSON.stringify(res.data.data) )
+                        setData(res.data.data);   
+
+                    if ( res.data.data.length != 0 )
+                        handleUnRead(res.data.data);
     
                 })
                 .catch( e => {
@@ -137,11 +132,9 @@ const ChatView = ( props  ) =>   {
             .catch( e => {
 
             }) ;
-
-            
         }
 
-    },[ isFocused ]);
+    },[ MyContext.chatRef , isFocused ]);
 
  
 
@@ -162,8 +155,8 @@ const ChatView = ( props  ) =>   {
     return(
     <KeyboardAwareScrollView>
         {
-        data == null || data.length == 0 ?
-        <ActivityIndicator color={colors.main}  size='large' style={{ marginTop: 20 }} /> 
+        data == null  ?
+            <ActivityIndicator color={colors.main}  size='large' style={{ marginTop: 20 }} /> 
         :
         data.map( ( item , i ) =>  {
             return (

@@ -393,9 +393,9 @@ export default function({getMain}) {
                 <Button style={styles.loginButton} color='white' icon='alpha-n-box' onPress={() => handleNaverLogin(initials) }>
                     네이버로 시작하기
                 </Button>
-                <Button style={styles.loginButton} color='white' icon='alpha-n-box' onPress={() => handlePresentModalPress()}>
+                {/* <Button style={styles.loginButton} color='white' icon='alpha-n-box' onPress={() => handlePresentModalPress()}>
                    테스트
-                </Button>
+                </Button> */}
             {/* </ImageBackground> */}
 
             {/* BottomSheet 모달  */}

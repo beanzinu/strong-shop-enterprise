@@ -4,6 +4,10 @@ import { Appbar , BottomNavigation , Text , IconButton } from 'react-native-pape
 import { createStackNavigator ,  } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import colors from '../../color/colors';
+import axios from 'axios';
+import server from '../../server/server';
+import fetch from '../../storage/fetch';
+import database from '@react-native-firebase/database';
 import AppContext from '../../storage/AppContext';
 // pages 
 import BidPage from './BidPage/BidPage';
@@ -68,6 +72,8 @@ function BidRoute() {
 }
 
 
+
+
 export default function( props ) {
     const MyContext = React.useContext(AppContext);
     const [index, setIndex] = React.useState(0);
@@ -77,40 +83,84 @@ export default function( props ) {
       { key: 'chat', title: '시공', icon: 'car-door' },
     ]);
 
+    const handleUnRead = (value) => {
+        
+        database().goOnline();
+        
+        var tmp = { };
+        value.map( (item,index) => {
+            var count = 0 ;
+            var obj ;
+            database().ref(`chat${item.id}`).once('value',snapshot => {
+                if ( snapshot.toJSON() &&  snapshot.toJSON() !== null  )  {
+
+                    obj = Object.values( snapshot.toJSON() ) ;
+                    obj.map( msg => {
+                        if ( msg.user._id == 2 && msg.received != true ) count = count + 1 ; 
+                    }) ;
+                    tmp[item.id] = count ;
+                    
+                }
+                // Last Index
+                if ( index == value.length-1 ) {
+                    total = 0 ;
+                    for ( key in tmp )
+                        total += tmp[key];
+                    MyContext.setBadge(total);
+    
+                }
+            }) // db
+
+        } ) // value.map
+
+
+            
+    }
+
 
     // 문의 및 채팅
     function ChatRoute() { return <ChatPage /> }
     
     
-    const renderScene = BottomNavigation.SceneMap({
-        home: HomeRoute,
-        bid: BidRoute,
-        chat: ChatRoute,
-      });  
+    // const renderScene = BottomNavigation.SceneMap({
+    //     home: HomeRoute,
+    //     bid: BidRoute,
+    //     chat: ChatRoute,
+    //   });  
 
-    // const renderScene = ({ route }) => {
-    // switch (route.key) {
-    //     case 'home':
-    //     return  <HomeRoute />;
-    //     case 'bid':
-    //     return <BidRoute />;
-    //     case 'chat':
-    //     return <ChatRoute badge={badge} setBadge={setBadge} />;
+    const renderScene = ({ route }) => {
+    switch (route.key) {
+        case 'home':
+        return  <HomeRoute />;
+        case 'bid':
+        return <BidRoute />;
+        case 'chat':
+        return <ChatPage />;
         
-    //     default:
-    //     return null;
-    // }
-    // };
+        default:
+        return null;
+    }
+    };
 
 
     // 각 Tab을 다시 눌렀을때 다시 정보 load
-    // const handleTabPress  = ( route ) => {
-    //     if ( route.key == 'home' ) MyContext.setHomeRef(!MyContext.homeRef);
-    //     else if ( route.key == 'bid' ) MyContext.setBidRef(!MyContext.bidRef)
-    //     else if ( route.key == 'chat' ) MyContext.setChatRef(!MyContext.chatRef)
+    const handleTabPress  = ( route ) => {
+        if ( route.key == 'home' ) {
+            MyContext.setHomeRef(!MyContext.homeRef);
+            MyContext.setChatRef(!MyContext.chatRef);
+        }
+        else if ( route.key == 'chat' ) {
+            MyContext.setChatRef(!MyContext.chatRef);
+        }
+        else if ( route.key == 'bid' ) {
+            MyContext.setBidRef(!MyContext.bidRef);
+            MyContext.setChatRef(!MyContext.chatRef);
+        }
 
-    // } 
+    } 
 
+
+    // 채팅 Tab으로 이동
     React.useEffect(() => {
 
         if ( MyContext.noti ==2 ) {
@@ -119,6 +169,27 @@ export default function( props ) {
         }
 
     },[MyContext.noti]);
+
+    // 채팅있는지 1번 확인
+
+    React.useEffect(() => {
+        fetch('auth')
+            .then( res => {
+                const auth = res.auth ;
+                axios({
+                    method: 'get' ,
+                    url: `${server.url}/api/contract` ,
+                    headers: { Auth: auth }
+                })
+                .then( res => {   
+                    handleUnRead(res.data.data);
+                })
+                .catch( e => {
+                })// axios
+            })
+        .catch( e => {
+        }) ;
+    },[]);
 
 
     return(
@@ -130,7 +201,7 @@ export default function( props ) {
             activeColor={colors.main}
             navigationState={{ index, routes  }}
             shifting={true}
-            // onTabPress={(index) => { handleTabPress(index.route) }}
+            onTabPress={(index) => { handleTabPress(index.route) }}
             onIndexChange={setIndex}
             renderScene={renderScene}
         />    
