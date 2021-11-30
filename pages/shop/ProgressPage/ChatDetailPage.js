@@ -46,20 +46,20 @@ const db = database().ref(`chat${ props.route.params.id }`);
 
 
                 if ( snapshot.toJSON() != null ) {
-                tmp =  snapshot.toJSON() ;
-                Data = Object.values( snapshot.toJSON() ) ;
-    
-                Object.keys( tmp )
-                .map( (item,index) => {
-                    // 상대방의 메시지를 읽지 않았을때
-                    // if ( Data[index].user._id == 2 && Data[index].received == false )
-                    if ( Data[index].user._id == 2  )
-                        database().ref(`chat${ props.route.params.id }/${item}`).update({ received : true })
-                        .then( () => {  
-    
-                        })
-                        .catch( e => { }) 
-                }) ;
+                    tmp =  snapshot.toJSON() ;
+                    Data = Object.values( snapshot.toJSON() ) ;
+        
+                    Object.keys( tmp )
+                    .map( (item,index) => {
+                        // 상대방의 메시지를 읽지 않았을때
+                        // if ( Data[index].user._id == 2 && Data[index].received == false )
+                        if ( Data[index].user._id == 2  )
+                            database().ref(`chat${ props.route.params.id }/${item}`).update({ received : true })
+                            .then( () => {  
+        
+                            })
+                            .catch( e => { }) 
+                    }) ;
                 
                 }
 

@@ -72,16 +72,16 @@ export default function({getMain}) {
     const snapPoints = React.useMemo(() => ['90%'], []);
     const [loginMethod,setLoginMethod] = React.useState('kakao');
     const [name,setName] = React.useState('');
-    // const [businessNumber,setBusinessNumber] = React.useState('');
-    const [businessNumber,setBusinessNumber] = React.useState('1234512345');
+    const [businessNumber,setBusinessNumber] = React.useState('');
+    // const [businessNumber,setBusinessNumber] = React.useState('1234512345');
     const [openDate,setOpenDate] = React.useState('');
     const [bossName,setBossName] = React.useState('');
 
     const [bottomPage,setBottomPage] = React.useState(1);
     const [dtoData,setDtoData] = React.useState(null);
 
-    // const [address,setAddress] = React.useState('');
-    const [address,setAddress] = React.useState('서울시 강남구 삼성로 11');
+    const [address,setAddress] = React.useState('');
+    // const [address,setAddress] = React.useState('서울시 강남구 삼성로 11');
     // const [detailAddress,setDetailAddress] = React.useState('');
     const [detailAddress,setDetailAddress] = React.useState('');
     const [visible,setVisible] = React.useState(false);
@@ -393,9 +393,9 @@ export default function({getMain}) {
                 <Button style={styles.loginButton} color='white' icon='alpha-n-box' onPress={() => handleNaverLogin(initials) }>
                     네이버로 시작하기
                 </Button>
-                <Button style={styles.loginButton} color='white' icon='alpha-n-box' onPress={() => handlePresentModalPress()}>
+                {/* <Button style={styles.loginButton} color='white' icon='alpha-n-box' onPress={() => handlePresentModalPress()}>
                    테스트
-                </Button>
+                </Button> */}
             {/* </ImageBackground> */}
 
             {/* BottomSheet 모달  */}
