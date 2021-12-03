@@ -11,7 +11,7 @@ import MultipleImagePicker from '@baronha/react-native-multiple-image-picker';
 import { request , PERMISSIONS } from 'react-native-permissions';
 import Swiper  from 'react-native-swiper';
 import { Dimensions } from 'react-native';
-// import ImageViewer from 'react-native-image-zoom-viewer';
+import ImageViewer from 'react-native-image-zoom-viewer';
 import Collapsible from 'react-native-collapsible';
 import database from '@react-native-firebase/database';
 import LottieView from 'lottie-react-native';
@@ -366,10 +366,10 @@ export default function( props ) {
         <Portal>
         <Modal visible={visible} onDismiss={() => { setVisible(false) }} contentContainerStyle={{ width: '100%', height: '100%' , backgroundColor: 'black' }}>
             {/* <IconButton icon='close' style={{   }} color='white' onPress={ () => { setVisible(false) }} /> */}
-            {/* <ImageViewer imageUrls={pictures} enableSwipeDown={true} onCancel={ () => {setVisible(false)} } index={index} 
+            <ImageViewer imageUrls={pictures} enableSwipeDown={true} onCancel={ () => {setVisible(false)} } index={index} 
                 enablePreload={true}
                 renderHeader={() =><IconButton icon='close' style={{   }} color='white' onPress={ () => { setVisible(false) }} /> }
-            /> */}
+            />
             {/* <SwiperView>
             <Swiper 
                 horizontal={true}

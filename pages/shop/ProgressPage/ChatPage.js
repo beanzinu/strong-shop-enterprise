@@ -109,7 +109,10 @@ const ChatView = ( props  ) =>   {
                     headers: { Auth: auth }
                 })
                 .then( res => {
-                    if ( res.data.data.length == 0 ) setData([]);
+                    if ( res.data.data.length == 0 ) {
+                        setData([]);
+                        MyContext.setBadge(0);
+                    }
                     else if ( JSON.stringify(data ) !== JSON.stringify(res.data.data) )
                         setData(res.data.data);   
 
