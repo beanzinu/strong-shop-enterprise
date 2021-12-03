@@ -244,9 +244,16 @@ export default function( props ) {
                     
                 }
                 body.append('file',photo);
-                axios.post(`${server.url}/api/companyinfo/bgi`,body,{
-                    headers: {'content-type': 'multipart/form-data' , Auth: auth }
-                })
+
+                const axiosInstance = axios.create({
+                    headers: {
+                        'content-type': 'multipart/form-data' ,
+                        Auth : auth
+                    } ,
+                    timeout: 5000
+                }) ;
+
+                axiosInstance.post(`${server.url}/api/companyinfo/bgi`,body)
                 .then( async(res) => {
                     if ( res.data.statusCode == 200 ) {
                                // 사진 등록
