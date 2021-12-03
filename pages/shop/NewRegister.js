@@ -86,6 +86,8 @@ export default function({getMain}) {
     const [detailAddress,setDetailAddress] = React.useState('');
     const [visible,setVisible] = React.useState(false);
 
+    const [enabled,setEnabled] = React.useState(true);
+
 
     let latitude = null ;
     let longitude = null ;
@@ -190,6 +192,14 @@ export default function({getMain}) {
 
     async function requestSignIn() {
 
+        if ( !(name.length && address.length && detailAddress.length) ) {
+            Alert.alert('모두입력','모든 정보를 입력해주세요.');
+            return ;
+        } 
+        
+            
+
+        setEnabled(false);
 
         let FCM_Token ;
 
@@ -220,6 +230,7 @@ export default function({getMain}) {
                     await requestPost(auth)
                     .then ( () => {
                         getMain(true);
+                        setEnabled(false);
                     })
                 }
                 // cache 성공 시 -> 메인화면
@@ -232,7 +243,8 @@ export default function({getMain}) {
         })
         .catch(e => {
             //
-            
+            setEnabled(false);
+            Alert.alert('회원가입 실패','다시 시도해주세요.');
         })
     }
     function requestPost(auth) {
@@ -519,8 +531,11 @@ export default function({getMain}) {
                                 <Button style={{ marginTop: 10 , height: 50 , justifyContent: 'center'  }} 
                                 onPress={() => { requestSignIn() }}
                                 mode='contained'
-                                disabled={ name.length && address.length && detailAddress.length ? false : true}
-                                color={colors.main}>
+                                disabled={!enabled}
+                                color={  name.length && address.length && detailAddress.length  ? colors.main : 'lightgray' }
+                                // disabled={ name.length && address.length && detailAddress.length ? false : true }
+                                // color={colors.main}
+                                >
                                 가입하기
                                 </Button>
                             </View>

@@ -92,7 +92,7 @@ export default function( props ) {
     const [cache,setCache] = React.useState([]);
     const [text,setText] = React.useState('');
     const [inputHeight,setInputHeight] = React.useState(120);
-    const [refresh,setRefresh] = React.useState(false);
+    // const [refresh,setRefresh] = React.useState(false);
     const [requesting,setRequesting] = React.useState(false) ;
     const ModalRef = React.useRef(null);
     const MyContext = React.useContext(AppContext)
@@ -119,6 +119,7 @@ export default function( props ) {
                let newPath ;
                // ios
                if ( Platform.OS == 'ios' ) newPath = file.path.replace('file://','').replace('file:///','file://');
+            //    if ( Platform.OS == 'ios' ) newPath = file.path ;
                // android
                else newPath = 'file://' + file.path ;
             //    const result = await ImageCompressor.compress(
@@ -130,15 +131,15 @@ export default function( props ) {
                
             //    url.push(result);
 
-               url.push(file.path);
+               url.push(newPath);
            });
           
            setPictures(url);
            // Refresh Swiper
-           setRefresh(true);
-           setTimeout(()=>{
-            setRefresh(false);
-           },2000);
+            //    setRefresh(true);
+            //    setTimeout(()=>{
+            //     setRefresh(false);
+            //    },2000);
 
         }) 
         .catch(e => { });
@@ -182,12 +183,21 @@ export default function( props ) {
        
         // 서버에게 전송
         setRequesting(true);
+
+
         await fetch('auth')
-        .then(res => {
+        .then( (res) => {
             const auth = res.auth ;
-            axios.post(`${server.url}/api/gallery`,body,{
-                headers: {'content-type': 'multipart/form-data' , Auth: auth }
-            })
+
+            const axiosInstance = axios.create({
+                headers: {
+                    'content-type': 'multipart/form-data' ,
+                    Auth : auth
+                } ,
+                timeout: 5000
+            }) ;
+
+            axiosInstance.post(`${server.url}/api/gallery`,body)
             .then(res => {
                 if ( res.data.statusCode == 201 ) {
                     MyContext.setRefresh(!MyContext.refresh);

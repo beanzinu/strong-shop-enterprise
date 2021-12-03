@@ -228,9 +228,16 @@ export default function( props ) {
         })
 
         setRefresh(true);
-        axios.post(`${server.url}/api/contract/${state ==2 ?'4':'6'}/${data.id}`,body,{
-            headers: {'content-type': 'multipart/form-data' , Auth: auth }
-        })
+
+        const axiosInstance = axios.create({
+            headers: {
+                'content-type': 'multipart/form-data' ,
+                Auth : auth
+            } ,
+            timeout: 5000
+        }) ;
+
+        axiosInstance.post(`${server.url}/api/contract/${state ==2 ?'4':'6'}/${data.id}`,body)
         .then(res => {
             if ( res.data.statusCode == 200 )
             {
