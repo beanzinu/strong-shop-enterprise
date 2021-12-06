@@ -10,6 +10,7 @@ import _, { after } from 'lodash';
 import fetch from '../../../storage/fetch';
 import server from '../../../server/server';
 import LottieView from 'lottie-react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import AppContext from '../../../storage/AppContext';
 
 
@@ -68,19 +69,39 @@ function translate(option,item){
         ANY: '상관없음',
     }
     const res_Ppf ={
+        BONNET: '본넷',
+        SIDEMIRROR: '사이드미러',
+        FRONTBUMPER: '앞 범퍼',
+        FRONTBUMPERSIDE:'앞 범퍼사이드',
+        BACKBUMPER: '뒷 범퍼',
+        BACKBUMPERSIDE: '뒷 범퍼사이드',
+        HEADLIGHT: '헤드라이트',
+        TAILLAMP: '테일램프',
+        BCFILTER: 'B/C 필터',
+        DOOR: '도어',
+        HOOD: '후드',
     }
     const res_Blackbox = {
         FINETECH: '파인테크',
         INAVI: '아이나비',
+        MANDO: '만도',
         ANY: '상관없음',
     }
     const res_Battery = {
+        V6: 'V6',
+        V12: 'V12',
         ANY: '상관없음',
     }
     const res_Afterblox = {
         ANY: '상관없음',
     }
     const res_Soundproof = {
+        UNDER: '하부방음',
+        DOORSOUND: '도어방음',
+        INSIDEFLOOR: '실내바닥방음',
+        FENDER: '휀다방음',
+        BONNETSOUND: '본넷방음',
+        TRUNK: '트렁크방음',
         ANY: '상관없음',
     }
     const res_Wrapping = {
@@ -111,7 +132,7 @@ export default function( props ) {
     const [tinting,setTinting] = React.useState('');
     const [tintingPrice,setTintingPrice] = React.useState('');
     const [ppf,setPpf] = React.useState('');
-    const [ppfPrice,setPpfPrice] = React.useState(0);
+    const [ppfPrice,setPpfPrice] = React.useState('');
     const [blackbox,setBlackbox] = React.useState('');
     const [blackboxPrice,setBlackboxPrice] = React.useState('');
     const [battery,setBattery] = React.useState('');
@@ -267,14 +288,14 @@ export default function( props ) {
                 data?.options?.tinting && (
                     <>
                     <Title style={styles.label}>틴팅</Title>
-                    <Row>
+                    <ScrollView horizontal={true}>
                         {
                              _.map(data.options.detailTinting,(value,key) => { 
                                     if (key == 'ETC' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
                                     if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('tinting',key) }</Chip>  
                             })
                         }
-                    </Row>
+                    </ScrollView>
                     <TextInput placeholder='제품명' theme={styles.theme}
                         style={{ backgroundColor: 'white' , marginTop: 10 }}
                         onSubmitEditing={ () => { this.tintingPrice.focus() }}
@@ -297,14 +318,14 @@ export default function( props ) {
                 data?.options?.ppf && (
                     <>
                     <Title style={styles.label}>PPF</Title>
-                    <Row>
+                    <ScrollView horizontal={true}>
                         {
                              _.map(data.options.detailPpf,(value,key) => { 
                                     if (key == 'ETC' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
                                     if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('ppf',key) }</Chip>  
                             })
                         }
-                    </Row>
+                    </ScrollView>
                     <TextInput placeholder='제품명' theme={styles.theme}
                         style={{ backgroundColor: 'white' , marginTop: 10 }}
                         onSubmitEditing={ () => { this.ppfPrice.focus() }}
@@ -327,14 +348,14 @@ export default function( props ) {
                 data?.options?.blackbox && (
                     <>
                     <Title style={styles.label}>블랙박스</Title>
-                    <Row>
+                    <ScrollView horizontal={true}>
                         {
                              _.map(data.options.detailBlackbox,(value,key) => { 
                                     if (key == 'ETC' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
                                     if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('blackbox',key) }</Chip>  
                             })
                         }
-                    </Row>
+                    </ScrollView>
                     <TextInput placeholder='제품명' theme={styles.theme}
                         style={{ backgroundColor: 'white' , marginTop: 10 }}
                         onSubmitEditing={ () => { this.blackboxPrice.focus() }}
@@ -357,14 +378,14 @@ export default function( props ) {
                 data?.options?.battery && (
                     <>
                     <Title style={styles.label}>보조배터리</Title>
-                    <Row>
+                    <ScrollView horizontal={true}>
                         {
                              _.map(data.options.detailBattery,(value,key) => { 
                                     if (key == 'ETC' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
                                     if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('battery',key) }</Chip>  
                             })
                         }
-                    </Row>
+                    </ScrollView>
                     <TextInput placeholder='제품명' theme={styles.theme}
                         style={{ backgroundColor: 'white' , marginTop: 10 }}
                         onSubmitEditing={ () => { this.batteryPrice.focus() }}
@@ -387,14 +408,14 @@ export default function( props ) {
                 data?.options?.afterblow && (
                     <>
                     <Title style={styles.label}>애프터블로우</Title>
-                    <Row>
+                    <ScrollView horizontal={true}>
                         {
                              _.map(data.options.detailAfterblow,(value,key) => { 
                                     if (key == 'ETC' && value != null && value.length != 0  ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
                                     if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('afterblow',key) }</Chip>  
                             })
                         }
-                    </Row>
+                    </ScrollView>
                     <TextInput placeholder='제품명' theme={styles.theme}
                         style={{ backgroundColor: 'white' , marginTop: 10 }}
                         onSubmitEditing={ () => { this.afterblowPrice.focus() }}
@@ -417,14 +438,14 @@ export default function( props ) {
                 data?.options?.soundproof && (
                     <>
                     <Title style={styles.label}>방음</Title>
-                    <Row>
+                    <ScrollView horizontal={true}>
                         {
                              _.map(data.options.detailSoundproof,(value,key) => { 
                                     if (key == 'ETC' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
                                     if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('soundproof',key) }</Chip>  
                             })
                         }
-                    </Row>
+                    </ScrollView>
                     <TextInput placeholder='제품명' theme={styles.theme}
                         style={{ backgroundColor: 'white' , marginTop: 10 }}
                         onSubmitEditing={ () => { this.soundproofPrice.focus() }}
@@ -447,14 +468,14 @@ export default function( props ) {
                 data?.options?.wrapping && (
                     <>
                     <Title style={styles.label}>랩핑</Title>
-                    <Row>
+                    <ScrollView horizontal={true}>
                         {
                              _.map(data.options.detailWrapping,(value,key) => { 
                                     if (key == 'DESIGN' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
                                     if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('soundproof',key) }</Chip>  
                             })
                         }
-                    </Row>
+                    </ScrollView>
                     <TextInput placeholder='제품명' theme={styles.theme}
                         style={{ backgroundColor: 'white' , marginTop: 10 }}
                         onSubmitEditing={ () => { this.wrappingPrice.focus() }}

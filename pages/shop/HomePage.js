@@ -24,6 +24,7 @@ import store from '../../storage/store';
 // Tab Navigator
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 const Tab = createMaterialTopTabNavigator();
+// 
 
 const View = styled.View``;
 const ImageView = styled.TouchableOpacity``;
@@ -142,6 +143,8 @@ export default function( props ) {
 
     React.useEffect(() => {
 
+        
+
         fetch('Info')
         .then( async(res) => {
             if (res?.backgroundImageUrl != null) {
@@ -176,6 +179,7 @@ export default function( props ) {
                 .catch (e => {
                     //
                 });
+
             }
         })
 

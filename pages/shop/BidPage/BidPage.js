@@ -194,19 +194,39 @@ function translate(option,item){
         ANY: '상관없음',
     }
     const res_Ppf ={
+        BONNET: '본넷',
+        SIDEMIRROR: '사이드미러',
+        FRONTBUMPER: '앞 범퍼',
+        FRONTBUMPERSIDE:'앞 범퍼사이드',
+        BACKBUMPER: '뒷 범퍼',
+        BACKBUMPERSIDE: '뒷 범퍼사이드',
+        HEADLIGHT: '헤드라이트',
+        TAILLAMP: '테일램프',
+        BCFILTER: 'B/C 필터',
+        DOOR: '도어',
+        HOOD: '후드',
     }
     const res_Blackbox = {
         FINETECH: '파인테크',
         INAVI: '아이나비',
+        MANDO: '만도',
         ANY: '상관없음',
     }
     const res_Battery = {
+        V6: 'V6',
+        V12: 'V12',
         ANY: '상관없음',
     }
     const res_Afterblox = {
         ANY: '상관없음',
     }
     const res_Soundproof = {
+        UNDER: '하부방음',
+        DOORSOUND: '도어방음',
+        INSIDEFLOOR: '실내바닥방음',
+        FENDER: '휀다방음',
+        BONNETSOUND: '본넷방음',
+        TRUNK: '트렁크방음',
         ANY: '상관없음',
     }
     const res_Wrapping = {
@@ -255,91 +275,91 @@ function Item ( { item , navigation , id } ) {
                                 { item.options.tinting && 
                                     <>
                                         <List.Item titleStyle={styles.listStyle} title ='틴팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
-                                        <Row>
+                                        <ScrollView horizontal={true}>
                                             {
                                                 _.map(item.options.detailTinting,(value,key) => { 
                                                     if (key == 'ETC' && value != null && value.length != 0  ) return <Chip key={key} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
                                                     if(value) return <Chip key={key+'a'} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('tinting',key) }</Chip>  
                                                 })
                                             }
-                                        </Row>
+                                        </ScrollView>
                                     </> }
                                 {item.options.ppf && 
                                     <>
                                         <List.Item titleStyle={styles.listStyle}  title ='PPF' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
-                                        <Row>
+                                        <ScrollView horizontal={true}>
                                             {
                                                 _.map(item.options.detailPpf,(value,key) => { 
                                                     if (key == 'ETC' && value != null && value.length != 0 ) return <Chip key={key} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
                                                     if(value) return <Chip key={key+'a'} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('ppf',key) }</Chip>  
                                                 })
                                             }
-                                        </Row>
+                                        </ScrollView>
                                     </>
                                 }
                                 {item.options.blackbox && 
                                     <>
                                         <List.Item titleStyle={styles.listStyle}  title ='블랙박스' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10}/>} />
-                                        <Row>
+                                        <ScrollView horizontal={true}>
                                             {
                                                 _.map(item.options.detailBlackbox,(value,key) => { 
                                                     if (key == 'ETC' && value != null && value.length != 0 ) return <Chip key={key} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
                                                     if(value) return <Chip key={key+'a'}  style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('blackbox',key) }</Chip>  
                                                 })
                                             }
-                                        </Row>
+                                        </ScrollView>
                                     </>
                                 }
                                 {item.options.battery && 
                                     <>
                                         <List.Item titleStyle={styles.listStyle}  title ='보조배터리' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10}/>} />
-                                        <Row>
+                                        <ScrollView horizontal={true}>
                                             {
                                                 _.map(item.options.detailBattery,(value,key) => { 
                                                     if (key == 'ETC' && value != null && value.length != 0 ) return <Chip  key={key} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
                                                     if(value) return <Chip key={key+'a'}  style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('battery',key) }</Chip>  
                                                 })
                                             }
-                                        </Row>
+                                        </ScrollView>
                                     </>
                                 }
                                 {item.options.afterblow && 
                                     <>
                                         <List.Item titleStyle={styles.listStyle}  title ='애프터블로우' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10}/>} />
-                                        <Row>
+                                        <ScrollView horizontal={true}>
                                             {
                                                 _.map(item.options.detailAfterblow,(value,key) => { 
                                                     if (key == 'ETC' && value != null && value.length != 0 ) return <Chip  key={key} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
                                                     if(value) return <Chip key={key+'a'}  style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('afterblow',key) }</Chip>  
                                                 })
                                             }
-                                        </Row>
+                                        </ScrollView>
                                     </>
                                 }
                                 {item.options.soundproof && 
                                     <>
                                         <List.Item titleStyle={styles.listStyle}  title ='방음' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10}/>} />
-                                        <Row>
+                                        <ScrollView horizontal={true}>
                                             {
-                                                _.map(item.options.detailSoundProof,(value,key) => { 
+                                                _.map(item.options.detailSoundproof,(value,key) => { 
                                                     if (key == 'ETC' && value != null && value.length != 0 ) return <Chip key={key} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
                                                     if(value) return <Chip key={key+'a'}  style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('soundproof',key) }</Chip>  
                                                 })
                                             }
-                                        </Row>
+                                        </ScrollView>
                                     </>
                                 }
                                 {item.options.wrapping && 
                                     <>
                                         <List.Item titleStyle={styles.listStyle}  title ='랩핑' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10}/>} />
-                                        <Row>
+                                        <ScrollView horizontal={true}>
                                             {
                                                 _.map(item.options.detailWrapping,(value,key) => { 
                                                     if (key == 'DESIGN' && value != null && value.length != 0 ) return <Chip key={key} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
                                                     if(value) return <Chip key={key+'a'} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('wrapping',key) }</Chip>  
                                                 })
                                             }
-                                        </Row>
+                                        </ScrollView>
                                     </>
                                 }
                                 {item.options.glasscoating && <><List.Item titleStyle={styles.listStyle}  title ='유리막코팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} /></>} 
@@ -357,7 +377,7 @@ function Item ( { item , navigation , id } ) {
                                         mode='contained' 
                                         onPress={ () => { navigation.navigate('BidRegister',{ data : item , id : id }) } }
                                         style={{ margin: 3 , marginTop: 20 }} labelStyle={{  fontSize: 17 }} >
-                                    입찰하기
+                                    작성하기
                                 </Button>
                             </View>
                           </List.Accordion>
