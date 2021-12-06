@@ -160,7 +160,6 @@ export default function( props ) {
             <Title style= { styles.title }> 위치 </Title>
             <Text style={{ marginBottom: 20 }}>{data?.address == null ? '위치를 등록해주세요.' : data.address}{'\n'}{data?.detailAddress == null ? '' :  data?.detailAddress }</Text>
             <NaverMapView style={{width: '80%', height: 300 , alignSelf : 'center' , borderWidth: 2 , borderColor: 'lightgray' , marginBottom: 20 }}
-            showsMyLocationButton={true}
             center={{...coord, zoom: 13 }}
             showsMyLocationButton={false}
             >

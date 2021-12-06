@@ -32,7 +32,7 @@ const styles = {
         borderRadius: 20,
         margin : 5 , 
         flex : 1 , 
-        padding : 5
+        padding : 3 ,
     } ,
     fab : {
         position: 'absolute' ,

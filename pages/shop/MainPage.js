@@ -78,7 +78,7 @@ export default function( props ) {
     const MyContext = React.useContext(AppContext);
     const [index, setIndex] = React.useState(0);
     const [routes] = React.useState([
-      { key: 'home', title: '홈', icon: 'home'  },
+      { key: 'home', title: '홈', icon: 'home' },
       { key: 'bid', title: '입찰', icon: 'alarm-plus' },
       { key: 'chat', title: '시공', icon: 'car-door' },
     ]);

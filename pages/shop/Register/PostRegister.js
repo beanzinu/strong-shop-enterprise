@@ -109,6 +109,8 @@ export default function( props ) {
             maximumMessage: '' ,
             cancelTitle: '취소' ,
             numberOfColumn: 3 ,
+            // 임시
+            usedCameraButton: false
             
         })
         .then(res => {
@@ -266,8 +268,8 @@ export default function( props ) {
                                 )
                             })
                         }
-                    </Swiper> 
-                    </SwiperView>
+                     </Swiper> 
+                    </SwiperView> 
                 )
             }
             

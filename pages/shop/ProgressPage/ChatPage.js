@@ -109,7 +109,10 @@ const ChatView = ( props  ) =>   {
                     headers: { Auth: auth }
                 })
                 .then( res => {
-                    if ( res.data.data.length == 0 ) setData([]);
+                    if ( res.data.data.length == 0 ) {
+                        setData([]);
+                        MyContext.setBadge(0);
+                    }
                     else if ( JSON.stringify(data ) !== JSON.stringify(res.data.data) )
                         setData(res.data.data);   
 
@@ -118,7 +121,7 @@ const ChatView = ( props  ) =>   {
     
                 })
                 .catch( e => {
-                    // console.log(e);
+                    console.log(e);
                     if ( e?.response?.hasOwnProperty('status') && e?.response?.status == 403 ) {
                         Alert.alert('새로운 기기','다른 기기에서 로그인하여 로그아웃 되었습니다.');
                         AsyncStorage.clear();

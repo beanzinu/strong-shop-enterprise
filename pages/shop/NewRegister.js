@@ -12,7 +12,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import InputScrollView from 'react-native-input-scroll-view';
 import ImageBackground from 'react-native/Libraries/Image/ImageBackground';
 import { login } from '@react-native-seoul/kakao-login';
-import auth from '@react-native-firebase/auth'
+// import auth from '@react-native-firebase/auth'
 import IMP from 'iamport-react-native';
 import Postcode from '@actbase/react-daum-postcode';
 import { NaverLogin } from '@react-native-seoul/naver-login';
@@ -109,9 +109,9 @@ export default function({getMain}) {
     };
       
       const androidKeys = {
-        kConsumerKey: "QfXNXVO8RnqfbPS9x0LR",
-        kConsumerSecret: "6ZGEYZabM9",
-        kServiceAppName: "테스트앱(안드로이드)"
+        kConsumerKey: "s8f8vTXD3RmumyHONbsG",
+        kConsumerSecret: "ZrD2iZk_ep",
+        kServiceAppName: "최강샵"
     };
       
       const initials = Platform.OS === "ios" ? iosKeys : androidKeys;
@@ -143,7 +143,7 @@ export default function({getMain}) {
     async function requestAccessToken(accessToken,method) {
 
         let FCM_Token ;
-
+        
         await messaging().getToken().then( res =>{
             FCM_Token = res ;
         })

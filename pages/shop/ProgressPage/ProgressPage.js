@@ -5,7 +5,7 @@ from 'react-native-paper';
 import { Alert, FlatList , ScrollView } from 'react-native';
 import colors from '../../../color/colors';
 import { Image } from 'react-native';
-import _, { set } from 'lodash';
+import _ from 'lodash';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import MultipleImagePicker from '@baronha/react-native-multiple-image-picker';
 import { request , PERMISSIONS } from 'react-native-permissions';
@@ -182,7 +182,9 @@ export default function( props ) {
             doneTitle: "완료",
             selectedColor: "#162741",
             tapHereToChange: '여기를 눌러 변경' ,
-            cancelTitle: '취소'
+            cancelTitle: '취소' ,
+            // 임시
+            usedCameraButton: false
         })
         .then(res => {
            url = [] ;
@@ -226,7 +228,6 @@ export default function( props ) {
             }
             body.append('files',photo);
         })
-
         setRefresh(true);
 
         const axiosInstance = axios.create({
@@ -247,6 +248,7 @@ export default function( props ) {
             }
         })
         .catch(e=>{
+            console.log(e);
             Alert.alert('다시 시도해주세요.')
             setRefresh(false);
             // console.log(e);
@@ -403,7 +405,8 @@ export default function( props ) {
             <SwiperView style={{ width: '90%' , height: 300 , alignSelf: 'center' }}>
             {
                 refresh ? 
-                <LottieView source={require('../Register/2.json')} autoPlay={true} loop={true} /> :
+                <LottieView source={require('../Register/2.json')} autoPlay={true} loop={true} /> 
+                :
 
             <Swiper 
             horizontal={true}
@@ -601,7 +604,7 @@ export default function( props ) {
                                         renderItem={RenderItem}
                                         numColumns={3}
                                         keyExtractor={item => {item.id}}
-                                        refreshControl={refresh}
+                                        // refreshControl={refresh}
                                     />
                                     </>
                                 )
@@ -613,12 +616,12 @@ export default function( props ) {
             </Swiper>
             </SwiperView>
             <View style={{ position: 'absolute' , bottom: 20 , right: 20 }}>
-            <FAB   icon='chat' small={false} style={{  padding: 5 , borderRadius: 50 , backgroundColor: colors.main  }} 
+            <FAB   icon='chat' small={false} style={{ backgroundColor: colors.main , elevation: 0  }} 
                 onPress={() => { props.navigation.navigate('ChatDetail',{ name : data?.userResponseDto?.nickname , id : props.route.params.data.id , imageUrl : props.route.params.imageUrl }) }}
             />
             {
                 newMsg > 0 &&
-                <Badge style={{ position: 'absolute'  }}>{newMsg}</Badge>
+                <Badge style={{ position: 'absolute' , top: 0 , elevation: 3  }}>{newMsg}</Badge>
             }
             </View>
         </>

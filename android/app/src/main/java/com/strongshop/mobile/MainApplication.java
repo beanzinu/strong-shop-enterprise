@@ -1,4 +1,4 @@
-package com.strongshop.mobile;
+package com.mobile.strongshop;
 
 import android.app.Application;
 import android.content.Context;

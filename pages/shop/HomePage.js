@@ -60,7 +60,7 @@ const styles = {
         // backgroundColor : colors.main , 
         borderWidth: 1 ,
         borderColor: 'lightgray' ,
-        borderRadius: 0 ,
+        // borderRadius: 0 ,
         height : 320 ,
     } ,
     cover : {
@@ -73,7 +73,7 @@ const styles = {
 
   
 function TabViews({ navigation, listControl }) {
-    const layout = useWindowDimensions();
+    // const layout = useWindowDimensions();
     const [index, setIndex] = React.useState(0);
     const MyContext = React.useContext(AppContext);
 
@@ -99,6 +99,8 @@ function TabViews({ navigation, listControl }) {
             return null;
         }
     };
+ 
+
     return (
       <TabView
         navigationState={{ index, routes }}
@@ -116,7 +118,7 @@ function TabViews({ navigation, listControl }) {
             activeColor={colors.main} 
             inactiveColor='lightgray'/>
         }
-        initialLayout={{ width: layout.width }}
+        // initialLayout={{ width: layout.width }}
       />
     );
 }
@@ -126,7 +128,6 @@ function TabViews({ navigation, listControl }) {
 export default function( props ) {
     // 1.  정보  2. 작업갤러리 3. 취급상품 4. 리뷰
     const [value, setValue] = React.useState(1);
-    const [scroll,setScroll] = React.useState(0);
     const [listControl,setListControl] = React.useState(false);
     const [collapsed,setCollapsed] = React.useState(true);
     // 업체 썸네일
@@ -220,6 +221,8 @@ export default function( props ) {
             tapHereToChange: '여기를 눌러 변경' ,
             cancelTitle: '취소' ,
             singleSelectedMode: true ,
+            // 임시
+            usedCameraButton: false
         })
         .then(async (res) => {
             setLoading(false);
@@ -407,8 +410,8 @@ export default function( props ) {
                 children={() => <ReviewPage setScroll={setScroll} listControl = {listControl} />} 
                 options={{ title: '리뷰' }}
             />
-        </Tab.Navigator>        
-         */}
+        </Tab.Navigator>         */}
+        
 
         
         </>

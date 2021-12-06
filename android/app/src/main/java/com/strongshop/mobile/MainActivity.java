@@ -1,4 +1,4 @@
-package com.strongshop.mobile;
+package com.mobile.strongshop;
 
 import com.facebook.react.ReactActivity;
 

@@ -14,7 +14,7 @@ import { SafeAreaView , RefreshControl } from 'react-native';
 import { FlatList } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import server from '../../../server/server' ;
+import server from '../../../server/server';
 import fetch from '../../../storage/fetch' ;
 import _ from 'lodash';
 import store from '../../../storage/store';
@@ -552,7 +552,7 @@ export default function ( props ) {
             setModalVisible(false);
             return;
         }
-        setRefresh(true);
+        // setRefresh(true);
 
        let tmp = [] ;
        for ( key in regions ) {
@@ -585,10 +585,7 @@ export default function ( props ) {
             }
 
             setModalVisible(false);
-            setTimeout(()=>{
-            
-                setRefresh(false);
-            },1000)
+            setRefresh(false);
        })
        .catch( e => {
            //

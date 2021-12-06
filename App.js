@@ -185,7 +185,7 @@ function App (props) {
               <Title>최강샵</Title>
             </View>
           )   
-        }
+        } 
 
         {/* <NewRegister />  */}
         {/* <MainPage state={mainVisible}/> */}
