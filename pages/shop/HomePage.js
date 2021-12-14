@@ -17,6 +17,8 @@ import InfoPage from './HomePageTap/InfoPage';
 import PostGalleryPage from './HomePageTap/PostGalleryPage';
 import ProductPage from './HomePageTap/ProductPage';
 import ReviewPage from './HomePageTap/ReviewPage';
+// server
+import API  from '../../server/API';
 import axios from 'axios';
 import server from '../../server/server';
 import fetch from '../../storage/fetch';
@@ -72,8 +74,9 @@ const styles = {
 
 
   
-function TabViews({ navigation, listControl }) {
+function TabViews({ navigation  }) {
     // const layout = useWindowDimensions();
+    // const [listControl,setListControl] = React.useState(false);
     const [index, setIndex] = React.useState(0);
     const MyContext = React.useContext(AppContext);
 
@@ -87,13 +90,13 @@ function TabViews({ navigation, listControl }) {
     const renderScene = ({ route }) => {
         switch (route.key) {
           case 'first':
-            return  <InfoPage navigation={navigation} listControl = {listControl} />;
+            return  <InfoPage navigation={navigation} />;
           case 'second':
-            return <PostGalleryPage navigation={navigation} listControl = {listControl} />
+            return <PostGalleryPage navigation={navigation}  />
           case 'third':
-            return <ProductPage navigation={navigation}  listControl = {listControl} />
+            return <ProductPage navigation={navigation} />
           case 'fourth':
-            return <ReviewPage navigation={navigation} listControl = {listControl} />
+            return <ReviewPage navigation={navigation} />
           
           default:
             return null;
@@ -128,7 +131,6 @@ function TabViews({ navigation, listControl }) {
 export default function( props ) {
     // 1.  정보  2. 작업갤러리 3. 취급상품 4. 리뷰
     const [value, setValue] = React.useState(1);
-    const [listControl,setListControl] = React.useState(false);
     const [collapsed,setCollapsed] = React.useState(true);
     // 업체 썸네일
     const [picture,setPicture] = React.useState(null);
@@ -144,7 +146,6 @@ export default function( props ) {
 
     React.useEffect(() => {
 
-        
 
         fetch('Info')
         .then( async(res) => {
@@ -154,17 +155,9 @@ export default function( props ) {
             if (res?.company_name != null )
                 setShopName(res['company_name']);
             else {
-                const token = await fetch('auth') ;
-                const auth = await token.auth ;
                 // 1. 서버에게 요청하여 Info 정보 받아옴.
-                axios({
-                    method: 'get',
-                    url: `${server.url}/api/companyinfo` ,
-                    headers: {
-                        Auth:  auth ,
-                    }
-                })
-                .then( res => {
+                API.get('/api/companyinfo')
+                .then(res=> {
                     // 2. Info 정보를 setData()
                     try {
                         if ( res.data.statusCode == 200 ) {
@@ -177,9 +170,10 @@ export default function( props ) {
                         //
                     }
                 })
-                .catch (e => {
-                    //
-                });
+                .catch( e => { 
+                    // console.log(e.response);
+                 })
+
 
             }
         })
@@ -188,23 +182,21 @@ export default function( props ) {
 
     },[]);
 
+    // 알람 처리 
     React.useEffect(() => {
-
-        // setValue(1);
-        
-        
-            fetch('noti')
-            .then(res => {
-                let flag = false ;
-                if ( res.data != null) {
-                    res.data.map(item => {
-                        if ( !item.read ) flag = true ;
-                    })
-                }
-                setIsAlarm(flag);
-            })
-            .catch(e => {
-            })
+                
+        fetch('noti')
+        .then(res => {
+            let flag = false ;
+            if ( res.data != null) {
+                res.data.map(item => {
+                    if ( !item.read ) flag = true ;
+                })
+            }
+            setIsAlarm(flag);
+        })
+        .catch(e => {
+        })
 
     },[MyContext.homeRef]);
 
@@ -288,131 +280,55 @@ export default function( props ) {
     return (
         <>
         <Appbar.Header style={{ backgroundColor: colors.main , borderColor: 'lightgray' , borderBottomWidth: 1 , alignItems: 'center'  }}>
-        <Appbar.Content  onPress={()=> { setCollapsed(!collapsed) }}  title={shopName} titleStyle={{  fontFamily : 'DoHyeon-Regular' , fontSize: shopName.length > 10 ? 12 : shopName.length > 5 ? 20 : 25  }}  />
-        <Appbar.Action icon={ collapsed ? 'chevron-down' : 'chevron-up' } onPress={() => { setCollapsed(!collapsed)}} style={{}}/>
-        <Appbar.Action  style={{ flex: 1 }}/>
-        
-
-
-        <View>
-        <Appbar.Action color='white' icon="bell-outline" onPress={() => { props.navigation.navigate('Notifications')}}  />
-        {
-            isalarm && <Badge size={ 8 } style={{ position: 'absolute' , right: 9 , top : 9  }}/>
-        }
-        </View>
-        <Appbar.Action icon="cog-outline" onPress={() => { props.navigation.navigate('MyPage',{ name: shopName , picture: picture })}} />
+            <Appbar.Content  onPress={()=> { setCollapsed(!collapsed) }}  title={shopName} titleStyle={{  fontFamily : 'DoHyeon-Regular' , fontSize: shopName.length > 10 ? 12 : shopName.length > 5 ? 20 : 25  }}  />
+            <Appbar.Action icon={ collapsed ? 'chevron-down' : 'chevron-up' } onPress={() => { setCollapsed(!collapsed)}} style={{}}/>
+            <Appbar.Action  style={{ flex: 1 }}/>
+            <View>
+                <Appbar.Action color='white' icon="bell-outline" onPress={() => { props.navigation.navigate('Notifications')}}  />
+                {
+                    isalarm && <Badge size={ 8 } style={{ position: 'absolute' , right: 9 , top : 9  }}/>
+                }
+            </View>
+            <Appbar.Action icon="cog-outline" onPress={() => { props.navigation.navigate('MyPage',{ name: shopName , picture: picture })}} />
         </Appbar.Header>  
         
-        
-
         {/* 커버사진 */}
         <Collapsible 
             collapsed={collapsed}
             // collapsed={ scroll > 0  ? true : false }
             // collapsedHeight={10}
             duration={0}
-        >
-        
-        <Card style={ styles.card }>
+        > 
+            <Card style={ styles.card }>
 
-                    {
-                        picture == null ? 
-                        (
-                            
-                            // loading ?
-                            <>
-                            <ImageView onPress={requestThumbnail} style={{flex: 1 , justifyContent: 'center' , alignItems:'center'}}>
-                            <LottieView source={require('../../LottieJson/4.json')} style={{ position: 'absolute' }}  autoPlay={true} loop={true}/>
-                            {/* <Avatar.Icon size={100} icon='gesture-tap' style={{ backgroundColor: 'transparent', position: 'absolute', bottom: 10 }} color='lightgray'/> */}
-                            <Title style={{position: 'absolute', bottom: 10 , textAlign: 'center' , fontSize: 15 }} >여기를 눌러{'\n'}업체 썸네일을 등록해보세요.</Title>
-                            </ImageView>
-                            </>
-                            // :
-                            // <ImageView style={{flex: 1 , justifyContent: 'center' , alignItems:'center'}} onPress={requestThumbnail}>
-                            // </ImageView>
-                            
-                        ) :
-                        (   
-                                <ImageView onPress={requestThumbnail}>
-                                    <FastImage source = {{ uri : picture }} style={ styles.cover } resizeMode='contain' />
+                        {
+                            picture == null ? 
+                            (
+                                
+                                // loading ?
+                                <>
+                                <ImageView onPress={requestThumbnail} style={{flex: 1 , justifyContent: 'center' , alignItems:'center'}}>
+                                <LottieView source={require('../../LottieJson/4.json')} style={{ position: 'absolute' }}  autoPlay={true} loop={true}/>
+                                {/* <Avatar.Icon size={100} icon='gesture-tap' style={{ backgroundColor: 'transparent', position: 'absolute', bottom: 10 }} color='lightgray'/> */}
+                                <Title style={{position: 'absolute', bottom: 10 , textAlign: 'center' , fontSize: 15 }} >여기를 눌러{'\n'}업체 썸네일을 등록해보세요.</Title>
                                 </ImageView>
-                        )
-                    }
+                                </>
+                                // :
+                                // <ImageView style={{flex: 1 , justifyContent: 'center' , alignItems:'center'}} onPress={requestThumbnail}>
+                                // </ImageView>
+                                
+                            ) :
+                            (   
+                                    <ImageView onPress={requestThumbnail}>
+                                        <FastImage source = {{ uri : picture }} style={ styles.cover } resizeMode='contain' />
+                                    </ImageView>
+                            )
+                        }
 
-        </Card>
- 
+            </Card> 
         </Collapsible>
 
-
-       
-        {/* <Row>
-            <MenuButton 
-                style={{ borderBottomColor : value === 1 ? colors.main : 'white' }} 
-                onPress = { () => {setValue(1) , setListControl(!listControl) } }>
-                <Text style={{ color : value === 1 ? colors.main : 'gray'}}> 정보 </Text>
-            </MenuButton>
-            <MenuButton 
-                style={{ borderBottomColor : value === 2 ? colors.main  : 'white' }} 
-                onPress = { () => {setValue(2) , setListControl(!listControl) } }>
-                <Text style={{ color : value === 2 ? colors.main : 'gray'}}> 작업갤러리 </Text>
-            </MenuButton>
-            <MenuButton 
-                style={{ borderBottomColor : value === 3 ? colors.main  : 'white' }} 
-                onPress = { () => {setValue(3) , setListControl(!listControl) } }>
-                <Text style={{ color : value === 3 ? colors.main : 'gray'}}> 취급상품 </Text>
-            </MenuButton>
-            <MenuButton 
-                style={{ borderBottomColor : value === 4 ? colors.main  : 'white' }} 
-                onPress = { () => {setValue(4) , setListControl(!listControl) } }>
-                <Text style={{ color : value === 4 ? colors.main : 'gray'}}> 리뷰 </Text>
-            </MenuButton>
-        </Row> */}
-
-        <TabViews listControl={listControl} navigation={props.navigation}/>
-
-
-        {/* <Tab.Navigator sceneContainerStyle={{ backgroundColor: 'white' }} 
-            screenOptions={{  tabBarActiveTintColor: colors.main , tabBarIndicatorStyle: { backgroundColor: colors.main }  }}   
-            keyboardDismissMode='none'
-            initialRouteName={InfoPage}
-            
-        >
-            <Tab.Screen name="InfoPage" 
-                 listeners={() => ({
-                    tabPress: e => {
-                      setListControl(!listControl);
-                    },
-                  })}
-                children={() => <InfoPage data={data} navigation={props.navigation} setScroll={setScroll} listControl = {listControl} /> } 
-                options={{ title: '정보' }}  />
-            <Tab.Screen name="PostGalleryPage" 
-                listeners={() => ({
-                    tabPress: e => {
-                      setListControl(!listControl);
-                    },
-                })}
-                children={() => <PostGalleryPage navigation={props.navigation}  data ={data} setScroll={setScroll}  listControl = {listControl} shopName={shopName}/>} 
-                options={{ title: '작업갤러리'  }}/>
-            <Tab.Screen name="ProductPage"
-                listeners={() => ({
-                    tabPress: e => {
-                    setListControl(!listControl);
-                    },
-                })} 
-                children={() => <ProductPage navigation={props.navigation} setScroll={setScroll} listControl = {listControl} />} 
-                options={{ title: '취급상품' }}/>
-            <Tab.Screen name="ReviewPage"
-            listeners={() => ({
-                tabPress: e => {
-                  setListControl(!listControl);
-                },
-                })} 
-                children={() => <ReviewPage setScroll={setScroll} listControl = {listControl} />} 
-                options={{ title: '리뷰' }}
-            />
-        </Tab.Navigator>         */}
-        
-
+        <TabViews navigation={props.navigation}/>
         
         </>
     );

@@ -4,6 +4,9 @@ import { FlatList } from 'react-native';
 import { Button  , Avatar , Title, ActivityIndicator } from 'react-native-paper';
 import { Image } from 'react-native';
 import colors from '../../../color/colors';
+
+// storage
+import API from '../../../server/API';
 import axios from 'axios';
 import server from '../../../server/server';
 import fetch from '../../../storage/fetch';
@@ -40,37 +43,16 @@ export default function( props ) {
 
     requestImage = () =>  {
 
-
-        fetch('auth')
+        API.get('/api/gallery')
         .then( res => {
-            const auth = res.auth ;
-            axios({
-                url: `${server.url}/api/gallery`,
-                method: 'get' ,
-                headers : {
-                    Auth : auth 
-                }
-            })
-            .then ( res =>  {
-                setPostData(res.data.data) ;
-                setLoading(false);
-            })
-            .catch(e  => {
-                //
-            })
+            setPostData(res.data.data) ;
+            setLoading(false);
         })
-        .catch( e => {
-
+        .catch(e  => {
+            //
         })
-
         
     }
-
-    // React.useEffect(() => {
-
-    //     if ( this?.flatList != null )
-    //         this?.flatList?.scrollToOffset({ offset: 0 });
-    // },[props.listControl]);
 
     React.useEffect(() =>  {
 
@@ -89,7 +71,7 @@ export default function( props ) {
   // 1개의 게시물 
   const RenderItem = ({ item }) =>  {
         return(
-        <PostButton onPress= { () =>  { props.navigation.navigate('Post',{ imageUrl: imageUrl  , uri : item.imageUrls , content : item.content , name : shopName , id : item.id }) }}>
+        <PostButton key={item.id} onPress= { () =>  { props.navigation.navigate('Post',{ imageUrl: imageUrl  , uri : item.imageUrls , content : item.content , name : shopName , id : item.id }) }}>
             <FastImage resizeMode='cover' source= { { uri: item?.imageUrls[0]?.imageUrl }  } style={{ width: '100%' , height: '100%' }} />
         </PostButton>    
         );
@@ -124,7 +106,6 @@ export default function( props ) {
                     (
                         <FlatList
                         ref={ ref => this.flatList = ref }
-                        // onScrollEndDrag={this.handleScroll}
                         data={ postData } 
                         renderItem = {RenderItem}
                         horizontal={false}

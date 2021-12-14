@@ -2,30 +2,25 @@ import React from 'react';
 import NaverMapView , { Marker } from 'react-native-nmap';
 import styled from 'styled-components';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { Button , Title , ActivityIndicator, Avatar , TextInput } from 'react-native-paper';
-import axios from 'axios';
+import { Button , Title , ActivityIndicator, Avatar } from 'react-native-paper';
 import colors from '../../../color/colors';
 import { Linking } from 'react-native';
-import { RefreshControl } from 'react-native';
 import _ from 'lodash';
 // storage
-import server from '../../../server/server';
+import API from '../../../server/API';
 import fetch from '../../../storage/fetch';
 import store from '../../../storage/store';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import AppContext from '../../../storage/AppContext';
 
 const Row = styled.View`
     flex-direction: row;
     align-items: center;
 `;
-
 const Text = styled.Text`
     margin-left: 10px;
     font-size: 17px ;
     padding: 10px ;
 `;
-
 const styles = {
     title : {
         fontWeight: 'bold' ,
@@ -56,7 +51,6 @@ export default function( props ) {
     }
 
     function fetchInfo () {
-
         // 저장된 Info정보 확인 
         fetch('Info')
         .then( async(res) => {
@@ -66,23 +60,8 @@ export default function( props ) {
                 setMap(res);
             }
             else {
-                let auth;
-                await fetch('auth')
-                .then( res => {
-                    auth = res.auth;
-                }).catch( e=> { 
-                    //
-                 })
-
-                // 1. 서버에게 요청하여 Info 정보 받아옴.
-                axios({
-                    method: 'get',
-                    url: `${server.url}/api/companyinfo`,
-                    headers: {
-                        Auth:  auth ,
-                    }
-                })
-                .then( async(res)=> {
+                API.get('/api/companyinfo')
+                .then( async(res) => {
                     // 2. Info 정보를 setData()
                     try {
                         if ( res.data.statusCode == 200 ) {
@@ -96,25 +75,11 @@ export default function( props ) {
                         //
                     }
                 })
-                .catch (e => {
-                    //
-
-                })
+                .catch( e => { } )
             }
-
         })
-        .catch( (e) => {
-
-            
-
-        });
+        .catch( (e) => {  });
     }
-
-    
-    // React.useEffect(() => {
-    //     if ( this?.flatList != null )
-    //         this?.flatList?.scrollToPosition(0);
-    // },[props.listControl]);
 
     React.useEffect(() =>  {
 
