@@ -12,6 +12,10 @@ import server from '../../../server/server';
 import fetch from '../../../storage/fetch';
 import store from '../../../storage/store';
 import { Alert } from 'react-native';
+// server
+import API from '../../../server/API';
+// analytics
+import analytics from '@react-native-firebase/analytics'
 
 
 
@@ -106,6 +110,12 @@ const db = database().ref(`chat${ props.route.params.id }`);
 
     // 화면 처음 실행 시
     useEffect( () => {
+
+        // Google Analytics
+        analytics().logScreenView({
+            screen_class: 'Contract' ,
+            screen_name: 'Chat'
+        })
 
         fetch('Info')
         .then( res => {
@@ -210,7 +220,10 @@ const db = database().ref(`chat${ props.route.params.id }`);
                 setDisabled(true);
                 // 인터넷 끊겼을 때 (테스트)
                 // database().goOffline();
-                msg[0].createdAt = moment( msg[0].createdAt).format('YYYY-MM-DD kk:mm:ss') ;
+                
+                // console.log( msg[0].createdAt );
+                // console.log( Date() )
+                msg[0].createdAt = moment().format('YYYY-MM-DD kk:mm:ss') ;
                 msg[0]['received'] = false ;
         
                 //서버로 제대로 전달이 되었다면 보내는 방향으로
@@ -218,61 +231,45 @@ const db = database().ref(`chat${ props.route.params.id }`);
                 // 화면에 표시
                 setMessages(previousMessages => GiftedChat.append(previousMessages, msg))
                 
-        
-                fetch('auth')
+                API.put(`/api/chat/${props.route.params.id}?content=${msg[0].text}`)
                 .then( res => {
-                    const auth = res.auth;
-                    axios({
-                        url: `${server.url}/api/chat/${props.route.params.id}?content=${msg[0].text}` ,
-                        method: 'put' ,
-                        headers: { Auth: auth } ,
+                    newReference.set({
+                        text : msg[0].text ,
+                        user : msg[0].user ,
+                        _id : msg[0]._id ,
+                        received : false ,
+                        sent : true ,
+                        createdAt : msg[0].createdAt ,
                     })
-                    .then( res => {
-                        newReference.set({
-                            text : msg[0].text ,
-                            user : msg[0].user ,
-                            _id : msg[0]._id ,
-                            received : false ,
-                            sent : true ,
-                            createdAt : moment( msg[0].createdAt ).format('YYYY-MM-DD kk:mm:ss') ,
-                        })
-                        .then( res  => { 
-                            //메시지 전송 성공 시
-                                setMessages(previousMessages => (
-                                previousMessages.filter( message => message._id !== msg[0]._id ) ) ) ;
+                    .then( res  => { 
+                        //메시지 전송 성공 시
+                        setMessages(previousMessages => (
+                        previousMessages.filter( message => message._id !== msg[0]._id ) ) ) ;
 
-                               msg[0] = { ...msg[0] , sent : true } ;
-                               setMessages(previousMessages =>  GiftedChat.append(previousMessages,msg));
-                               setDisabled(false);
-                        })
-                        .catch( e => { 
-                            // Server Request 성공 -> Realtime DB 실패
-                            newReference.remove();
-                            msg[0] = { ...msg[0] , sent : false }
-                            setMessages(previousMessages => GiftedChat.append(previousMessages, msg)) 
-                            setDisabled(false);
-                         })
+                        msg[0] = { ...msg[0] , sent : true } ;
+                        setMessages(previousMessages =>  GiftedChat.append(previousMessages,msg));
+                        setDisabled(false);
                     })
-                    .catch( e => {
-                        // Server Request 실패
+                    .catch( e => { 
+                        // Server Request 성공 -> Realtime DB 실패
                         newReference.remove();
-        
-                        setMessages(previousMessages => (
-                            previousMessages.filter( message => message._id !== msg[0]._id )  ) ) ;
-                        msg[0] = { ...msg[0] , sent : false } ;
-                        setMessages(previousMessages => (
-                            GiftedChat.append(previousMessages,msg)
-                        ));
+                        msg[0] = { ...msg[0] , sent : false }
+                        setMessages(previousMessages => GiftedChat.append(previousMessages, msg)) 
                         setDisabled(false);
                     })
-        
                 })
-                .catch(
-                    e => { 
-                        Alert.alert('다시 시도해주세요.');
-                        setDisabled(false);
-                    }
-                )
+                .catch( e => {
+                    // Server Request 실패
+                    newReference.remove();
+    
+                    setMessages(previousMessages => (
+                        previousMessages.filter( message => message._id !== msg[0]._id )  ) ) ;
+                    msg[0] = { ...msg[0] , sent : false } ;
+                    setMessages(previousMessages => (
+                        GiftedChat.append(previousMessages,msg)
+                    ));
+                    setDisabled(false);
+                })
         
                 
               
@@ -281,9 +278,9 @@ const db = database().ref(`chat${ props.route.params.id }`);
 
   return (
     <>
-     <Appbar.Header style={{ backgroundColor: colors.main}}>
-        <Appbar.BackAction color='white' onPress={() => { db.off() ; props.navigation.goBack() }} />   
-        <Appbar.Content title={ `${props.route.params.name} 고객` } /> 
+     <Appbar.Header style={{ backgroundColor: 'transparent' }}>
+        <Appbar.BackAction color='black' onPress={() => { db.off() ; props.navigation.goBack() }} />   
+        <Appbar.Content titleStyle={{  fontSize: 20 }} title={ `${props.route.params.name} 고객` } /> 
     </Appbar.Header>
     <GiftedChat
         messages={messages}
@@ -291,11 +288,12 @@ const db = database().ref(`chat${ props.route.params.id }`);
         renderSystemMessage={this.onRenderSystemMessage}
         renderAvatar={RenderAvatar}
         renderSend = {RenderSend}
-        renderBubble={props=><Bubble {...props} wrapperStyle={{ right: { backgroundColor: colors.main , borderBottomEndRadius: 20 , padding: 5 } , left : { backgroundColor: 'white'} }} 
+        dateFormat={`YYYY년 MM월 DD일`}
+        renderBubble={props=><Bubble {...props} wrapperStyle={{ right: { backgroundColor: colors.main , borderBottomEndRadius: 10  } , left : { backgroundColor: 'white'} }} 
         // 메시지 상태 표시
         render
         renderTicks = {(messages) => 
-            ( messages.sent == null  ? <ActivityIndicator color='white' size={13} style={{ padding : 7}}/> : messages.sent ? <></> : <IconButton icon='close' color='red' size={15} /> )}
+            ( messages.sent == null  ? <ActivityIndicator color='white' size={13} style={{ padding : 3}}/> : messages.sent ? <></> : <IconButton icon='close' color='red' size={15} /> )}
         textInputStyle = {{ alignSelf: 'center' , margin: 5 }}
         alwaysShowSend={true}
         textStyle={{ right:{ padding: 3 }}} /> }

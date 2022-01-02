@@ -1,6 +1,6 @@
 import _, { add } from 'lodash';
 import React from 'react';
-import { List , Title } from 'react-native-paper';
+import { Badge, List , Title } from 'react-native-paper';
 import fetch from '../../../storage/fetch';
 import store from '../../../storage/store';
 import moment from 'moment';
@@ -17,10 +17,16 @@ export default function( props ) {
         .then(res => {
             setRawData(res.data);
             setData(_.reverse(res.data));
+
+            // 읽음으로 모두 표시
+            res.data.map( (item) => { item['read'] = true } )
+            store('noti',{ data : res.data });
+
         })
         .catch(e => {
 
         })
+
     },[]);
 
    
@@ -53,9 +59,10 @@ export default function( props ) {
                     <List.Item 
                             style={{ borderWidth: 1 , borderColor: 'lightgray' , backgroundColor: read? 'rgb(240,240,240)' : 'white'  }}
                             title={notification.title}   
-                            onPress={ () => {handleRead(index)} }
+                            // onPress={ () => {handleRead(index)} }
                             description={notification.body}
                             titleStyle={{  fontWeight: 'bold'  }} 
+                            right={ () => !read && <Badge  color='red' size={10} style={{ top: 5  , right: 5 , position: 'absolute'}} />}
                             descriptionStyle={{ paddingTop: 3 , fontWeight: 'bold' }} 
                     />    
                 </>
@@ -67,6 +74,7 @@ export default function( props ) {
         <KeyboardAwareScrollView style={{ backgroundColor: 'white' }}>
             {/* <List.Section> */}
                 {
+                    data.length != 0 &&
                     data.map( (notification,index) =>{
                         if (index == 0 ) prevDate = moment(data[index].createdAt).add(1,'days') ;
                         if ( index != 0 ) prevDate = data[index-1].createdAt ;

@@ -75,7 +75,7 @@ export default function( props ) {
             {
                 loading ? 
                 (
-                    <ActivityIndicator size='large' style={{ marginTop: 20 }} color={colors.main} />
+                    <ActivityIndicator size='large' style={{ marginTop: 20 }} color={'black'} />
                 ) : 
                 (
                     DATA.length == 0 ? 
@@ -146,17 +146,8 @@ function Reply({item,index}) {
     //
     const requestReply = async () =>  {
 
-        const token = await fetch('auth') ;
-        const auth = token.auth;
-
         // request 
-        // id 필요
-        axios({
-            url: `${server.url}/api/review/reply`,
-            method: 'put' ,
-            data : { id: item.id , reply: reply  } ,
-            headers: { Auth: auth }
-        })
+        API.put('/api/review/reply',{ id: item.id , reply: reply  })
         .then( res => {
             // 성공
             MyContext.setReviewRefresh(!MyContext.reviewRefresh)
@@ -218,7 +209,7 @@ const Text = styled.Text``;
 const View = styled.View``;
 
 const TextInput = styled.TextInput`
-    border: 1px ${colors.main};
+    border: 1px ${'black'};
     border-radius: 10px;
     margin-top: 10px;
     padding: 10px;
@@ -243,7 +234,7 @@ const styles = {
         margin: 16 ,
         right: 0 ,
         bottom: 0 ,
-        backgroundColor : colors.main
+        backgroundColor : 'black'
     } , 
     reviewText : {
         padding: 10  ,

@@ -22,6 +22,9 @@ import server from '../../server/server';
 import store from '../../storage/store';
 import fetch from '../../storage/fetch';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+// analytics
+import analytics from '@react-native-firebase/analytics'
+
 
 const View = styled.View`
     flex : 1 ;
@@ -85,7 +88,6 @@ export default function({getMain}) {
     // const [detailAddress,setDetailAddress] = React.useState('');
     const [detailAddress,setDetailAddress] = React.useState('');
     const [visible,setVisible] = React.useState(false);
-
     const [enabled,setEnabled] = React.useState(true);
 
 
@@ -390,6 +392,15 @@ export default function({getMain}) {
         // .catch(e => Alert.alert('필수사항을 입력해주세요.') ) ;
 
     } ;
+
+    React.useEffect(() => {
+        // Google Analytics
+        analytics().logScreenView({
+            screen_class: 'Login' ,
+            screen_name: 'Login'
+        })
+        
+    },[]);
 
     return(
         <Provider>

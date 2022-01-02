@@ -24,6 +24,7 @@ import ProductDetailRegister from './Register/ProductDetailRegister';
 import MyPage from './AppBarContents/MyPage';
 import Receipt from './AppBarContents/Receipt';
 import Notifications from './AppBarContents/Notifications';
+import CS from './AppBarContents/CS';
 
 const View = styled.SafeAreaView``;
 
@@ -47,6 +48,7 @@ function HomeRoute() {
             <Stack.Screen name='Home' component={HomePage}  options={{ headerShown : false }}/>
             <Stack.Screen name='MyPage' component={MyPage}  options={{ title: '마이페이지' }}/>
             <Stack.Screen name='Receipt' component={Receipt}  options={{ title: '과거 시공내역'  }}/>
+            <Stack.Screen name='CS' component={CS}  options={{ title: '고객문의'  }}/>
             <Stack.Screen name='Notifications' component={Notifications} options={{ title: '알림센터' }}/>
             <Stack.Screen name='Post' component={PostPage} options={{ title: '게시물' }} />
             <Stack.Screen name='InfoRegister' component={InfoRegister} options={{ headerShown: false }} />
@@ -147,14 +149,14 @@ export default function( props ) {
     const handleTabPress  = ( route ) => {
         if ( route.key == 'home' ) {
             MyContext.setHomeRef(!MyContext.homeRef);
-            MyContext.setChatRef(!MyContext.chatRef);
+            // MyContext.setChatRef(!MyContext.chatRef);
         }
         else if ( route.key == 'chat' ) {
             MyContext.setChatRef(!MyContext.chatRef);
         }
         else if ( route.key == 'bid' ) {
             MyContext.setBidRef(!MyContext.bidRef);
-            MyContext.setChatRef(!MyContext.chatRef);
+            // MyContext.setChatRef(!MyContext.chatRef);
         }
 
     } 
@@ -194,11 +196,13 @@ export default function( props ) {
 
     return(
         <BottomNavigation
-            barStyle= {{ backgroundColor: 'white' }}
+            style={{ }}
+            barStyle= {{ backgroundColor: 'white' , borderTopLeftRadius: 10 , borderTopRightRadius: 10 }}
             getBadge={ (routes) => {
                 if ( routes.route.key == 'chat') return MyContext.badge
             } } 
-            activeColor={colors.main}
+            activeColor={'black'}
+            inactiveColor='lightgray'
             navigationState={{ index, routes  }}
             shifting={true}
             onTabPress={(index) => { handleTabPress(index.route) }}

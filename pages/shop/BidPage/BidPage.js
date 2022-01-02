@@ -24,6 +24,9 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 // pages
 import BidRegister_current from './BidRegister_current';
 import BidRegister_history from './BidRegister_history';
+// analytics
+import analytics from '@react-native-firebase/analytics'
+
 const Tab = createMaterialTopTabNavigator();
 
 export default function ( props ) {
@@ -37,7 +40,7 @@ export default function ( props ) {
     const [regions,setRegions] = React.useState(defaultRegions) ;
     const [refresh,setRefresh] = React.useState(false);
     const MyContext = React.useContext(AppContext);
-    // const isFocused = useIsFocused();
+    const isFocused = useIsFocused();
 
     const RenderItem= ({ item }) => {
         let tmp = JSON.parse(item.details);
@@ -53,21 +56,22 @@ export default function ( props ) {
     }
 
     function BidBefore() {
+
         return (
             <>
             {/* // 입찰 전 */}
                 <Row>
                 <ScrollView horizontal={true} contentContainerStyle={{ alignItems: 'center' , height: 70 }}>
-                    <Button icon='plus' style={{  padding: 5, margin: 10 , borderRadius: 30 }} mode='contained' color={colors.main} onPress={() => { setModalVisible(true) }}>
+                    <Button icon='plus' style={{  padding: 4, margin: 10 , borderRadius: 10 , borderWidth: 1 , borderColor: 'gray' }} mode='outlined' color={'gray'} onPress={() => { setModalVisible(true) }}>
                         지역
                     </Button>
-                    { regions.seoul && <Chip  style={{ padding: 3 , margin: 3 }}>서울</Chip> }
-                    { regions.incheon && <Chip style={{ padding: 3 , margin: 3 }}>인천</Chip> }
-                    { regions.daejeon && <Chip style={{ padding: 3 , margin: 3 }}>대전</Chip> }
-                    { regions.daegu && <Chip style={{ padding: 3 , margin: 3 }}>대구</Chip> }
-                    { regions.busan && <Chip style={{ padding: 3 , margin: 3 }}>부산</Chip> }
-                    { regions.gwangju && <Chip style={{ padding: 3 , margin: 3 }}>광주</Chip> }
-                    { regions.jeju && <Chip style={{ padding: 3 , margin: 3 }}>제주</Chip> }
+                    { regions.seoul && <Chip textStyle={{ color: 'white'}} style={ styles.scrollChipStyle }>서울</Chip>}
+                    { regions.incheon && <Chip textStyle={{ color: 'white'}} style={styles.scrollChipStyle }>인천</Chip> }
+                    { regions.daejeon && <Chip textStyle={{ color: 'white'}} style={styles.scrollChipStyle }>대전</Chip> }
+                    { regions.daegu && <Chip textStyle={{ color: 'white'}} style={styles.scrollChipStyle }>대구</Chip> }
+                    { regions.busan && <Chip textStyle={{ color: 'white'}} style={styles.scrollChipStyle }>부산</Chip> }
+                    { regions.gwangju && <Chip textStyle={{ color: 'white'}} style={styles.scrollChipStyle }>광주</Chip> }
+                    { regions.jeju && <Chip textStyle={{ color: 'white'}} style={styles.scrollChipStyle }>제주</Chip> }
                 </ScrollView>
                 </Row>
                 {
@@ -80,7 +84,7 @@ export default function ( props ) {
                             contentContainerStyle={{ height: Dimensions.get('screen').height*0.6 , justifyContent: 'center' , alignItems: 'center'  }}
                         >   
                             <BidBeforeView onPress={() => {  setModalVisible(true) }}>
-                            <Title>
+                            <Title style= {{ fontSize: 14 }}>
                                 {
                                     checkRegions() ? '지역을 선택해 주세요.' : '아직 입찰요청이 없어요.'
                                 }
@@ -151,6 +155,7 @@ export default function ( props ) {
             setData([]);
             return;
         }
+        setModalVisible(false);
 
        let tmp = [] ;
        for ( key in regions ) {
@@ -179,7 +184,7 @@ export default function ( props ) {
             setRefresh(false);
        })
        .catch( e => {        
-            if ( e.response.hasOwnProperty('status') && e?.response?.status == 403 ) {
+            if ( e.response != null && e?.response?.hasOwnProperty('status') && e?.response?.status == 403 ) {
                 Alert.alert('새로운 기기','다른 기기에서 로그인하여 로그아웃 되었습니다.');
                 AsyncStorage.clear();
                 MyContext.LOGOUT();
@@ -192,7 +197,6 @@ export default function ( props ) {
        })
     }
 
-    const isFocused = useIsFocused();
 
     React.useEffect(() => {
 
@@ -228,7 +232,13 @@ export default function ( props ) {
     // 서버
     // 선택지역 캐시 있으면 requestOrders() 
     if ( isFocused ) {
-   
+
+        // Google Analytics
+        analytics().logScreenView({
+            screen_class: 'Bidding' ,
+            screen_name: 'BidBefore'
+        })
+
         fetch('orderRegion')
         .then( (res) => {
             if (res?.region != null ) {
@@ -253,7 +263,7 @@ export default function ( props ) {
                         }
                     })
                     .catch( e => {
-                        if ( e.response.hasOwnProperty('status') && e.response.status == 403 ) {
+                        if ( e.response != null && e.response.hasOwnProperty('status') && e.response.status == 403 ) {
                             Alert.alert('새로운 기기','다른 기기에서 로그인하여 로그아웃 되었습니다.');
                             AsyncStorage.clear();
                             MyContext.LOGOUT();
@@ -286,7 +296,7 @@ export default function ( props ) {
                     {
                         REGION.map(region=>{
                             return(
-                                <Button icon={ regions[region.key] && 'check-decagram' } key={region.key} style={{ flex: 1 , justifyContent: 'center' , margin: 3 }} mode='outlined' color={colors.main}
+                                <Button icon={ regions[region.key] && 'check-decagram' } key={region.key} style={{ flex: 1 , justifyContent: 'center' , margin: 3 }} mode='outlined' color={'black'}
                                     onPress={ () => { handleRegion(region.key) } }
                                 >
                                     {region.value}
@@ -301,11 +311,11 @@ export default function ( props ) {
 
             
         <Appbar.Header style={{ backgroundColor: 'transparent' , elevation: 0 }}>
-                <Appbar.Content title={shopName} titleStyle={{ fontFamily : 'DoHyeon-Regular' , fontSize: 30 , color: 'gray'  }} />
+                <Appbar.Content title={shopName} titleStyle={{ fontFamily : 'DoHyeon-Regular' , fontSize: 30 , color: 'lightgray' , alignSelf: 'center'  }} />
                 {/* <Appbar.Action icon="bell-outline" color='gray' onPress={() => {}} /> */}
                 {/* <Appbar.Action icon="cog-outline" color='gray' onPress={() => { props.navigation.navigate('MyPage')}} /> */}
         </Appbar.Header>   
-        <Tab.Navigator sceneContainerStyle={{ backgroundColor: 'white' }} screenOptions={{ tabBarActiveTintColor: colors.main , tabBarIndicatorStyle: { backgroundColor: colors.main }  }}   initialRouteName={BidBefore}>
+        <Tab.Navigator  sceneContainerStyle={{ backgroundColor: 'white' }} screenOptions={{ tabBarActiveTintColor: 'black' , tabBarIndicatorStyle: { backgroundColor: 'black' , borderWidth: 2 } , tabBarLabelStyle: { fontWeight: 'bold' , fontSize: 15 }   }}    initialRouteName={BidBefore}>
             <Tab.Screen name="BidBefore" component={BidBefore} options={{ title: '입찰 전' }} />
             <Tab.Screen name="BidRegister_current" component={BidRegister_current} options={{ title: '입찰 중'  }}/>
             <Tab.Screen name="BidRegister_history" component={BidRegister_history} options={{ title: '입찰결과' }}/>
@@ -333,7 +343,7 @@ function Item ( { item , navigation , id } ) {
                             
                             // left={props => <List.Icon {...props} icon="car-hatchback" color={'black'}  />}
                            >
-                            <View style={{ backgroundColor: 'rgb(250,250,250)' , margin: 10 , borderWidth: 1 , borderRadius: 10 , borderColor: 'lightgray' }}>
+                            <View style={{ backgroundColor: 'white' , margin: 10 , borderWidth: 1 , borderRadius: 10 , borderColor: 'lightgray' }}>
                                 { item.options.tinting && 
                                     <>
                                         <List.Item titleStyle={styles.listStyle} title ='틴팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
@@ -430,7 +440,7 @@ function Item ( { item , navigation , id } ) {
                                 <List.Item 
                                     // style={{ borderWidth: 1 ,borderColor: 'lightgray'}}
                                     titleStyle={{  fontWeight: 'bold' }} 
-                                    descriptionStyle={{ paddingTop: 3 , fontWeight: 'bold' }}
+                                    descriptionStyle={{ paddingTop: 5 , fontWeight: 'bold' , fontSize: 17 }}
                                     title='요청사항:' description={item.require} />
                                 <Button 
                                         icon='account-cash' 
@@ -467,6 +477,10 @@ const styles = {
         // backgroundColor: colors.main ,
         color: 'white' ,
         margin : 3 ,
+        marginLeft: 10 
+    } ,
+    scrollChipStyle : {
+        margin: 3 , padding: 3 , borderRadius : 10  , backgroundColor: colors.main , justifyContent: 'center' , alignItems: 'center'
     } ,
     chipTextStyle : {
     } , 

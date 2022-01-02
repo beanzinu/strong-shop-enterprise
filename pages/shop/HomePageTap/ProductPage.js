@@ -7,15 +7,17 @@ import { FlatList } from 'react-native';
 // storage
 import API from '../../../server/API';
 import AppContext from '../../../storage/AppContext';
+import { useIsFocused } from '@react-navigation/native';
 
 export default function( props ) {
     const [value,setValue] = React.useState(1);
     const [DATA,setDATA] = React.useState(null);
     const [loading,setLoading] = React.useState(true);
     const MyContext = React.useContext(AppContext);
+    const isFocused = useIsFocused();
     
     React.useEffect( ()=>{
-
+        
         // request Product
         API.get('/api/product')
         .then( res => {
@@ -32,7 +34,7 @@ export default function( props ) {
             {
             loading ? 
             (
-                <ActivityIndicator size='large' style={{ marginTop: 20 }} color={colors.main} />
+                <ActivityIndicator size='large' style={{ marginTop: 20 }} color={'black'} />
             ) : 
             (
                 <>
@@ -41,7 +43,7 @@ export default function( props ) {
                         {
                             options.map((item,i)=>{
                                 return(
-                                    <Button key={i} style={{ ...styles.button }} labelStyle={{ fontSize: 14 }} color={colors.main} onPress={ () => { setValue(i+1) }} mode = { value == i+1 && 'contained'}>
+                                    <Button key={i} style={{ ...styles.button }} labelStyle={{ fontSize: 15 , color: '#964b00' }} color='rgb(230,230,230)' onPress={ () => { setValue(i+1) }} mode = { value == i+1 && 'contained'}>
                                         {item.name}
                                     </Button>
                                 )
@@ -107,8 +109,8 @@ function Product( {DATA, listControl} ) {
         {
             DATA == null || DATA.length == 0 ? (
                 <View style={{ backgroundColor: 'white' , justifyContent: 'center' , alignItems: 'center' , flex: 1}}>
-                    <Avatar.Icon icon='note-plus' style={{ backgroundColor: 'transparent'}} color={colors.main}/>
-                    <Title>취급상품을 등록해보세요.</Title>
+                    {/* <Avatar.Icon icon='note-plus' style={{ backgroundColor: 'transparent'}} color={'gray'}/> */}
+                    <Title style={{ fontSize: 14 , color: 'black' }}>취급상품을 등록해보세요.</Title>
                 </View>
             ) :
             (
@@ -150,13 +152,15 @@ const styles = {
     } ,
     button : {
         alignSelf: 'center' , 
-        height: 45 ,
+        alignItems: 'center' ,
+        justifyContent: 'center' ,
+        height: 40 ,
         borderWidth : 1 ,
-        borderColor : 'lightgray' ,
         borderRadius: 20,
         margin : 5 , 
-        flex : 1 , 
-        padding : 3 ,
+        paddingLeft: 5 ,
+        paddingRight : 5 ,
+        marginRight: 10
     } ,
     fab : {
         position: 'absolute' ,

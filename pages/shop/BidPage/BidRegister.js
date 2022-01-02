@@ -37,7 +37,7 @@ const styles= {
         margin: 10 ,
         marginTop: 20 ,
         marginBottom: 20 , 
-        color: colors.main,
+        color: 'black',
     } ,
     label : {
         margin: 10 ,
@@ -47,8 +47,8 @@ const styles= {
     } ,
     theme : { 
         colors : {
-            underlineColor : colors.main ,
-            primary : colors.main ,
+            underlineColor : 'black' ,
+            primary : 'black' ,
             background: 'white' ,
         }
     } ,
@@ -165,15 +165,15 @@ export default function( props ) {
     
     checkInput = () => {
         flag = true ;
-        if ( (data.options['tinting']) ) if ( !tinting.length ) flag = false;
-        if ( (data.options['ppf']) ) if ( !ppf.length ) flag = false;
-        if ( (data.options['blackbox'] ) ) if ( !blackbox.length )  flag = false;
-        if ( (data.options['battery'] ) ) if ( !battery.length ) flag = false;
-        if ( (data.options['afterblow'] ) ) if ( !afterblow.length ) flag = false;
-        if ( (data.options['soundproof'] ) ) if ( !soundproof.length )  flag = false;
-        if ( (data.options['wrapping'] ) ) if ( !wrapping.length )  flag = false;
-        if ( (data.options['glasscoating'] ) ) if ( !glasscoating.length )  flag = false;
-        if ( (data.options['undercoating'] ) ) if ( !undercoating.length )  flag = false;
+        if ( (data.options['tinting']) ) if ( !tinting.length || !tintingPrice.length ) flag = false;
+        if ( (data.options['ppf']) ) if ( !ppf.length || !ppfPrice.length ) flag = false;
+        if ( (data.options['blackbox'] ) ) if ( !blackbox.length || !blackbox.length )  flag = false;
+        if ( (data.options['battery'] ) ) if ( !battery.length || !batteryPrice.length ) flag = false;
+        if ( (data.options['afterblow'] ) ) if ( !afterblow.length || !afterblowPrice.length ) flag = false;
+        if ( (data.options['soundproof'] ) ) if ( !soundproof.length || !soundproofPrice.length )  flag = false;
+        if ( (data.options['wrapping'] ) ) if ( !wrapping.length || !wrappingPrice.length )  flag = false;
+        if ( (data.options['glasscoating'] ) ) if ( !glasscoating.length || !glasscoatingPrice.length )  flag = false;
+        if ( (data.options['undercoating'] ) ) if ( !undercoating.length || !undercoatingPrice.length )  flag = false;
         return flag ;
     }
 
@@ -269,6 +269,14 @@ export default function( props ) {
         
     }
 
+    // 정규식 표현 
+    function addComma(value){ 
+        return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+    // 콤마 제거
+    function removeComma(value){
+        return value.replaceAll(',','');
+    }
 
     return(               
         <Provider>
@@ -281,7 +289,7 @@ export default function( props ) {
         </Portal>
 
             <Row style={{ borderBottomWidth: 1 , borderBottomColor: 'gray' }}>
-                <Avatar.Icon icon='car-arrow-left' color='red' style={{ backgroundColor: 'transparent'}} />
+                <Avatar.Icon icon='car-arrow-left' color='black' style={{ backgroundColor: 'transparent'}} />
                 <Title style={{ ...styles.title  }}>{data.carName}</Title>
             </Row>
             {
@@ -541,13 +549,13 @@ export default function( props ) {
                 )
             }
             <List.Section style={{ marginTop: 10 }} >
-                <List.Accordion title='요청사항확인' theme={{ colors: { primary: colors.main }}} >
-                        <Text style={{ borderWidth:1 , padding: 10 , borderColor: 'lightgray' }}>{data.require}</Text>
+                <List.Accordion title='요청사항확인' titleStyle={{ fontWeight: 'bold' }} style={{ backgroundColor: 'white',borderWidth: 1,borderColor: 'lightgray' }} theme={{ colors: { primary: 'black' }}}>
+                        <Text style={{ borderWidth:1 , padding: 10 , paddingTop: 20 , paddingBottom: 20 , borderColor: 'lightgray',fontSize: 17 }}>{data.require}</Text>
                 </List.Accordion>
             </List.Section>
            
             <List.Item title='지역' right={props => <Title>{translate('region',data.region)}</Title>}></List.Item>
-            <List.Item title='최종가격' right={props => <Title>{getSum()}만원</Title>}></List.Item>
+            <List.Item title='최종가격' right={props => <Title>{getSum()} 만원</Title>}></List.Item>
             <Button color = { colors.main } 
                 style={{ margin : 3 , marginTop: 20 , marginBottom: 20 }}
                 labelStyle = {{ fontSize: 17 }}

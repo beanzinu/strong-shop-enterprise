@@ -1,8 +1,7 @@
 import React from 'react' ;
 import styled from 'styled-components';
 import { Avatar , Card , Title , 
-    Paragraph , Button , Banner , ActivityIndicator } from 'react-native-paper';
-import {  GiftedChat } from 'react-native-gifted-chat';
+    Paragraph , Button , Banner , ActivityIndicator, IconButton, Appbar } from 'react-native-paper';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import database from '@react-native-firebase/database';
@@ -12,12 +11,17 @@ import { Alert, Image } from 'react-native';
 import server from '../../../server/server';
 import { useIsFocused } from '@react-navigation/native';
 import AppContext from '../../../storage/AppContext';
+// server
+import API from '../../../server/API';
 // pages 
 import ChatDetailPage from './ChatDetailPage';
 import ProgressPage from './ProgressPage';
 import colors from '../../../color/colors';
 import fetch from '../../../storage/fetch';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+// analytics
+import analytics from '@react-native-firebase/analytics'
+
 const styles = {
     Button : {
         flex: 1
@@ -48,6 +52,8 @@ const state = {
     CONSTRUCTING : '시공진행' ,
     CONSTRUCTION_COMPLETED : '시공완료/출고'
 }
+
+
 
 const ChatView = ( props  ) =>   {
     const MyContext = React.useContext(AppContext);
@@ -90,57 +96,52 @@ const ChatView = ( props  ) =>   {
 
             
     }
+    // 고객 다시 불러오기
+    const reloadClients = () => {
+
+        // Google Analytics
+        analytics().logScreenView({
+            screen_class: 'Contract' ,
+            screen_name: 'ContractList'
+        })
+
+        API.get('/api/contract')
+        .then( res => {
+            if ( res.data.data.length == 0 ) {
+                setData([]);
+                MyContext.setBadge(0);
+            }
+            else if ( JSON.stringify( data ) !== JSON.stringify(res.data.data) ){
+                setData(res.data.data);   
+            }
+            if ( res.data.data.length != 0 )
+                handleUnRead(res.data.data);
+        })
+        .catch( e => {
+            if ( e?.response?.hasOwnProperty('status') && e?.response?.status == 403 ) {
+                Alert.alert('새로운 기기','다른 기기에서 로그인하여 로그아웃 되었습니다.');
+                AsyncStorage.clear();
+                MyContext.LOGOUT();
+            }
+            else { 
+                Alert.alert('다시 시도해주세요.');
+            }
+        })
+    }
 
     React.useEffect( () => {
 
-    // 채팅
+        // 채팅
         database().goOnline();
-        // database().ref('chat').orderByKey('createdAt').limitToLast(1).once('value',snapshot=>{
-        //     record = Object.values(snapshot.val())[0];
-        //     setTemp(record);
-        // });
+        
         if ( isFocused ) {
-            fetch('auth')
-            .then( res => {
-                const auth = res.auth ;
-                axios({
-                    method: 'get' ,
-                    url: `${server.url}/api/contract` ,
-                    headers: { Auth: auth }
-                })
-                .then( res => {
-                    if ( res.data.data.length == 0 ) {
-                        setData([]);
-                        MyContext.setBadge(0);
-                    }
-                    else if ( JSON.stringify(data ) !== JSON.stringify(res.data.data) )
-                        setData(res.data.data);   
-
-                    if ( res.data.data.length != 0 )
-                        handleUnRead(res.data.data);
-    
-                })
-                .catch( e => {
-                    console.log(e);
-                    if ( e?.response?.hasOwnProperty('status') && e?.response?.status == 403 ) {
-                        Alert.alert('새로운 기기','다른 기기에서 로그인하여 로그아웃 되었습니다.');
-                        AsyncStorage.clear();
-                        MyContext.LOGOUT();
-                    }
-                    else { 
-                        Alert.alert('다시 시도해주세요.');
-                    }
-                })// axios
-            })
-            .catch( e => {
-
-            }) ;
+            reloadClients();
         }
 
     },[ MyContext.chatRef , isFocused ]);
 
  
-
+    // 한명의 고객
     function RenderItem({ item , i }) {
         return (
                 <Card 
@@ -159,27 +160,32 @@ const ChatView = ( props  ) =>   {
     <KeyboardAwareScrollView>
         {
         data == null  ?
-            <ActivityIndicator color={colors.main}  size='large' style={{ marginTop: 20 }} /> 
+            <ActivityIndicator color={'black'}  size='large' style={{ marginTop: 100 }} /> 
         :
-        data.map( ( item , i ) =>  {
-            return (
-                // 고객마다 
-                <RenderItem key={item.id} item={ item } i = { i } />
-            );
-        }  )
+        <>
+            <Appbar.Header style={{ backgroundColor: 'white' }}>
+                <Appbar.Content title='시공 관리' />
+                <Appbar.Action icon='refresh' onPress={() => { reloadClients() }} />
+            </Appbar.Header>
+            {
+                data.map( ( item , i ) =>  {
+                    return (
+                        // 고객마다 
+                        <RenderItem key={item.id} item={ item } i = { i } />
+                    );
+                }  )
+            }
+        </>
         }
     </KeyboardAwareScrollView>
     );
 }
 
-
-
-
 export default function() {
     return (
     <NavigationContainer>
         <Stack.Navigator>
-            <Stack.Screen name='ChatList' component={ChatView} options={{ title: '시공관리' }}/>
+            <Stack.Screen name='ChatList' component={ChatView} options={{ headerShown: false  }}/>
             <Stack.Screen name='ProgressPage' component={ProgressPage} options = {{ headerShown : false }}/>
             <Stack.Screen name='ChatDetail' component = {ChatDetailPage} options={{ headerShown : false }} />
         </Stack.Navigator>

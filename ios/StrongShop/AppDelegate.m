@@ -101,6 +101,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
   #if RCT_DEV
    [bridge moduleForClass:[RCTDevLoadingView class]];
   #endif
+  
   RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge
                                                    moduleName:@"StrongShop"
                                             initialProperties:nil];

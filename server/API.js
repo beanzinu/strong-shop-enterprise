@@ -35,6 +35,7 @@ API.interceptors.request.use(
 //     },
     
 //     function (e) {
+//         console.log('error',e);
 //         // https stauts !== 200 일 때 - axios 함수에서 .catch()으로 연결됨
 //         return e ;
 //     },

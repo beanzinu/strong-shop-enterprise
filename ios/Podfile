@@ -11,6 +11,7 @@ target 'StrongShop' do
   pod 'Permission-Camera', :path => "#{permissions_path}/Camera"
   pod 'Permission-Notifications', :path => "#{permissions_path}/Notifications"
   pod 'Firebase/Analytics'
+  
 
   config = use_native_modules!
 

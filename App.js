@@ -18,6 +18,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import store from './storage/store';
 import fetch from './storage/fetch';
 import server from './server/server';
+import { ImageBackground } from 'react-native';
+import { Image } from 'react-native'
 
 
 function App (props) {
@@ -48,7 +50,6 @@ function App (props) {
   }
 
   const userSettings = {
-    state : mainVisible ,
     LOGOUT ,
     infoRefresh ,
     setInfoRefresh ,
@@ -122,15 +123,22 @@ function App (props) {
 
     const authStatus = messaging().requestPermission();
 
-    // this.ref?.show();
-
-
     const unsubscribe = messaging().onMessage(async remoteMessage => {
+      
       const notification = remoteMessage.notification;
       const index = remoteMessage.data.index ;
-      if ( index === '002' || index === '120' ) return;
-      setInApp(`${remoteMessage.data.name} 고객님이 ${notification.body}하셨습니다.` )
-      this.ref?.show();
+      if ( index === '120' ) return;
+      // chat
+      else if ( index === '002' ) {
+        setInApp(` ${notification.title} 고객\n ${notification.body}\n`)
+        this.ref?.show();
+        return;
+      } 
+      // notifications
+      else{
+        setInApp(` ${remoteMessage.data.name} 고객님이 ${notification.body}하셨습니다.\n` )
+        this.ref?.show();
+      }
 
       // console.log('inApp',remoteMessage);
       cacheNotifications(remoteMessage);
@@ -144,6 +152,7 @@ function App (props) {
 
       if ( index == '002' || index === '120' ) return;
 
+        remoteMessage= { ...remoteMessage , read: true } ;
         cacheNotifications(remoteMessage);
         setNoti(2);
         
@@ -153,12 +162,15 @@ function App (props) {
       // jwt 캐시 ( accesstoken 만료  => refreshToken => jwt accessToken )
       fetch('auth')
       .then( async(res) => {
-        if ( res.auth != null ) 
-        setMainVisible(true);
+        if ( res.auth != null ) {
+            setMainVisible(true);
+        }
       })
       .catch(e => { })
       
-      setLoading(true);
+      setTimeout(() => {
+        setLoading(true);
+      },3000);
 
       return unsubscribe,onNotification;
       
@@ -174,16 +186,20 @@ function App (props) {
             mainVisible ? 
               <>
               <MainPage/>
-              <Notification hideStatusBar={false} duration={3000} style={{   backgroundColor: 'rgb(244,244,244)' , margin: 10  }} textColor={colors.main}     text={inApp} ref={ref => this.ref = ref } onPress={() => { setNoti(2); this.ref.hide() }}/> 
+              <Notification hideStatusBar={false} duration={3000} 
+                style={{ backgroundColor: 'rgb(244,244,244)' , margin: 10 , alignItems: 'flex-start' , margin: 5 , borderWidth:1 , borderColor: 'lightgray' , borderRadius: 10 }} 
+                textColor={'black'}     
+                showKnob={false}
+                text={inApp} 
+                ref={ref => this.ref = ref } 
+                onPress={() => { setNoti(2); this.ref.hide() }}/> 
               </>
               : 
               <NewRegister getMain={setMainVisible}/>
           ) 
           : 
           (
-            <View style={{ alignItems: 'center' , justifyContent: 'center' , flex: 1 }}>
-              <Title>최강샵</Title>
-            </View>
+            <ImageBackground source={require('./resource/LoadingImage.jpeg')} style={{ flex: 1}} />
           )   
         } 
 

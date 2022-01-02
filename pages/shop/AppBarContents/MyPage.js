@@ -1,9 +1,11 @@
 import React from "react";
 import styled from "styled-components";
 import { Title , Appbar, Avatar , Switch , TextInput, Divider } from "react-native-paper";
+import {check, checkNotifications, PERMISSIONS, request, requestNotifications, RESULTS} from 'react-native-permissions';
 import colors from "../../../color/colors";
+import WebView from "react-native-webview";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { Alert } from "react-native";
+import { Alert, Linking } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import AppContext from "../../../storage/AppContext";
 import axios from "axios";
@@ -41,6 +43,14 @@ const styles={
 
 export default function( props ) {
     const myContext = React.useContext(AppContext);
+    const [notiPermission,setNotiPermission] = React.useState(false);
+
+    React.useEffect(() => {
+         checkNotifications()
+         .then( res => {
+             if (res.status == 'granted' ) setNotiPermission(true);
+         })
+    })
 
     const requestDeleteUser = async () => {
         
@@ -135,15 +145,15 @@ export default function( props ) {
         </Appbar.Header>   */}
             {
                 props.route?.params?.picture == null ? (
-                    <Avatar.Icon  style={styles.image} icon='account-outline'/>
+                    <Avatar.Icon size={50} style={styles.image} icon='account-outline'/>
                 ):
                 <Avatar.Image style={styles.image} source={{ uri : props.route.params.picture }} size={60}/>
             }
             <Title style={{ ...styles.title , fontFamily: 'DoHyeon-Regular' }}>{props.route.params.name}</Title>
-            <Row style={{ alignItems: 'center'}}>
+            {/* <Row style={{ alignItems: 'center'}}>
                 <Title style={styles.title}>휴대전화번호</Title>
                 <Title style={{...styles.title , backgroundColor: 'lightgray' }}>01012341234</Title>
-            </Row>
+            </Row> */}
             {/* <Row>
                 <Title style={styles.title}>전화번호</Title>
                 <TextInput style={{ flex: 1  }} 
@@ -155,8 +165,10 @@ export default function( props ) {
                 />
             </Row> */}
             <Row>
-                <Title style={styles.title}>광고 수신 동의</Title>
-                <Switch style={{ position: 'absolute' , right: 10 }} />
+                <Title style={styles.title}>푸시알람 동의</Title>
+                <Switch color={colors.main} value={notiPermission} style={{ position: 'absolute' , right: 10 }} 
+                    onValueChange={ () => { if ( !notiPermission ) requestNotifications(['alert','badge']).then( res => { alert(res.status) }) }}
+                />
             </Row>
 
             <ButtonRow style={{ height: 70 }} onPress={ () => { props.navigation.navigate('Receipt') }}>
@@ -166,14 +178,14 @@ export default function( props ) {
 
 
             <Title style={{ ...styles.title , color: 'gray' , marginTop: 40 }}>고객센터</Title>
-            <Row>
+            {/* <Row>
                 <Avatar.Icon size={40} icon='bullhorn' style={{ backgroundColor: 'transparent'}} color='black'/>
                 <Title style={styles.title}>공지사항</Title>
-            </Row>
-            <Row>
+            </Row> */}
+            <ButtonRow style={{ height: 60 }} onPress={() => { props.navigation.navigate('CS') }}>
                 <Avatar.Icon size={40} icon='chat-plus' style={{ backgroundColor: 'transparent'}} color='black'/>
                 <Title style={styles.title}>고객문의</Title>
-            </Row>
+            </ButtonRow>
             {/* <Row>
                 <Avatar.Icon size={40} icon='account-question' style={{ backgroundColor: 'transparent'}} color='black'/>
                 <Title style={styles.title}>FAQ</Title>

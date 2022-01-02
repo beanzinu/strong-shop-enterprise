@@ -1,6 +1,6 @@
 import React from 'react' ;
 import styled from 'styled-components';
-import { Appbar , Card , Title , Avatar , Badge, List } from 'react-native-paper';
+import { Appbar , Card , Title , Avatar , Badge, List, IconButton } from 'react-native-paper';
 import { Alert, SafeAreaView  ,useWindowDimensions , Platform } from 'react-native';
 import Collapsible from 'react-native-collapsible';
 import colors from '../../color/colors';
@@ -25,6 +25,9 @@ import fetch from '../../storage/fetch';
 import store from '../../storage/store';
 // Tab Navigator
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import analytics from '@react-native-firebase/analytics';
+
+
 const Tab = createMaterialTopTabNavigator();
 // 
 
@@ -58,15 +61,15 @@ const thumbnails = null ;
 
 const styles = {
     card : {
-        padding: 20 , 
+        // padding: 20 , 
         // backgroundColor : colors.main , 
         borderWidth: 1 ,
         borderColor: 'lightgray' ,
         // borderRadius: 0 ,
-        height : 320 ,
+        height : 200 ,
     } ,
     cover : {
-        height: 280 ,
+        height: 200 ,
         marginBottom: 20 ,
     } 
 }
@@ -103,22 +106,52 @@ function TabViews({ navigation  }) {
         }
     };
  
+    const handleIndex = (index) => {
+        if ( index == 0 ) {
+            // Google Analytics
+            analytics().logScreenView({
+                screen_class: 'Home' ,
+                screen_name: 'Information'
+            })
+        }
+        else if ( index == 1 ) {
+            // Google Analytics
+            analytics().logScreenView({
+                screen_class: 'Home' ,
+                screen_name: 'Gallery'
+            })
+            MyContext.setRefresh(!MyContext.refresh);
+        }
+        else if ( index == 2 ) {
+            // Google Analytics
+            analytics().logScreenView({
+                screen_class: 'Home' ,
+                screen_name: 'Product'
+            })
+        }
+        else if ( index == 3 ) {
+            // Google Analytics
+            analytics().logScreenView({
+                screen_class: 'Home' ,
+                screen_name: 'Review'
+            })
+            MyContext.setReviewRefresh(!MyContext.reviewRefresh);
+        }
+        setIndex(index);
+    }
 
     return (
       <TabView
         navigationState={{ index, routes }}
         renderScene={renderScene}
-        onIndexChange={(index) => {
-            if ( index == 1 ) MyContext.setRefresh(!MyContext.refresh);
-            if ( index == 3 ) MyContext.setReviewRefresh(!MyContext.reviewRefresh);
-            setIndex(index);
-        }}
+        onIndexChange={(index) => { handleIndex(index) }}
         // lazy={true}
         renderTabBar={ props => 
             <TabBar {...props}
-            indicatorStyle={{ backgroundColor: colors.main }}
-            style={{ backgroundColor: 'white' , borderColor: colors.main  }} 
-            activeColor={colors.main} 
+            indicatorStyle={{ backgroundColor: 'black' , borderWidth: 2 }}
+            style={{ backgroundColor: 'white'   }}
+            labelStyle={{ fontWeight: 'bold' , fontSize: 15 }} 
+            activeColor={'black'} 
             inactiveColor='lightgray'/>
         }
         // initialLayout={{ width: layout.width }}
@@ -279,12 +312,13 @@ export default function( props ) {
 
     return (
         <>
-        <Appbar.Header style={{ backgroundColor: colors.main , borderColor: 'lightgray' , borderBottomWidth: 1 , alignItems: 'center'  }}>
-            <Appbar.Content  onPress={()=> { setCollapsed(!collapsed) }}  title={shopName} titleStyle={{  fontFamily : 'DoHyeon-Regular' , fontSize: shopName.length > 10 ? 12 : shopName.length > 5 ? 20 : 25  }}  />
-            <Appbar.Action icon={ collapsed ? 'chevron-down' : 'chevron-up' } onPress={() => { setCollapsed(!collapsed)}} style={{}}/>
-            <Appbar.Action  style={{ flex: 1 }}/>
+        <Appbar.Header style={{ backgroundColor: 'white' , alignItems: 'center'  }}>
+            {/* <IconButton icon='account' /> */}
+            <Appbar.Content onPress={()=> { setCollapsed(!collapsed) }}  title={shopName} titleStyle={{ color: colors.main ,  fontFamily: 'DoHyeon-Regular', fontSize: shopName.length > 10 ? 12 : shopName.length > 5 ? 20 : 25  }}  />
+            {/* <Appbar.Action icon={ collapsed ? 'chevron-down' : 'chevron-up' } onPress={() => { setCollapsed(!collapsed)}} style={{}}/> */}
+            {/* <Appbar.Action  style={{ flex: 1 }}/> */}
             <View>
-                <Appbar.Action color='white' icon="bell-outline" onPress={() => { props.navigation.navigate('Notifications')}}  />
+                <Appbar.Action color='black' icon="bell-outline" onPress={() => { props.navigation.navigate('Notifications')}}  />
                 {
                     isalarm && <Badge size={ 8 } style={{ position: 'absolute' , right: 9 , top : 9  }}/>
                 }
@@ -293,12 +327,13 @@ export default function( props ) {
         </Appbar.Header>  
         
         {/* 커버사진 */}
-        <Collapsible 
+        {/* <Collapsible 
             collapsed={collapsed}
             // collapsed={ scroll > 0  ? true : false }
             // collapsedHeight={10}
-            duration={0}
+            // duration={0}
         > 
+            <View>
             <Card style={ styles.card }>
 
                         {
@@ -309,7 +344,6 @@ export default function( props ) {
                                 <>
                                 <ImageView onPress={requestThumbnail} style={{flex: 1 , justifyContent: 'center' , alignItems:'center'}}>
                                 <LottieView source={require('../../LottieJson/4.json')} style={{ position: 'absolute' }}  autoPlay={true} loop={true}/>
-                                {/* <Avatar.Icon size={100} icon='gesture-tap' style={{ backgroundColor: 'transparent', position: 'absolute', bottom: 10 }} color='lightgray'/> */}
                                 <Title style={{position: 'absolute', bottom: 10 , textAlign: 'center' , fontSize: 15 }} >여기를 눌러{'\n'}업체 썸네일을 등록해보세요.</Title>
                                 </ImageView>
                                 </>
@@ -326,7 +360,8 @@ export default function( props ) {
                         }
 
             </Card> 
-        </Collapsible>
+            </View>
+        </Collapsible> */}
 
         <TabViews navigation={props.navigation}/>
         

@@ -42,14 +42,16 @@ const SubText = styled.Text`
 
 const styles = {
     button : {
-        alignSelf: 'flex-start' , 
-        height: 45 ,
+        alignSelf: 'center' , 
+        alignItems: 'center' ,
+        justifyContent: 'center' ,
+        height: 40 ,
         borderWidth : 1 ,
-        borderRadius: 20 ,
-        borderColor : 'lightgray' ,
+        borderRadius: 20,
         margin : 5 , 
-        flex : 1 ,
-        justifyContent: 'center'
+        paddingLeft: 5 ,
+        paddingRight : 5 ,
+        marginRight: 10
     }  , 
     modalButton : {
         height: 50 ,
@@ -167,7 +169,7 @@ export default function( props ){
                 {
                     options.map((item,i)=>{
                         return(
-                            <Button key={i} style={styles.button} color={colors.main} onPress={ () => { setValue(i+1) }} mode = { value == i+1 && 'contained'}>
+                            <Button key={i} style={styles.button} color='rgb(230,230,230)' labelStyle={{ fontSize: 15 , color: '#964b00' }}  onPress={ () => { setValue(i+1) }} mode = { value == i+1 && 'contained'}>
                                 {item.name}
                             </Button>
                         )
@@ -256,7 +258,7 @@ export default function( props ){
             <BottomSheetModal
                 ref={bottomSheetModalRef}
                 snapPoints={snapPoints}
-                backgroundStyle={{ backgroundColor: 'rgb(240,240,240)'}}
+                backgroundStyle={{ backgroundColor: 'white' , borderWidth: 1 , borderColor: 'lightgray'}}
             >
                 <View>
                         <Button style={styles.modalButton} color='black'

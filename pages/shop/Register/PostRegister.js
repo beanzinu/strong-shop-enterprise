@@ -7,25 +7,14 @@ import { Card , Avatar , Title , Button , IconButton , Provider , Modal , Portal
 import colors from '../../../color/colors';
 import LottieView from 'lottie-react-native';
 import {check, PERMISSIONS, RESULTS , request , openSettings } from 'react-native-permissions';
-import {
-    BottomSheetModal,
-    BottomSheetModalProvider,
-} from '@gorhom/bottom-sheet';
-import ImageCompressor from "@nomi9995/react-native-image-compressor";
-import DraggableFlatList , {ScaleDecorator} from 'react-native-draggable-flatlist';
-import axios from 'axios';
-import { LogBox } from 'react-native';
-import AppContext from '../../../storage/AppContext';
+import API from '../../../server/API';
 import MultipleImagePicker from '@baronha/react-native-multiple-image-picker';
-import fetch from '../../../storage/fetch';
-import server from '../../../server/server';
+import AppContext from '../../../storage/AppContext';
 
 
 // Warning 메시지 무시 
 // library 내부 Component 문제
-LogBox.ignoreLogs([
-  'ReactNativeFiberHostComponent: Calling getNode() on the ref of an Animated component is no longer necessary. You can now directly use the ref instead. This method will be removed in a future release.',
-]);
+
 
 const PictureButton = styled.TouchableOpacity`
     flex: 1 ;
@@ -94,11 +83,12 @@ export default function( props ) {
     const [inputHeight,setInputHeight] = React.useState(120);
     // const [refresh,setRefresh] = React.useState(false);
     const [requesting,setRequesting] = React.useState(false) ;
-    const ModalRef = React.useRef(null);
-    const MyContext = React.useContext(AppContext)
+    const MyContext = React.useContext(AppContext);
     
     openNew = async () => {
+        
         request(PERMISSIONS.IOS.PHOTO_LIBRARY);
+        
         await MultipleImagePicker.openPicker({
             mediaType: 'image',
             selectedAssets: cache ,
@@ -123,7 +113,10 @@ export default function( props ) {
                if ( Platform.OS == 'ios' ) newPath = file.path.replace('file://','').replace('file:///','file://');
             //    if ( Platform.OS == 'ios' ) newPath = file.path ;
                // android
-               else newPath = 'file://' + file.path ;
+               else {
+                if ( file.path.startsWith('content')) newPath = file.path ;
+                else newPath = 'file://' + file.path ;
+               } 
             //    const result = await ImageCompressor.compress(
             //     file.path,
             //     {
@@ -160,7 +153,7 @@ export default function( props ) {
         ])
     }
 
-    uploadData = async() =>  {
+    uploadData = () =>  {
         if( pictures == null ) {
             Alert.alert('사진없음','사진을 올려주세요.')
             return;
@@ -169,6 +162,9 @@ export default function( props ) {
             Alert.alert('글자 수','500자 안으로 해주세요.')
             return;
         }
+        // 서버에게 전송
+        setRequesting(true);
+
         // 폼데이터 생성
         var body = new FormData();
         // 현재 사용자가 불러온 이미지 리스트들 => 각각 폼데이터에 넣어준다.
@@ -182,39 +178,21 @@ export default function( props ) {
             body.append('files',photo);
         })
         body.append('content',text);
-       
-        // 서버에게 전송
-        setRequesting(true);
-
-
-        await fetch('auth')
-        .then( (res) => {
-            const auth = res.auth ;
-
-            const axiosInstance = axios.create({
-                headers: {
-                    'content-type': 'multipart/form-data' ,
-                    Auth : auth
-                } ,
-                timeout: 5000
-            }) ;
-
-            axiosInstance.post(`${server.url}/api/gallery`,body)
-            .then(res => {
-                if ( res.data.statusCode == 201 ) {
-                    MyContext.setRefresh(!MyContext.refresh);
-                    props.navigation.goBack();
-                    
-                }
-            })
-            .catch(e => {
-                setRequesting(false);
-            })
-
+               
+        API.post('/api/gallery',body,{
+            headers : { 'content-type' : 'multipart/form-data' }
         })
-        .catch(e => {
-
+        .then( res => {
+            if ( res.data.statusCode == 201 ) {
+                props.navigation.goBack();
+                // refresh 'PostGalleryPage'
+                MyContext.setRefresh(!MyContext.refresh)
+            }
         })
+        .catch( e => { 
+            setRequesting(false) 
+        });
+
     }
 
     
@@ -233,9 +211,8 @@ export default function( props ) {
     return(
         <Provider>
         <KeyboardAwareScrollView 
-        ref={ ref => this.flatList = ref }
+        ref={ ref => this.scrollView = ref }
         style={{ backgroundColor: 'white' }}>
-
         <Portal>
             <Modal visible={requesting} style={{ alignItems: 'center' , justifyContent: 'center' , backgroundColor: 'transparent' }} >
                 <LottieView style={{ width: 200, height: 100 }} source={require('./2.json')} autoPlay={true} loop={true}/>
@@ -280,16 +257,17 @@ export default function( props ) {
             </Row>
                 <TextInput 
                     placeholder='내용을 입력하세요.'
-                    onBlur={() => { this.flatList.scrollToEnd() }}
-                    style={{ height: inputHeight }}
+                    onSubmitEditing={() => { this.scrollView.scrollToEnd() }} 
+                    blurOnSubmit={true}
+                    style={{ height: inputHeight , backgroundColor: 'white' }}
                     value={text} 
-                    onChangeText={value => setText(value) } 
-                    // onEndEditing={() => { this.flatList.scrollToPosition(inputHeight)} } 
+                    onChangeText={value => setText(value) }
                     onContentSizeChange={e=>{
                         if ( e.nativeEvent.contentSize.height > inputHeight ) setInputHeight(inputHeight+50);
                     }}
                     multiline={true}/>
                 <Button 
+                    ref={ ref => { this.b = ref }}
                     style={{ height: 50 , justifyContent: 'center' , marginTop: 10 , marginBottom: 50 }} 
                     theme={{ colors: { primary: colors.main } }}
                     labelStyle={{ fontWeight: 'bold' }}
@@ -299,7 +277,6 @@ export default function( props ) {
                 >
                     { requesting ? '등록중...' : '등록하기'}
                 </Button>
-           
         </KeyboardAwareScrollView>
         </Provider>
     );

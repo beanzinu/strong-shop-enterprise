@@ -5,6 +5,9 @@ import colors from '../../../color/colors';
 import { Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Postcode from '@actbase/react-daum-postcode';
+import analytics from '@react-native-firebase/analytics';
+import firebase from '@react-native-firebase/app'
+
 // Async
 import store from '../../../storage/store';
 import axios from 'axios';
@@ -13,7 +16,7 @@ import server from '../../../server/server';
 import AppContext from '../../../storage/AppContext';
 
 const Input = styled.TextInput`
-    border: 3px ${colors.main};
+    border: 3px black;
     height : 200px;
     font-size : 15px;
     padding: 10px;
@@ -31,15 +34,14 @@ const styles = {
         fontWeight : 'bold' ,
         padding: 10 ,
         // marginTop: 10 ,
-        color : colors.main , 
+        color : 'black' , 
         fontFamily : 'DoHyeon-Regular' ,
         fontSize: 27
     } ,
     textInput : {
-        borderWidth: 1 ,
-        borderColor: colors.main ,
-        color : colors.main ,
-    }
+        fontSize: 15 , backgroundColor: 'white'
+    } ,
+
 }
 
 export default function( props ) {
@@ -114,7 +116,6 @@ export default function( props ) {
                 }
             })
             .then ( async (res)=>  {
-                console.log(res);
                 // 저장성공시
                 await store('Info',data) ;
                 MyContext.setInfoRefresh(!MyContext.infoRefresh) ;
@@ -149,16 +150,16 @@ export default function( props ) {
 
     return(
         <Provider>
-        <KeyboardAwareScrollView ref={ ref => this.flatList = ref}>
+        <KeyboardAwareScrollView ref={ ref => this.flatList = ref} style={{ backgroundColor: 'white' }}>
             <Portal>
                 <Modal 
                     visible={visible} 
                     onDismiss={ () => {setVisible(false)}}
-                    style= {{ alignItems : 'center' , justifyContent: 'center'  }}
+                    style= {{ flex:1 , alignItems : 'center' , justifyContent: 'center'  }}
                     >
                     <KeyboardAwareScrollView>
                         <Postcode
-                        style={{ width : 300 , height: 500 }}
+                        style={{ width : 300 , height: 500 , marginTop: 50 }}
                         jsOptions={{ animated: true }}
                         onSelected={data => {setAddress(data.roadAddress) , setVisible(false)  } }
                         />
@@ -201,7 +202,7 @@ export default function( props ) {
                 placeholder='업체 소개를 해주세요.'
             />
             <TextInput  left={<TextInput.Icon icon='phone' size={24}/>}
-                style={{ marginTop: 20 , fontSize: 15 }}
+                style={{...styles.textInput , marginTop: 10 }}
                 placeholder='업체 전화번호'
                 theme={{ colors: { primary: colors.main , background: 'white' }}}
                 keyboardType='number-pad'
@@ -209,7 +210,7 @@ export default function( props ) {
                 onChangeText={ value=> setContact(value)  }
             />
             <TextInput  left={<TextInput.Icon icon='link' size={24}/>}
-                style={{  fontSize: 15 }}
+                style={styles.textInput}
                 placeholder='블로그/카페 주소 (ex) blog.naver.com/strongshop'
                 theme={{ colors: { primary: colors.main , background: 'white' }}}
                 // keyboardType='email-address'
@@ -217,7 +218,7 @@ export default function( props ) {
                 onChangeText={ value=> setBlogUrl(value) }
             />
             <TextInput  left={<TextInput.Icon icon='web' size={24}/>}
-                style={{  fontSize: 15 }}
+                style={styles.textInput}
                 placeholder='자체사이트 주소 (ex) www.strongshop.com'
                 theme={{ colors: { primary: colors.main , background: 'white' }}}
                 // keyboardType='email-address'
@@ -225,25 +226,29 @@ export default function( props ) {
                 onChangeText={ value=> setSiteUrl(value) }
             />
             <TextInput  left={<TextInput.Icon icon='instagram' size={24}/>}
-                style={{  fontSize: 15 }}
+                style={styles.textInput}
                 placeholder='인스타그램 주소 ( 인스타아이디만 입력 )'
                 theme={{ colors: { primary: colors.main , background: 'white' }}}
                 // keyboardType='email-address'
                 value={snsUrl}
                 onChangeText={ value=> setSnsUrl(value) }
             />
+            <Title style={styles.title}>주소</Title>
             <TextInput  left={<TextInput.Icon icon='home' size={24}/>}
+                style={{ ...styles.textInput }}
                 placeholder='주소를 선택하세요'
                 theme={{ colors: { primary: colors.main , background: 'white' }}}
                 editable={false}
                 right= {<TextInput.Icon name='magnify' onPress={ () => { setVisible(true) } }/>}
+                on
+                // onPressIn={() => { setVisible(true) }}
                 value={address}
                 onChangeText={ value=> setAddress(value)}
             />
             <TextInput  
                 placeholder='상세주소'
+                style={{ ...styles.textInput, marginBottom: 40 }}
                 theme={{ colors: { primary: colors.main , background: 'white' }}}
-                style={{ marginBottom: 30 }}
                 value={detailAddress}
                 onChangeText={ value=> setDetailAddress(value) }
                 // onEndEditing={() => this?.flatList?.scrollToPosition(0) }

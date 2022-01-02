@@ -10,15 +10,13 @@ import API from '../../../server/API';
 import axios from 'axios';
 import server from '../../../server/server';
 import fetch from '../../../storage/fetch';
-import AppContext from '../../../storage/AppContext';
 import FastImage from 'react-native-fast-image';
-
-
+import AppContext from '../../../storage/AppContext';
 
 const PostButton = styled.TouchableOpacity`
     width: 33.3%;
-    height: 100px;
-    border:1px lightgray;
+    height: 120px;
+    border: 1.5px white;
     justify-content: center;
     align-items: center;
 `;
@@ -32,14 +30,13 @@ const styles = {
     }
 }
 
-
+export const GalleryContext = React.createContext();
 export default function( props ) {
    const [loading,setLoading] = React.useState(true);
    const [postData,setPostData] = React.useState([]);
    const [shopName,setShopName] = React.useState();
    const [imageUrl,setImageUrl] = React.useState();
    const MyContext = React.useContext(AppContext);
-   
 
     requestImage = () =>  {
 
@@ -61,7 +58,7 @@ export default function( props ) {
             setShopName(res?.company_name)
             setImageUrl(res?.backgroundImageUrl);
         })
-
+        
         // 사진요청
         requestImage();
 
@@ -83,13 +80,13 @@ export default function( props ) {
         <View style={{ backgroundColor: 'white' , flex: 1}}>  
         {
             loading ? (
-                <ActivityIndicator style={{ marginTop: 20 }} size='large' color={colors.main}/>
+                <ActivityIndicator style={{ marginTop: 20 }} size='large' color='black'/>
             ):
             (
                 <>
                 <Button icon='pencil-plus-outline' 
                     style={ styles.button }
-                    color={ colors.main }
+                    color={colors.main}
                     onPress={ () =>  { props.navigation.navigate('PostRegister', { data : props.data ,  name : shopName , imageUrl: imageUrl  }) }}
                 >
                     작성하기
@@ -97,20 +94,20 @@ export default function( props ) {
                 {
                     postData.length == 0 ? (
                         <PostView style={{ backgroundColor: 'white' , justifyContent: 'center' , alignItems: 'center' , flex: 1}}
-                            onPress={() => { props.navigation.navigate('PostRegister', { data : props.data ,  name : shopName , imageUrl : imageUrl  }) }}
+                            onPress={() => { props.navigation.navigate('PostRegister', { data : props.data ,  name : shopName , imageUrl : imageUrl   }) }}
                         >
-                            <Avatar.Icon icon='camera-plus' style={{ backgroundColor: 'transparent'}} color={colors.main}/>
+                            <Avatar.Icon icon='camera-plus' style={{ backgroundColor: 'transparent'}} color={'black'}/>
                             <Title>시공사진을 등록해보세요.</Title>
                         </PostView>
                     ) :
                     (
                         <FlatList
-                        ref={ ref => this.flatList = ref }
-                        data={ postData } 
-                        renderItem = {RenderItem}
-                        horizontal={false}
-                        numColumns={3}
-                        keyExtractor={(item) => item.id }
+                            ref={ ref => this.flatList = ref }
+                            data={ postData } 
+                            renderItem = {RenderItem}
+                            horizontal={false}
+                            numColumns={3}
+                            keyExtractor={(item) => item.id }
                         />
                     )
                 }

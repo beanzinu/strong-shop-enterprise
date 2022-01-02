@@ -2,46 +2,515 @@ import React from 'react';
 import styled from 'styled-components';
 import { Title  , ProgressBar, Avatar , Appbar , List , Badge , Button , IconButton , Modal , Portal , Provider , FAB , Divider , Text }  
 from 'react-native-paper';
-import { Alert, FlatList , ScrollView } from 'react-native';
+import { Alert, Dimensions, FlatList , ScrollView , SectionList } from 'react-native';
 import colors from '../../../color/colors';
-import { Image } from 'react-native';
 import _ from 'lodash';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import MultipleImagePicker from '@baronha/react-native-multiple-image-picker';
 import { request , PERMISSIONS } from 'react-native-permissions';
 import Swiper  from 'react-native-swiper';
-import { Dimensions } from 'react-native';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import Collapsible from 'react-native-collapsible';
 import database from '@react-native-firebase/database';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import LottieView from 'lottie-react-native';
 import fetch from '../../../storage/fetch';
 import axios from 'axios';
 import { useIsFocused } from '@react-navigation/native';
 import server from '../../../server/server';
 import FastImage from 'react-native-fast-image';
+import * as Progress from 'react-native-progress';
+// components
+import BidList from '../BidPage/BidList';
+// server
+import API from '../../../server/API';
+// analytics
+import analytics from '@react-native-firebase/analytics'
 
+export default function( props ) {
+    const [data,setData] = React.useState(null) ;
+    const [collapsed,setCollapsed] = React.useState(true);
+    const [listEnabled,setListEnabled] = React.useState(false);
+    const [item,setItem] = React.useState([]);
+    // 현재단계
+    const[state,setState] = React.useState(1);
+    // 현재 사진들
+    const[pictures,setPictures] = React.useState(null);
+    // 업로드할 사진들 
+    const[newPictures,setNewPictures] = React.useState(null);
+
+    const[refresh,setRefresh] = React.useState(false);
+    // Modal
+    const[visible,setVisible] = React.useState(false);
+    // UploadModal
+    const [modalVisible,setModalVisible] = React.useState(false);
+
+    const [loadRefresh,setLoadRefresh] = React.useState(false);
+
+    const [index,setIndex] = React.useState(0);
+
+    const [newMsg,setNewMsg] = React.useState(0);
+    const isFocused = useIsFocused();
+
+
+    React.useEffect(() => {
+        if ( isFocused) {
+            database().ref(`chat${props.route.params.id}`).off();
+            database().ref(`chat${props.route.params.id}`).once('value',snapshot => {
+                var count = 0 ; 
+                if ( snapshot.toJSON() != null ) {
+                obj = Object.values( snapshot.toJSON() ) ;
+                obj.map( msg => {
+                    if ( msg.user._id == 2 && msg.received != true ) count = count + 1 ; 
+                }) ;
+                setNewMsg(count);
+                }
+                
+            
+            }) // db
+        }
+    }, [ isFocused ] ) ;
+
+    React.useEffect(() => {
+
+        // Google Analytics
+        analytics().logScreenView({
+            screen_class: 'Contract' ,
+            screen_name: 'Progress'
+        })
+
+        setItem( JSON.parse( props.route.params.data.detail )) ;
+
+        setData( props.route.params.data) ;
+        // 서버로부터 받은 현재 시공단계
+        setState(states[props.route.params.data.state]);
+
+    },[]);
+
+    React.useEffect(() => {
+        
+        if ( states[props.route.params.data.state]== 2 ||  states[props.route.params.data.state] == 4 )
+            requestImage();
+    },[loadRefresh]);
+
+    // 사진 추가하기
+    const openNew = async () => {
+
+        // 라이브러리 허용
+        request(PERMISSIONS.IOS.PHOTO_LIBRARY);
+
+        // 
+
+        await MultipleImagePicker.openPicker({
+            mediaType: 'image',
+            // selectedAssets: pictures,
+            doneTitle: "완료",
+            maxSelectedAssets: 5 ,
+            maximumMessageTitle: '최대 5장까지만 등록해주세요.' ,
+            maximumMessage: '' ,
+            selectedColor: "#162741",
+            tapHereToChange: '여기를 눌러 변경' ,
+            cancelTitle: '취소' ,
+            numberOfColumn: 3 ,
+            // 임시
+            usedCameraButton: false
+        })
+        .then(res => {
+            
+           console.log(res);
+        
+           url = [] ;
+           res.map((file,index) =>  {
+                let newPath ;
+                // ios
+                if ( Platform.OS == 'ios' ) newPath = file.path.replace('file://','').replace('file:///','file://');
+                // android
+                else {
+                    if ( file.path.startsWith('content')) newPath = file.path ;
+                    else newPath = 'file://' + file.path ;
+                }
+
+               url.push({
+                   path: newPath ,
+                   id: index 
+               });
+           });
+          
+           setNewPictures(url);
+           
+           setModalVisible(true);
+         
+
+        }) 
+        .catch(e => { 
+
+        });
+       
+    }
+
+    // 새로운 사진 추가
+    function requestUploadImage(images) {
+        // 폼데이터 생성
+        var body = new FormData();
+        // 현재 사용자가 불러온 이미지 리스트들 => 각각 폼데이터에 넣어준다.
+        images?.map( (picture,index) =>{
+            var photo = {
+                uri: picture.path ,
+                type: 'multipart/form-data',
+                name: `${index}.jpg` ,
+                
+            }
+            body.append('files',photo);
+        })
+        setRefresh(true);
+
+        API.post(`/api/contract/${state ==2 ?'4':'6'}/${data.id}`,body,{
+            headers: { 'content-type': 'multipart/form-data' }
+        })
+        .then(res => {
+            if ( res.data.statusCode == 200 )
+            {
+                setLoadRefresh(!loadRefresh);
+                setRefresh(false);
+                setModalVisible(false);
+            }
+        })
+        .catch( e => {
+            Alert.alert('다시 시도해주세요.')
+            setRefresh(false);
+        })
+
+    }
+
+    // 서버로부터 이미지 불러오기
+    function requestImage() {
+        API.get(`/api/contract/${states[props.route.params.data.state] ==2 ?'4':'6'}/${props.route.params.data.id}`)
+        .then(res => {
+            let tmp = [] ;
+            if ( states[props.route.params.data.state] == 2 )
+                res.data.data.imageUrlResponseDtos.map( (picture,id) => {
+                    tmp.push({ url : picture.imageUrl , id : id });
+                })
+            else if ( states[props.route.params.data.state] == 4 )
+                res.data.data.responseDtos.map( (picture,id) => {
+                    tmp.push({ url : picture.imageUrl , id : id });
+                })
+            setPictures(tmp);
+                //refresh
+                // setRefresh(true);
+                // setRefresh(false);
+        })
+        .catch(e=>{
+            // console.log(e.response.status);
+        })   
+    }
+
+
+    // 검수완료 알림창
+    function requestExamFin(){
+        Alert.alert('검수완료','고객님이 최종 인수결정을 내리게됩니다.',[
+            {
+                text: '확인' ,
+                onPress: () => { requestExamFinServer() }
+            },
+            {
+                text: '취소'
+            }
+        ])
+    }
+    // 검수완료 (서버)
+    function requestExamFinServer(){
+
+        API.put('/api/contract/4',{ id : data.id })
+        .then( res => {
+            // console.log('검수완료 : ' , res ) ;
+            // 성공
+            if ( res.data.statusCode == 200)
+                setState(3);
+        })
+        .catch( e => { 
+            //
+        });
+    }
+    //시공완료 알림
+    function requestConstructFin(){
+        Alert.alert('시공완료','고객님에게 출고소식을 알릴게요.',[
+            {
+                text: '확인' ,
+                onPress: () => { requestConstructFinServer() }
+            },
+            {
+                text: '취소'
+            }
+        ])
+    }
+    // 시공완료 (서버)
+    function requestConstructFinServer(){
+        API.put('/api/contract/6',{ id : data.id })
+        .then( res => {
+            // 성공
+            if ( res.data.statusCode == 200)
+                setState(5);
+        })
+        .catch( e => { 
+            //
+        });
+    }
+
+
+    const RenderItem = ({item}) =>  {
+        return(
+            <CButton key={item} onPress={ () =>  { setIndex(item.id) ; setVisible(true) }}>
+                <FastImage  key={item.url} source={{ uri : item.url }} style={{ width: '100%' , height: '100%' }}/>
+            </CButton>
+        )
+    }
+
+    return(
+        <Provider>
+        {/* 사진 상세보기 */}
+        <Portal>
+        <Modal visible={visible} onDismiss={() => { setVisible(false) }} contentContainerStyle={{ width: '100%', height: '100%' , backgroundColor: 'black' , elevation: 3 , marginBottom: 50 }}>
+            {/* <IconButton icon='close' style={{   }} color='white' onPress={ () => { setVisible(false) }} /> */}
+            <ImageViewer 
+                renderImage={ props =>
+                <FastImage source={{ uri : props.source.uri }} style={{ width: '100%' , height: '100%' }}/>
+            } 
+                imageUrls={pictures} enableSwipeDown={true} onCancel={ () => {setVisible(false)} } index={index} 
+                enablePreload={true}
+                renderHeader={() =><IconButton icon='close' style={{   }} color='white' onPress={ () => { setVisible(false) }} /> }
+            />
+        </Modal>
+        <Modal visible={modalVisible} onDismiss={() => { setModalVisible(false); setRefresh(false); }} contentContainerStyle={{ width: '100%', height: '100%' , backgroundColor: 'transparent' }}>
+            {
+                !refresh &&
+                <IconButton icon='close' style={{ alignSelf: 'flex-end'}} color='white' onPress={ () => { setModalVisible(false);  setRefresh(false); }} />
+            }
+            <SwiperView style={{ width: '90%' , height: 300 , alignSelf: 'center' }}>
+            {
+                refresh ? 
+                <LottieView source={require('../Register/2.json')} autoPlay={true} loop={true} /> 
+                :
+
+            <Swiper 
+            horizontal={true}
+            // index={index}
+            loop={false}
+            // prevButton={<IconButton icon='chevron-left' color={'gray'}/>}
+            // nextButton={<IconButton icon='chevron-right' color={'gray'}/>}
+            >
+                    {
+                        newPictures != null &&
+                        newPictures.map(picture => {
+                            return(
+                                <SwiperView key={picture} style={{ width: '90%' , height: 300 , alignSelf: 'center' }} key={picture.id}>
+                                    <FastImage key={picture} source={{ uri: picture.path }} style={{ width: '100%' , height: '100%' }} />
+                                </SwiperView>
+                            )
+                        })
+                    } 
+            </Swiper>
+            }
+            </SwiperView>
+            <Button style={{ alignSelf: 'center' , width: '80%' , marginTop: 20 }} mode='contained' color={colors.main}
+                disabled={refresh}
+                onPress={ () => { requestUploadImage(newPictures) }}
+            >
+                전송하기
+            </Button>
+        </Modal>
+        </Portal>
+
+        <>
+            <Appbar.Header style={{ backgroundColor: 'white' , height: 50 , elevation: 0  }}>
+            <Appbar.BackAction  color='black' onPress={() => { props.navigation.goBack() }} />
+            <Appbar.Content style={{ alignItems: 'center' }} title={`${data?.userResponseDto?.nickname} 고객님`} titleStyle={{ fontSize: 20 , fontWeight: 'bold' }} />
+            {/* <Appbar.Content style={{  position: 'absolute' , right: 0 }} title={'시공내역'} titleStyle={{  fontSize: 15 , right: 2 , color: collapsed ? 'black' : 'gray' }} onPress={ () =>  { setCollapsed(!collapsed) }} /> */}
+            <Appbar.Action icon="chat" onPress={() => { props.navigation.navigate('ChatDetail',{ name : data?.userResponseDto?.nickname , id : props.route.params.data.id , imageUrl : props.route.params.imageUrl }) }} style={{ backgroundColor: 'transparent' , margin: 0}} size={30}/>
+            <Badge size={18} style={{ position: 'absolute' , right: 4 , top: 4 }}>{newMsg}</Badge>
+            </Appbar.Header>
+
+            <KeyboardAwareScrollView
+                style={{ backgroundColor: 'white' }} 
+                ref={ ref => {this.scrollView = ref}}
+                nestedScrollEnabled={true}
+                // onMomentumScrollEnd={
+                //     (event) => { 
+                //         if (event.nativeEvent.contentOffset.y > 0 ) setListEnabled(true);
+                // }}
+            >
+            
+            <Title style={styles.title}>시공 진행상황</Title>
+            <Title style={{ marginLeft: 10 , paddingLeft: 10 , color : 'gray' , marginBottom : 20 , fontSize: 17 }}>    
+            {(state == 1 ? TEXT.first : state == 2 ? TEXT.second : state == 3 ? TEXT.third : state == 4? TEXT.fourth : TEXT.fifth ) 
+            }                    
+            </Title> 
+            <Progress.Bar progress={state/5} width={ Dimensions.get('screen').width *0.9 } 
+                height={12}
+                color={colors.main}
+                unfilledColor='lightgray'
+                borderRadius={30}
+                style={{ alignSelf: 'center', borderWidth: 0 , margin: 10 }}
+            >
+            </Progress.Bar>
+                <Row style={{ width: Dimensions.get('screen').width *0.95 }}>
+                <View style={{ flex: 1 , alignItems: 'flex-end' }}>
+                    <Text style={{ fontSize: 12 , color: state >=1 ? colors.main : 'lightgray' }}>출고지 지정</Text>
+                </View>
+                <View style={{ flex: 1 , alignItems: 'flex-end' }}>
+                <Text style={{ fontSize: 12 , color: state >=2 ? colors.main : 'lightgray'  }}>신차검수</Text>
+                </View>
+                <View style={{ flex: 1 , alignItems: 'flex-end' }}>
+                <Text style={{ fontSize: 12 , color: state >=3 ? colors.main : 'lightgray'   }}>검수완료</Text>
+                </View>
+                <View style={{ flex: 1 , alignItems: 'flex-end' }}>
+                <Text style={{ fontSize: 12 , color: state >=4 ? colors.main : 'lightgray'   }}>시공진행</Text>
+                </View>
+                <View style={{ flex: 1 , alignItems: 'flex-end' }}>
+                <Text style={{ fontSize: 12 , color: state >=5 ? colors.main : 'lightgray'  }}>출고대기</Text>
+                </View>
+                </Row>
+
+            <Divider  style={{ height: 7 , marginTop: 10 , backgroundColor: 'rgb(244,244,244)'  }} />
+
+
+            {/* 시공내역 */}
+            <RButton  onPress={() => { setCollapsed(!collapsed) }}>
+                <Text style={{ marginLeft: 10 , paddingLeft: 10 , fontSize: 17, color: collapsed? 'black' : 'lightgray' }}>시공내역</Text>
+                <IconButton style={{ right: 0 , position: 'absolute' }} icon='chevron-down' color={ collapsed? 'black' : 'lightgray' } />
+            </RButton>
+            <Collapsible collapsed={collapsed} style={{ borderWidth: 1 , borderColor: 'lightgray'  }}>
+                <BidList.C item={item} />   
+            </Collapsible>
+
+            <Divider  style={{ height: 7 , marginBottom: 20 , backgroundColor: 'rgb(244,244,244)'  }} />
+            
+            {/* <SwiperView>
+            <Swiper horizontal={true} index={state-1}
+                loop={false}
+                // showsButtons={true}
+                showsHorizontalScrollIndicator={true}
+                scrollEnabled={false}
+                showsPagination={false}
+                // prevButton={<IconButton icon='chevron-left' color={'gray'}/>}
+                // nextButton={<IconButton icon='chevron-right' color={'gray'}/>}
+                // overScrollMode='auto'
+                // renderPagination = { (index,total) => <Title style={{ alignSelf: 'center'}}>{ index+1}/{total}</Title>}
+
+            > */}
+            {
+                progress.map(item => {
+                    return (
+                            // <SwiperView>
+                            <>
+                                {
+                                    item.value == 1 && state == 1 && (
+                                        <>
+                                        <Title style={{ marginLeft: 10 , padding: 10 , color : 'gray' , marginBottom : 10 , fontWeight: 'bold' }}>
+                                            주소: {props.route.params.data.shipmentLocation}
+                                        </Title>
+                                        <CView style={{  alignItems: 'center', justifyContent: 'center' ,  height: 300 }}>
+                                            <LottieView source={require('./1.json')} autoPlay={true} loop={true} style={{  width: '100%' }} />
+                                        </CView>
+                                        </>
+                                    ) 
+                                }
+                                {
+                                    ( item.value == 3 || item.value == 5 ) && state == item.value && (
+                                        <CView style={{  alignItems: 'center', justifyContent: 'center' ,  height: 300 }}>
+                                            <LottieView source={require('./1.json')} autoPlay={true} loop={true} style={{  width: '100%' }} />
+                                        </CView>
+                                    )
+                                }
+                                {
+                                    (item.value ==2 || item.value == 4) && item.value == state && (
+                                    <>
+                                    <Row style={{ justifyContent: 'flex-end' , marginBottom: 5 }}>
+                                    <Button style={{ alignSelf: 'flex-end' , padding: 3 , margin: 5 ,  borderRadius: 10  }}
+                                        onPress={ () => { openNew() } }
+                                        mode='contained'
+                                        color={colors.main}
+                                        icon='image'
+                                    >
+                                        {'추가하기'}
+                                    </Button>
+                                    <Button style={{ alignSelf: 'flex-end' , padding: 3 , margin: 5 , borderRadius: 10  }}
+                                        onPress={ () => { state == 2 ? requestExamFin() : requestConstructFin() } }
+                                        mode='contained'
+                                        color={colors.main}
+                                        icon='check'
+                                    >
+                                        {state == 2 ? '검수완료' : '시공완료' }
+                                    </Button>
+                                    </Row>
+                                    <FlatList
+                                        scrollEnabled={false}
+                                        nestedScrollEnabled={true}
+                                        ref={ ref => this.flatList = ref }
+                                        onMomentumScrollEnd={(event)=>{
+                                            if ( event.nativeEvent.contentOffset.y < 5 ) {
+                                                this.scrollView.scrollToPosition(0,0) ;
+                                                setListEnabled(false);
+                                            }  
+                                        }}
+                                        // onScrollEndDrag={(event) => { 
+                                        //     if ( event.nativeEvent.contentOffset.y < 5 ) {
+                                        //         this.scrollView.scrollToPosition(0,0) ;
+                                        //         setListEnabled(false);
+                                        //     }  
+                                        // }}
+                                        style={{ width: '100%', alignSelf: 'center' , marginBottom: 40 }}
+                                        data={pictures}
+                                        renderItem={RenderItem}
+                                        numColumns={3}
+                                        keyExtractor={item => item.id }
+                                    />
+                                    </>
+                                )
+                                }
+                                </>
+                            // </SwiperView>
+                    )
+                })
+            }
+            {/* </Swiper>
+            </SwiperView> */}
+            </KeyboardAwareScrollView>
+        </>
+        </Provider>
+    );
+}
 
 const Container = styled.SafeAreaView``;
-const View = styled.View``;
+const CView = styled.View``;
+const View = styled.View`
+    flex: 1 ;
+`;
 const Row = styled.View`
     flex-direction: row ;
     align-items: center;
 `;
 const CButton = styled.TouchableOpacity`
-    width: 30%;
-    height: 100px;
+    width: 33.3%;
+    height: 120px;
+    border: 1.5px white;
+`;
+const RButton = styled.TouchableOpacity`
+    width: 100%;
+    height: 50px;
+    flex-direction: row;
+    align-items: center;
 `;
 const SwiperView = styled.View`
     width: 100%;
-    height: 500px;
+    height: 700px;
 `;
 
 const styles = {
     title : {
         fontFamily : 'DoHyeon-Regular' ,
-        fontSize: 30 ,
-        padding: 20
+        fontSize: 28 ,
+        paddingLeft: 20 ,
+        paddingTop: 15 
     } ,
     progress : {
       height: 5
@@ -107,524 +576,4 @@ const states = {
     CAR_EXAMINATION_FIN : 3 ,
     CONSTRUCTING : 4 ,
     CONSTRUCTION_COMPLETED : 5
-}
-
-
-export default function( props ) {
-    const [data,setData] = React.useState(null) ;
-    const [collapsed,setCollapsed] = React.useState(true);
-    const [item,setItem] = React.useState([]);
-    // 현재단계
-    const[state,setState] = React.useState(1);
-    // 현재 사진들
-    const[pictures,setPictures] = React.useState(null);
-    // 업로드할 사진들 
-    const[newPictures,setNewPictures] = React.useState(null);
-
-    const[refresh,setRefresh] = React.useState(false);
-    // Modal
-    const[visible,setVisible] = React.useState(false);
-    // UploadModal
-    const [modalVisible,setModalVisible] = React.useState(false);
-
-    const [loadRefresh,setLoadRefresh] = React.useState(false);
-
-    const [index,setIndex] = React.useState(0);
-
-    const [newMsg,setNewMsg] = React.useState(0);
-    const isFocused = useIsFocused();
-
-
-    React.useEffect(() => {
-        if ( isFocused) {
-            database().ref(`chat${props.route.params.id}`).once('value',snapshot => {
-                var count = 0 ; 
-                if ( snapshot.toJSON() != null ) {
-                obj = Object.values( snapshot.toJSON() ) ;
-                obj.map( msg => {
-                    if ( msg.user._id == 2 && msg.received != true ) count = count + 1 ; 
-                }) ;
-                setNewMsg(count);
-                }
-                
-            
-            }) // db
-        }
-    }, [ isFocused ] ) ;
-
-    React.useEffect(() => {
-
-       
-        setItem( JSON.parse( props.route.params.data.detail )) ;
-
-        setData( props.route.params.data) ;
-        // 서버로부터 받은 현재 시공단계
-        setState(states[props.route.params.data.state]);
-
-    },[]);
-
-    React.useEffect(() => {
-        
-        if ( states[props.route.params.data.state]== 2 ||  states[props.route.params.data.state] == 4 )
-            requestImage();
-    },[loadRefresh]);
-
-    // 사진 추가하기
-    openNew = async () => {
-
-        // 라이브러리 허용
-        request(PERMISSIONS.IOS.PHOTO_LIBRARY);
-
-        // 
-        await MultipleImagePicker.openPicker({
-            mediaType: 'image',
-            // selectedAssets: pictures,
-            doneTitle: "완료",
-            selectedColor: "#162741",
-            tapHereToChange: '여기를 눌러 변경' ,
-            cancelTitle: '취소' ,
-            // 임시
-            usedCameraButton: false
-        })
-        .then(res => {
-           url = [] ;
-           res.map((file,index) =>  {
-                let newPath ;
-                // ios
-                if ( Platform.OS == 'ios' ) newPath = file.path.replace('file://','').replace('file:///','file://');
-                // android
-                else newPath = 'file://' + file.path ;
-
-               url.push({
-                   path: newPath ,
-                   id: index 
-               });
-           });
-          
-           setNewPictures(url);
-           
-           setModalVisible(true);
-         
-
-        }) 
-        .catch(e => { });
-       
-    }
-
-    // 새로운 사진 추가
-    async function requestUploadImage(images) {
-
-        const token = await fetch('auth');
-        const auth = token.auth;
-        // 폼데이터 생성
-        var body = new FormData();
-        // 현재 사용자가 불러온 이미지 리스트들 => 각각 폼데이터에 넣어준다.
-        images?.map( (picture,index) =>{
-            var photo = {
-                uri: picture.path ,
-                type: 'multipart/form-data',
-                name: `${index}.jpg` ,
-                
-            }
-            body.append('files',photo);
-        })
-        setRefresh(true);
-
-        const axiosInstance = axios.create({
-            headers: {
-                'content-type': 'multipart/form-data' ,
-                Auth : auth
-            } ,
-            timeout: 5000
-        }) ;
-
-        axiosInstance.post(`${server.url}/api/contract/${state ==2 ?'4':'6'}/${data.id}`,body)
-        .then(res => {
-            if ( res.data.statusCode == 200 )
-            {
-                setLoadRefresh(!loadRefresh);
-                setRefresh(false);
-                setModalVisible(false);
-            }
-        })
-        .catch(e=>{
-            console.log(e);
-            Alert.alert('다시 시도해주세요.')
-            setRefresh(false);
-            // console.log(e);
-        })
-
-    }
-
-    // 서버로부터 이미지 불러오기
-    function requestImage() {
-
-        fetch('auth')
-        .then(res => {
-            const auth = res.auth ;
-            axios({
-                method: 'GET' ,
-                url: `${server.url}/api/contract/${states[props.route.params.data.state] ==2 ?'4':'6'}/${props.route.params.data.id}` ,
-                headers : { Auth: auth }
-            })
-            .then(res => {
-                let tmp = [] ;
-                if ( states[props.route.params.data.state] == 2 )
-                    res.data.data.imageUrlResponseDtos.map( (picture,id) => {
-                        tmp.push({ url : picture.imageUrl , id : id });
-                    })
-                else if ( states[props.route.params.data.state] == 4 )
-                    res.data.data.responseDtos.map( (picture,id) => {
-                        tmp.push({ url : picture.imageUrl , id : id });
-                    })
-                setPictures(tmp);
-                  //refresh
-                  // setRefresh(true);
-                  // setRefresh(false);
-            })
-            .catch(e=>{
-                // console.log(e.response.status);
-            })
-        })
-        .catch(e => {
-
-        })
-    }
-
-
-    // 검수완료
-    function requestExamFin(){
-        Alert.alert('검수완료','고객님이 최종 인수결정을 내리게됩니다.',[
-            {
-                text: '확인' ,
-                onPress: () => { requestExamFinServer() }
-            },
-            {
-                text: '취소'
-            }
-        ])
-    }
-    //
-    async function requestExamFinServer(){
-        const token = await fetch('auth') ;
-        const auth = token.auth ;
-        axios({
-            method: 'put' ,
-            url: `${server.url}/api/contract/4` ,
-            headers: { Auth: auth } ,
-            data: { id : data.id } 
-        })
-        .then( res => {
-            // console.log('검수완료 : ' , res ) ;
-            // 성공
-            if ( res.data.statusCode == 200)
-                setState(3);
-        })
-        .catch( e => { 
-
-        });
-    }
-
-    //시공완료
-
-    function requestConstructFin(){
-        Alert.alert('시공완료','고객님에게 출고소식을 알릴게요.',[
-            {
-                text: '확인' ,
-                onPress: () => { requestConstructFinServer() }
-            },
-            {
-                text: '취소'
-            }
-        ])
-    }
-    async function requestConstructFinServer(){
-        const token = await fetch('auth') ;
-        const auth = token.auth ;
-        axios({
-            method: 'put' ,
-            url: `${server.url}/api/contract/6` ,
-            headers: { Auth: auth } ,
-            data: { id : data.id } 
-        })
-        .then( res => {
-            // 성공
-            if ( res.data.statusCode == 200)
-                setState(5);
-        })
-        .catch( e => { 
-
-        });
-    }
-    
-
-    const RenderItem = ({item}) =>  {
-        return(
-            <CButton onPress={ () =>  { setIndex(item.id) ; setVisible(true) }}>
-                <FastImage source={{ uri : item.url }} style={{ width: '100%' , height: '100%' }}/>
-            </CButton>
-        )
-    }
-
-    return(
-        <Provider>
-        {/* 사진 상세보기 */}
-        <Portal>
-        <Modal visible={visible} onDismiss={() => { setVisible(false) }} contentContainerStyle={{ width: '100%', height: '100%' , backgroundColor: 'black' }}>
-            {/* <IconButton icon='close' style={{   }} color='white' onPress={ () => { setVisible(false) }} /> */}
-            <ImageViewer imageUrls={pictures} enableSwipeDown={true} onCancel={ () => {setVisible(false)} } index={index} 
-                enablePreload={true}
-                renderHeader={() =><IconButton icon='close' style={{   }} color='white' onPress={ () => { setVisible(false) }} /> }
-            />
-            {/* <SwiperView>
-            <Swiper 
-                horizontal={true}
-                index={index}
-                loop={false}
-                // prevButton={<IconButton icon='chevron-left' color={'gray'}/>}
-                // nextButton={<IconButton icon='chevron-right' color={'gray'}/>}
-            >
-                    {
-                        pictures != null &&
-                        pictures.map(picture => {
-                            return(
-                                <SwiperView key={picture.id}>
-                                    <FastImage source={{ uri: picture.path }} style={{ width: '100%' , height: '100%' }} />
-                                </SwiperView>
-                            )
-                        })
-                    } 
-            </Swiper>
-            </SwiperView> */}
-        </Modal>
-        <Modal visible={modalVisible} onDismiss={() => { setModalVisible(false); setRefresh(false); }} contentContainerStyle={{ width: '100%', height: '100%' , backgroundColor: 'transparent' }}>
-            {
-                !refresh &&
-                <IconButton icon='close' style={{ alignSelf: 'flex-end'}} color='white' onPress={ () => { setModalVisible(false);  setRefresh(false); }} />
-            }
-            <SwiperView style={{ width: '90%' , height: 300 , alignSelf: 'center' }}>
-            {
-                refresh ? 
-                <LottieView source={require('../Register/2.json')} autoPlay={true} loop={true} /> 
-                :
-
-            <Swiper 
-            horizontal={true}
-            // index={index}
-            loop={false}
-            // prevButton={<IconButton icon='chevron-left' color={'gray'}/>}
-            // nextButton={<IconButton icon='chevron-right' color={'gray'}/>}
-            >
-                    {
-                        newPictures != null &&
-                        newPictures.map(picture => {
-                            return(
-                                <SwiperView style={{ width: '90%' , height: 300 , alignSelf: 'center' }} key={picture.id}>
-                                    <FastImage source={{ uri: picture.path }} style={{ width: '100%' , height: '100%' }} />
-                                </SwiperView>
-                            )
-                        })
-                    } 
-            </Swiper>
-            }
-            </SwiperView>
-            <Button style={{ alignSelf: 'center' , width: '80%' , marginTop: 20 }} mode='contained' color={colors.main}
-                disabled={refresh}
-                onPress={ () => { requestUploadImage(newPictures) }}
-            >
-                전송하기
-            </Button>
-        </Modal>
-        </Portal>
-
-        <>
-            <Appbar.Header style={{ backgroundColor: colors.main , height: 50 }}>
-            <Appbar.BackAction color='white' onPress={() => { props.navigation.goBack() }} />
-            <Appbar.Content title={`${data?.userResponseDto?.nickname} 고객님`} titleStyle={{ fontFamily : 'DoHyeon-Regular' , fontSize: 24}} />
-            <Appbar.Content style={{  position: 'absolute' , right: 0 }} title={'시공내역'} titleStyle={{  fontSize: 15 , right: 2 , color: collapsed ? 'white' : 'gray' }} onPress={ () =>  { setCollapsed(!collapsed) }} />
-            {/* <View>
-                <Appbar.Action icon="chat" onPress={() => { props.navigation.navigate('ChatDetail',{ name : data?.userResponseDto?.nickname , id : props.route.params.data.id , imageUrl : props.route.params.imageUrl }) }} color='white' style={{ backgroundColor: 'transparent' , margin: 0}} size={25}/>
-                <Badge size={10} style={{ position: 'absolute' , right: 0 , top: 0 }}/>
-            </View> */}
-            </Appbar.Header>  
-            <ProgressBar style={styles.progress} progress={state/5} color='red'  
-                theme = {{ animation : { scale : 5 }  }}
-            />
-            <Collapsible collapsed={collapsed} style={{ borderWidth: 1 , borderColor: 'lightgray' }}>
-            {
-                                        item.tinting != null && (
-                                            <>
-                                                <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='틴팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
-                                                <List.Item titleStyle={styles.listStyle} title ={item.tinting} right={ props => <Text style={styles.itemText}>{item.tintingPrice}{'만원'}</Text>} />
-                                            </>
-                                        )
-                                    }
-                                    {
-                                        item.ppf != null && (
-                                            <>
-                                                <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='PPF' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
-                                                <List.Item titleStyle={styles.listStyle} title ={item.ppf} right={props => <Text style={styles.itemText}>{item.ppfPrice}{' 만원'}</Text>} />
-                                            </>
-                                        )
-                                    }
-                                    {
-                                        item.blackbox != null && (
-                                            <>
-                                                <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='블랙박스' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
-                                                <List.Item titleStyle={styles.listStyle} title ={item.blackbox} right={props => <Text style={styles.itemText}>{item.blackboxPrice}{' 만원'}</Text>} />
-                                            </>
-                                        )
-                                    }
-                                    {
-                                        item.battery != null && (
-                                            <>
-                                                <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='보조배터리' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
-                                                <List.Item titleStyle={styles.listStyle} title ={item.battery} right={props => <Text style={styles.itemText}>{item.batteryPrice}{' 만원'}</Text>} />
-                                            </>
-                                        )
-                                    }
-                                    {
-                                        item.afterblow != null && (
-                                            <>
-                                                <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='애프터블로우' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
-                                                <List.Item titleStyle={styles.listStyle} title ={item.afterblow} right={props => <Text style={styles.itemText}>{item.afterblowPrice}{' 만원'}</Text>} />
-                                            </>
-                                        )
-                                    }
-                                    {
-                                        item.soundproof != null && (
-                                            <>
-                                                <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='방음' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
-                                                <List.Item titleStyle={styles.listStyle} title ={item.soundproof} right={props => <Text style={styles.itemText}>{item.soundproofPrice}{' 만원'}</Text>} />
-                                            </>
-                                        )
-                                    }
-                                    {
-                                        item.wrapping != null && (
-                                            <>
-                                                <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='랩핑' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
-                                                <List.Item titleStyle={styles.listStyle} title ={item.wrapping} right={props => <Text style={styles.itemText}>{item.wrappingPrice}{' 만원'}</Text>} />
-                                            </>
-                                        )
-                                    }
-                                    {
-                                        item.glasscoating != null && (
-                                            <>
-                                                <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='유리막코팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
-                                                <List.Item titleStyle={styles.listStyle} title ={item.glasscoating} right={props => <Text style={styles.itemText}>{item.glasscoatingPrice}{' 만원'}</Text>} />
-                                            </>
-                                        )
-                                    }
-                                    {
-                                        item.undercoating != null && (
-                                            <>
-                                                <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='언더코팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
-                                                <List.Item titleStyle={styles.listStyle} title ={item.undercoating} right={props => <Text style={styles.itemText}>{item.undercoatingPrice}{' 만원'}</Text>} />
-                                            </>
-                                        )
-                                    }
-                                    <Divider style={{ margin: 10 }} />
-                                    <List.Item titleStyle={styles.listStyle} title ='최종가격: ' right={props => <Text style={styles.itemText}>{item.totalPrice}{' 만원'}</Text>}/>
-            </Collapsible>
-            <Title style={styles.title}>시공 진행상황</Title>
-            
-            <SwiperView>
-            <Swiper horizontal={true} index={state-1}
-                loop={false}
-                showsButtons={true}
-                showsHorizontalScrollIndicator={true}
-                showsPagination={false}
-                prevButton={<IconButton icon='chevron-left' color={'gray'}/>}
-                nextButton={<IconButton icon='chevron-right' color={'gray'}/>}
-                // overScrollMode='auto'
-                // renderPagination = { (index,total) => <Title style={{ alignSelf: 'center'}}>{ index+1}/{total}</Title>}
-
-            >
-            {
-                progress.map(item => {
-                    return (
-                        
-                        
-                            <SwiperView>
-                                <Title style={{ marginLeft: 10 , paddingLeft: 10 , color : state == item.value ? 'red' : state > item.value ? 'black' : 'gray' }}>
-                                {item.value}{'단계: '}{item.title}
-                                </Title>
-                                <Title style={{ marginLeft: 10 , paddingLeft: 10 , color : 'gray' , marginBottom : 20 , fontSize: 17 }}>
-                                    {
-                                        item.value == state ? 
-                                        (state == 1 ? TEXT.first : state == 2 ? TEXT.second : state == 3 ? TEXT.third : state == 4? TEXT.fourth : TEXT.fifth ) 
-                                        : 
-                                        (item.value < state && 
-                                            '완료'
-                                        )
-                                    }
-                                </Title>    
-                                {
-                                    item.value == 1 && state == 1 && (
-                                        <>
-                                        <Title style={{ marginLeft: 10 , padding: 10 , color : 'gray' , marginBottom : 10 , fontWeight: 'bold' }}>
-                                            주소: {props.route.params.data.shipmentLocation}
-                                        </Title>
-                                        <LottieView source={require('./1.json')} autoPlay={true} loop={true}/>
-                                        </>
-                                    ) 
-                                }
-                                {
-                                    item.value == 3 && state == item.value && (
-                                        <>
-                                        <LottieView source={require('./1.json')} autoPlay={true} loop={true}/>
-                                        </>
-                                    )
-                                }
-                                {
-                                    (item.value ==2 || item.value == 4) && item.value == state && (
-                                    <>
-                                    <Row>
-                                    <Button style={{ alignSelf: 'flex-end' , padding: 3 , margin: 5 ,  borderRadius: 10  }}
-                                        onPress={ () => { openNew() } }
-                                        mode='contained'
-                                        color={colors.main}
-                                        icon='image'
-                                    >
-                                        {'추가하기'}
-                                    </Button>
-                                    <Button style={{ alignSelf: 'flex-end' , padding: 3 , margin: 5 , borderRadius: 10  }}
-                                        onPress={ () => { state == 2 ? requestExamFin() : requestConstructFin() } }
-                                        mode='contained'
-                                        color={colors.main}
-                                        icon='check'
-                                    >
-                                        {state == 2 ? '검수완료' : '시공완료' }
-                                    </Button>
-                                    </Row>
-                                    <FlatList
-                                        style={{ width: '80%', alignSelf: 'center' , marginLeft: 20 , marginBottom: 40 }}
-                                        nestedScrollEnabled={true}
-                                        data={pictures}
-                                        renderItem={RenderItem}
-                                        numColumns={3}
-                                        keyExtractor={item => {item.id}}
-                                        // refreshControl={refresh}
-                                    />
-                                    </>
-                                )
-                                }
-                            </SwiperView>
-                    )
-                })
-            }
-            </Swiper>
-            </SwiperView>
-            <View style={{ position: 'absolute' , bottom: 20 , right: 20 }}>
-            <FAB   icon='chat' small={false} style={{ backgroundColor: colors.main , elevation: 0  }} 
-                onPress={() => { props.navigation.navigate('ChatDetail',{ name : data?.userResponseDto?.nickname , id : props.route.params.data.id , imageUrl : props.route.params.imageUrl }) }}
-            />
-            {
-                newMsg > 0 &&
-                <Badge style={{ position: 'absolute' , top: 0 , elevation: 3  }}>{newMsg}</Badge>
-            }
-            </View>
-        </>
-        </Provider>
-    );
 }
