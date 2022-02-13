@@ -24,7 +24,8 @@ import ProductDetailRegister from './Register/ProductDetailRegister';
 import MyPage from './AppBarContents/MyPage';
 import Receipt from './AppBarContents/Receipt';
 import Notifications from './AppBarContents/Notifications';
-import CS from './AppBarContents/CS';
+import { CS , CS_Write } from './AppBarContents/CS';
+import CS_Detail from './AppBarContents/CS_Detail';
 
 const View = styled.SafeAreaView``;
 
@@ -49,6 +50,8 @@ function HomeRoute() {
             <Stack.Screen name='MyPage' component={MyPage}  options={{ title: '마이페이지' }}/>
             <Stack.Screen name='Receipt' component={Receipt}  options={{ title: '과거 시공내역'  }}/>
             <Stack.Screen name='CS' component={CS}  options={{ title: '고객문의'  }}/>
+            <Stack.Screen name='CS_Write' component={CS_Write}  options={{ title: '문의하기'  }}/>
+            <Stack.Screen name='CS_Detail' component={CS_Detail}  options={{ title: '문의내용'  }}/>
             <Stack.Screen name='Notifications' component={Notifications} options={{ title: '알림센터' }}/>
             <Stack.Screen name='Post' component={PostPage} options={{ title: '게시물' }} />
             <Stack.Screen name='InfoRegister' component={InfoRegister} options={{ headerShown: false }} />
@@ -67,7 +70,7 @@ function BidRoute() {
         <NavigationContainer>
             <Stack.Navigator screenOptions={{ headerLeft : props => ( <IconButton {...props} icon='chevron-left' size={24} /> ) }}>
                 <Stack.Screen name='BidPage' component={BidPage} options={{ headerShown : false }}/>
-                <Stack.Screen name='BidRegister' component={BidRegister} options={{ title: '입찰 등록' }} />
+                <Stack.Screen name='BidRegister' component={BidRegister} options={{ headerShown: false }} />
             </Stack.Navigator>
         </NavigationContainer>
     )
@@ -76,7 +79,7 @@ function BidRoute() {
 
 
 
-export default function( props ) {
+export default function MainPage( props ) {
     const MyContext = React.useContext(AppContext);
     const [index, setIndex] = React.useState(0);
     const [routes] = React.useState([

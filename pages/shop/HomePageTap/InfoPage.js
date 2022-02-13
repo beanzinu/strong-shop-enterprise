@@ -12,6 +12,7 @@ import fetch from '../../../storage/fetch';
 import store from '../../../storage/store';
 import AppContext from '../../../storage/AppContext';
 
+const View = styled.View``;
 const Row = styled.View`
     flex-direction: row;
     align-items: center;
@@ -106,7 +107,7 @@ export default function( props ) {
             </Button>
             <Title style= { styles.title }> 업체 소개 </Title>
             <Text>{data?.introduction == null ? '업체 소개를 해주세요.' : data?.introduction }</Text>
-            <Row>
+            <Row style={{ marginTop: 20 }}>
                 <Avatar.Icon icon='phone' style={{ backgroundColor: 'transparent' , marginLeft: 10 }} color={'black'} size={30} />
                 <Button color={'black'} >{data?.contact}</Button>
             </Row>
@@ -122,7 +123,7 @@ export default function( props ) {
                 <Avatar.Icon icon='instagram' style={{ backgroundColor: 'transparent' , marginLeft: 10 }} color={'black'} size={30} />
                 <Button style={{ borderBottomWidth: data?.snsUrl != null ? 1 : 0  , backgroundColor: data?.snsUrl != null &&'rgb(247,247,247)' }}  uppercase={false} color={'black'} onPress={()=> { data?.snsUrl != null && Linking.openURL('http://instagram.com/'+data.snsUrl) }}>{ data?.snsUrl != null && '@'}{data?.snsUrl}</Button>
             </Row>
-            <Title style= { styles.title }> 위치 </Title>
+            <Title style= {{ ...styles.title , paddingTop: 20 }}> 위치 </Title>
             <Text style={{ marginBottom: 20 }}>{data?.address == null ? '위치를 등록해주세요.' : data.address}{'\n'}{data?.detailAddress == null ? '' :  data?.detailAddress }</Text>
             <NaverMapView style={{width: '80%', height: 300 , alignSelf : 'center' , borderWidth: 2 , borderColor: 'lightgray' , marginBottom: 20 }}
             center={{...coord, zoom: 13 }}
@@ -130,6 +131,9 @@ export default function( props ) {
             >
             <Marker coordinate={coord} />
             </NaverMapView>
+            {/* <View style={{ height: 100 , backgroundColor: 'lightgray' , alignItems: 'center' }}>
+                <Text>hi</Text>
+            </View> */}
             </KeyboardAwareScrollView>
             )
         }

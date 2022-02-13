@@ -128,10 +128,10 @@ function A({ item }){
                 )
             }
             {
-                item.undercoating != null && (
+                item.bottomcoating != null && (
                     <>
-                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='언더코팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
-                        <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} title ={item.undercoating} right={props => <Text style={styles.itemText}>{item.undercoatingPrice}{' 만원'}</Text>} />
+                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='하부코팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                        <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} title ={item.undercoating} right={props => <Text style={styles.itemText}>{item.bottomcoatingPrice}{' 만원'}</Text>} />
                     </>
                 )
             }
@@ -235,10 +235,10 @@ function B( {item,row} ){
                 )
             }
             {
-                item.undercoating != null && (
+                item.bottomcoating != null && (
                     <>
                         <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='언더코팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
-                        <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} title ={item.undercoating} right={props => <Text style={styles.itemText}>{item.undercoatingPrice}{' 만원'}</Text>} />
+                        <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} title ={item.undercoating} right={props => <Text style={styles.itemText}>{item.bottomcoatingPrice}{' 만원'}</Text>} />
                     </>
                 )
             }
@@ -318,10 +318,10 @@ function C({item}){
                 )
             }
             {
-                item.undercoating != null && (
+                item.bottomcoating != null && (
                     <>
                         <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='언더코팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
-                        <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} title ={item.undercoating} right={props => <Text style={styles.itemText}>{item.undercoatingPrice}{' 만원'}</Text>} />
+                        <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} title ={item.undercoating} right={props => <Text style={styles.itemText}>{item.bottomcoatingPrice}{' 만원'}</Text>} />
                     </>
                 )
             }

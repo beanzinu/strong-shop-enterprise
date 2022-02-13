@@ -69,7 +69,7 @@ export default function( props ) {
   const RenderItem = ({ item }) =>  {
         return(
         <PostButton key={item.id} onPress= { () =>  { props.navigation.navigate('Post',{ imageUrl: imageUrl  , uri : item.imageUrls , content : item.content , name : shopName , id : item.id }) }}>
-            <FastImage resizeMode='cover' source= { { uri: item?.imageUrls[0]?.imageUrl }  } style={{ width: '100%' , height: '100%' }} />
+            <FastImage resizeMode={FastImage.resizeMode.cover}  source= { { uri: item?.imageUrls[0]?.imageUrl }  } style={{ width: '100%' , height: '100%' }} />
         </PostButton>    
         );
     }

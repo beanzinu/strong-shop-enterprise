@@ -10,6 +10,7 @@ import MultipleImagePicker from '@baronha/react-native-multiple-image-picker';
 import AppContext from '../../storage/AppContext';
 import FastImage from 'react-native-fast-image';
 import LottieView from 'lottie-react-native';
+import { Image } from 'react-native';
 import { TabView , SceneMap , TabBar } from 'react-native-tab-view';
 import { useIsFocused } from '@react-navigation/native';
 // Pages
@@ -34,6 +35,10 @@ const Tab = createMaterialTopTabNavigator();
 const View = styled.View``;
 const ImageView = styled.TouchableOpacity``;
 const Row = styled.View`
+    flex-direction: row;
+    background-color: white;
+`;
+const ButtonRow = styled.TouchableOpacity`
     flex-direction: row;
     background-color: white;
 `;
@@ -66,7 +71,7 @@ const styles = {
         borderWidth: 1 ,
         borderColor: 'lightgray' ,
         // borderRadius: 0 ,
-        height : 200 ,
+        height : 300 ,
     } ,
     cover : {
         height: 200 ,
@@ -176,6 +181,7 @@ export default function( props ) {
     const MyContext = React.useContext(AppContext);
 
     
+    
 
     React.useEffect(() => {
 
@@ -233,97 +239,21 @@ export default function( props ) {
 
     },[MyContext.homeRef]);
 
-    // 썸네일 등록
-    function requestThumbnail(){
-        setLoading(true);
-        MultipleImagePicker.openPicker({
-            mediaType: 'image' ,
-            maxSelectedAssets: 1 ,
-            maximumMessageTitle: '업체 썸네일' ,
-            maximumMessage: '한장만 등록해주세요.' ,
-            doneTitle: "완료",
-            selectedColor: "#162741",
-            tapHereToChange: '여기를 눌러 변경' ,
-            cancelTitle: '취소' ,
-            singleSelectedMode: true ,
-            // 임시
-            usedCameraButton: false
-        })
-        .then(async (res) => {
-            setLoading(false);
-            // 서버에 등록 후 캐시
-            const token = await fetch('auth');
-            const auth = token.auth;
-                // 폼데이터 생성
-                var body = new FormData();
-                 // 현재 사용자가 불러온 이미지 리스트들 => 각각 폼데이터에 넣어준다.
     
-                if ( Platform.OS == 'ios' ) var response = res[0];
-                else var response = res ;
-                var url ;
-                // ios
-                if ( Platform.OS == 'ios' ) url = response.path.replace('file://','').replace('file:///','file://');
-                // android
-                else url = 'file://' + response.path ;
-
-                var photo = {
-                    uri: url ,
-                    type: 'multipart/form-data',
-                    name: `0.jpg` ,
-                    
-                }
-                body.append('file',photo);
-
-                const axiosInstance = axios.create({
-                    headers: {
-                        'content-type': 'multipart/form-data' ,
-                        Auth : auth
-                    } ,
-                    timeout: 5000
-                }) ;
-
-                axiosInstance.post(`${server.url}/api/companyinfo/bgi`,body)
-                .then( async(res) => {
-                    if ( res.data.statusCode == 200 ) {
-                               // 사진 등록
-                               const res_url = res.data.data.url ;
-                               try{
-                                   await store('Info',{ 'backgroundImageUrl' : res_url })
-                                   setPicture( res_url ) ;
-                               }
-                               catch{
-                                   Alert.alert('다시 시도해주세요.');
-                               }
-                    }
-                })
-                .catch( e => {
-                    // console.log(e);
-                })
-
-
-     
-        })
-        .catch( e => {
-            setLoading(false);
-
-        })
-        setLoading(false);
-    }
 
     return (
         <>
-        <Appbar.Header style={{ backgroundColor: 'white' , alignItems: 'center'  }}>
-            {/* <IconButton icon='account' /> */}
-            <Appbar.Content onPress={()=> { setCollapsed(!collapsed) }}  title={shopName} titleStyle={{ color: colors.main ,  fontFamily: 'DoHyeon-Regular', fontSize: shopName.length > 10 ? 12 : shopName.length > 5 ? 20 : 25  }}  />
+        <Appbar.Header style={{ backgroundColor: colors.main , alignItems: 'center' , height: 70  }}>
+            <Appbar.Content onPress={()=> { setCollapsed(!collapsed) }}  title={shopName} titleStyle={{  color: 'white' , fontWeight: 'bold' , fontSize: shopName.length > 10 ? 12 : shopName.length > 5 ? 24 : 25  }}  />
             {/* <Appbar.Action icon={ collapsed ? 'chevron-down' : 'chevron-up' } onPress={() => { setCollapsed(!collapsed)}} style={{}}/> */}
             {/* <Appbar.Action  style={{ flex: 1 }}/> */}
             <View>
-                <Appbar.Action color='black' icon="bell-outline" onPress={() => { props.navigation.navigate('Notifications')}}  />
+                <Appbar.Action color='white' icon="bell-outline" onPress={() => { props.navigation.navigate('Notifications')}}  />
                 {
                     isalarm && <Badge size={ 8 } style={{ position: 'absolute' , right: 9 , top : 9  }}/>
                 }
             </View>
-            <Appbar.Action icon="cog-outline" onPress={() => { props.navigation.navigate('MyPage',{ name: shopName , picture: picture })}} />
+            <Appbar.Action color='white'  icon="cog-outline" onPress={() => { props.navigation.navigate('MyPage',{ name: shopName , picture: picture })}} />
         </Appbar.Header>  
         
         {/* 커버사진 */}
@@ -331,7 +261,7 @@ export default function( props ) {
             collapsed={collapsed}
             // collapsed={ scroll > 0  ? true : false }
             // collapsedHeight={10}
-            // duration={0}
+            duration={0}
         > 
             <View>
             <Card style={ styles.card }>
@@ -364,7 +294,6 @@ export default function( props ) {
         </Collapsible> */}
 
         <TabViews navigation={props.navigation}/>
-        
         </>
     );
 }

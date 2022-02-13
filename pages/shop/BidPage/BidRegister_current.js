@@ -60,7 +60,7 @@ export default function() {
                 loading ? <ActivityIndicator style={{ marginTop: 30 }} color='black' size='large'/> :
                 data == null ? 
                 (
-                    <View style={{ height: Dimensions.get('screen').height*0.8 , justifyContent: 'center' , alignItems: 'center'  }}>
+                    <View style={{ height: Dimensions.get('screen').height*0.6 , justifyContent: 'center' , alignItems: 'center'  }}>
                             {/* <Avatar.Icon icon='account-arrow-left' style={{ backgroundColor: 'transparent'}} color='black'/> */}
                             <Text>현재 입찰중인 건이 없어요.</Text>
                     </View>

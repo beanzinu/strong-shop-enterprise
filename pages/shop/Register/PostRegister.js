@@ -228,7 +228,7 @@ export default function( props ) {
                 />
             </Card>
             <Row>
-                <OptionView onPress={() => openNew() }>
+                <OptionView onPress={ () => openNew() }>
                     <IconButton icon='image-plus' />
                 </OptionView>
             </Row>
@@ -259,7 +259,7 @@ export default function( props ) {
                     placeholder='내용을 입력하세요.'
                     onSubmitEditing={() => { this.scrollView.scrollToEnd() }} 
                     blurOnSubmit={true}
-                    style={{ height: inputHeight , backgroundColor: 'white' }}
+                    style={{ height: inputHeight , backgroundColor: 'white' , margin: 5 }}
                     value={text} 
                     onChangeText={value => setText(value) }
                     onContentSizeChange={e=>{
@@ -268,9 +268,9 @@ export default function( props ) {
                     multiline={true}/>
                 <Button 
                     ref={ ref => { this.b = ref }}
-                    style={{ height: 50 , justifyContent: 'center' , marginTop: 10 , marginBottom: 50 }} 
+                    style={{ height: 50 , justifyContent: 'center' , marginTop: 10 , marginBottom: 50 , marginLeft: 5 , marginRight: 5 }} 
                     theme={{ colors: { primary: colors.main } }}
-                    labelStyle={{ fontWeight: 'bold' }}
+                    labelStyle={{ fontWeight: 'bold' , color: 'white' }}
                     mode='contained'
                     onPress={() =>  { uploadData() }}
                     disabled={requesting}

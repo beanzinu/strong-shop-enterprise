@@ -181,6 +181,7 @@ export default function( props ) {
         <Button icon='plus' mode='contained' color={colors.main} 
             onPress={ () =>  { addItem() } }
             style={{ height: 50 , justifyContent: 'center' , margin: 5 }}
+            labelStyle={{ color: 'white'}}
         >{props.route.params.itemOption == 'add'? '등록하기' : '수정하기'}</Button>
     </KeyboardAwareScrollView>
     );

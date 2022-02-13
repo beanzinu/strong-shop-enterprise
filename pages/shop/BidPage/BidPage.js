@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { 
     Appbar , Title , Divider , List,
     Button ,  IconButton , Chip ,
-    Provider , Modal , Portal,  Text, Badge
+    Provider , Modal , Portal,  Text, Badge , Menu, ActivityIndicator
 } 
 from 'react-native-paper';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -11,10 +11,11 @@ import colors from '../../../color/colors';
 import { Alert } from 'react-native';
 import { RefreshControl } from 'react-native';
 import { FlatList } from 'react-native';
+import Collapsible from 'react-native-collapsible';
 // storage
 import API from '../../../server/API';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import fetch from '../../../storage/fetch' ;
+import fetch from '../../../storage/fetch' ; 
 import store from '../../../storage/store';
 import _ from 'lodash';
 import { Dimensions } from 'react-native';
@@ -36,43 +37,50 @@ export default function ( props ) {
     const [fullData,setFullData] = React.useState([]);
     const [data,setData] = React.useState([]);
     const [shopName,setShopName] = React.useState('');
+    const [region,setRegion] = React.useState('');
     const [modalVisible,setModalVisible] = React.useState(false);
     const [regions,setRegions] = React.useState(defaultRegions) ;
     const [refresh,setRefresh] = React.useState(false);
     const MyContext = React.useContext(AppContext);
     const isFocused = useIsFocused();
+    
 
     const RenderItem= ({ item }) => {
         let tmp = JSON.parse(item.details);
         return (
-            <Item item={tmp} navigation={props.navigation} key={item.id} id = {item.id}/>
+            <Item item={tmp} navigation={props.navigation} key={item.id} id = {item.id} shopName={shopName}/>
         )
     }
 
-    const checkRegions = () => {
-        if ( regions.seoul || regions.incheon || regions.daejeon || regions.busan || regions.daegu || regions.gwangju || regions.jeju )
-            return false 
-        return true ;
-    }
+    // const checkRegions = () => {
+    //     if ( regions.seoul || regions.incheon || regions.daejeon || regions.busan || regions.daegu || regions.gwangju || regions.jeju )
+    //         return false 
+    //     return true ;
+    // }
 
     function BidBefore() {
+        // 신차패키지 , 케어 필터
+        const [filter,setFilter] = React.useState('전체');
+
+        const handleFilter = (item) => {
+            setFilter( item );
+        }
 
         return (
-            <>
+            <Provider>
             {/* // 입찰 전 */}
+                
+                {/* <Divider style={{  height: 8 , backgroundColor: 'rgb(230,230,230)' }} /> */}
                 <Row>
-                <ScrollView horizontal={true} contentContainerStyle={{ alignItems: 'center' , height: 70 }}>
-                    <Button icon='plus' style={{  padding: 4, margin: 10 , borderRadius: 10 , borderWidth: 1 , borderColor: 'gray' }} mode='outlined' color={'gray'} onPress={() => { setModalVisible(true) }}>
-                        지역
-                    </Button>
-                    { regions.seoul && <Chip textStyle={{ color: 'white'}} style={ styles.scrollChipStyle }>서울</Chip>}
-                    { regions.incheon && <Chip textStyle={{ color: 'white'}} style={styles.scrollChipStyle }>인천</Chip> }
-                    { regions.daejeon && <Chip textStyle={{ color: 'white'}} style={styles.scrollChipStyle }>대전</Chip> }
-                    { regions.daegu && <Chip textStyle={{ color: 'white'}} style={styles.scrollChipStyle }>대구</Chip> }
-                    { regions.busan && <Chip textStyle={{ color: 'white'}} style={styles.scrollChipStyle }>부산</Chip> }
-                    { regions.gwangju && <Chip textStyle={{ color: 'white'}} style={styles.scrollChipStyle }>광주</Chip> }
-                    { regions.jeju && <Chip textStyle={{ color: 'white'}} style={styles.scrollChipStyle }>제주</Chip> }
-                </ScrollView>
+                <Button labelStyle={{ fontWeight: 'bold'}} style={{ padding: 3,  margin: 5  }} color={ filter == '전체' ? 'black' : 'lightgray' } onPress={ () => { handleFilter('전체') } }>
+                    전체
+                </Button>
+                <Button labelStyle={{ fontWeight: 'bold'}} style={{ padding: 3, margin: 5  }} color={ filter == '신차패키지' ? 'black' : 'lightgray' } onPress={ () => { handleFilter('신차패키지') } }>
+                    신차패키지
+                </Button>
+                <Button labelStyle={{ fontWeight: 'bold'}} style={{ padding: 3 , margin: 5 }} color={ filter == '케어' ? 'black' : 'lightgray' } onPress={ () => { handleFilter('케어') } }>
+                    케어
+                </Button>
                 </Row>
                 {
                     data.length == 0 ? (
@@ -83,16 +91,18 @@ export default function ( props ) {
                             />}
                             contentContainerStyle={{ height: Dimensions.get('screen').height*0.6 , justifyContent: 'center' , alignItems: 'center'  }}
                         >   
-                            <BidBeforeView onPress={() => {  setModalVisible(true) }}>
+                            <Title style={{ fontSize: 15 }}>{'아직 입찰요청이 없어요.'}</Title>
+                            {/* <BidBeforeView onPress={() => {  setModalVisible(true) }}>
                             <Title style= {{ fontSize: 14 }}>
                                 {
                                     checkRegions() ? '지역을 선택해 주세요.' : '아직 입찰요청이 없어요.'
                                 }
                             </Title>
-                            </BidBeforeView>
+                            </BidBeforeView> */}
                         </ScrollView>
                     ) :
                     (
+                        <>
                         <View style={{ flex: 1 }}>
                         <FlatList
                             onRefresh={() => { requestOrders() }}
@@ -105,109 +115,13 @@ export default function ( props ) {
                             onEndReachedThreshold={0.05}
                             onEndReached={() => { loadPartialData() }}
                         />
-                        </View>                
+                        </View>  
+                        </>              
                     )
-                }       
-
-            </>
+                }     
+            </Provider>
         )
     }
-
-    const handleRegion = (region) => { 
-            switch( region ) {
-                case 'seoul' :
-                    setRegions({ ...regions, 'seoul': !regions[region] })
-                    break ;
-                case 'incheon' :
-                    setRegions({ ...regions, 'incheon': !regions[region] })
-                    break ;
-                case 'daejeon' :
-                    setRegions({ ...regions, 'daejeon': !regions[region] })
-                    break ;
-                case 'daegu' :
-                    setRegions({ ...regions, 'daegu': !regions[region] })
-                    break ;
-                case 'busan' :
-                    setRegions({ ...regions, 'busan': !regions[region] })
-                    break ;
-                case 'gwangju' :
-                    setRegions({ ...regions, 'gwangju': !regions[region] })
-                    break ;
-                case 'jeju' :
-                    setRegions({ ...regions, 'jeju': !regions[region] })
-                    break ;
-                
-            }
-    }
-    const cacheRegion = (region) => {
-        let data  = regions ;
-        region.map(item => {
-            data[item] = true ;
-        })
-        setRegions(data);
-    }
-
-    // 서버
-    // 특정 Order에 입찰요청
-    async function requestOrders() {
-        if ( checkRegions() ) {
-            setModalVisible(false);
-            setData([]);
-            return;
-        }
-        setModalVisible(false);
-
-       let tmp = [] ;
-       for ( key in regions ) {
-            if ( regions[key] ) tmp.push(key);
-       }
-       await store('orderRegion',{ region : tmp });
-
-       API.get(`/api/orders?regions=${tmp}`)
-       .then( res => {
-            let rawData = res.data.data;
-            // 새로운 데이터 X
-            if ( rawData.length == 0 ) setData([]);
-            // 10개씩 로드 
-            else if ( rawData.length > loadThresh ) {
-                let tmp =  _.slice(rawData,0,loadThresh) ;
-                setData ( tmp );
-                setFullData( _.drop(rawData,loadThresh) ) ;
-            }
-            // 10개미만 모두 로드
-            else {
-                setData( rawData );
-                setFullData([]);
-            }
-
-            setModalVisible(false);
-            setRefresh(false);
-       })
-       .catch( e => {        
-            if ( e.response != null && e?.response?.hasOwnProperty('status') && e?.response?.status == 403 ) {
-                Alert.alert('새로운 기기','다른 기기에서 로그인하여 로그아웃 되었습니다.');
-                AsyncStorage.clear();
-                MyContext.LOGOUT();
-            }
-            else { // 500
-                Alert.alert('다시 시도해주세요.');
-                setModalVisible(false);
-                setRefresh(false);
-            }
-       })
-    }
-
-
-    React.useEffect(() => {
-
-        // 업체이름 가져오기
-        fetch('Info')   
-        .then( res => {
-            setShopName( res?.company_name );
-        })
-    
-    },[]);
-
     const loadPartialData = () => {
         // 새로운 데이터 X
         if ( fullData.length == 0 ) return;
@@ -230,66 +144,78 @@ export default function ( props ) {
 
 
     // 서버
-    // 선택지역 캐시 있으면 requestOrders() 
     if ( isFocused ) {
 
-        // Google Analytics
-        analytics().logScreenView({
-            screen_class: 'Bidding' ,
-            screen_name: 'BidBefore'
-        })
+            // Google Analytics
+            analytics().logScreenView({
+                screen_class: 'Bidding' ,
+                screen_name: 'BidBefore'
+            })
 
-        fetch('orderRegion')
-        .then( (res) => {
-            if (res?.region != null ) {
-                    const res_region = res.region;
-                    cacheRegion(res.region);
+            if( !region?.length && !shopName?.length ) {
+            
+            // 업체이름 가져오기
+            API.get('/api/company')  
+            .then( res => {
+                setShopName( res?.data.data.name );
+                setRegion( res?.data.data.region ,
+                    requestOrders()
+                ),
+                setLoading(false);
+            })
+            .catch( e => {  })
+            }
 
-                    API.get(`/api/orders?regions=${res_region}`)
-                    .then( res => {
-                        let rawData = res.data.data;
-                        // 새로운 데이터 X
-                        if ( rawData.length == 0 ) setData([]);
-                        // 10개씩 로드 
-                        else if ( rawData.length > loadThresh ) {
-                            let tmp =  _.slice(rawData,0,loadThresh) ;
-                            setData ( tmp );
-                            setFullData( _.drop(rawData,loadThresh) ) ;
-                        }
-                        // 10개미만 모두 로드
-                        else {
-                            setData( rawData );
-                            setFullData([]);
-                        }
-                    })
-                    .catch( e => {
-                        if ( e.response != null && e.response.hasOwnProperty('status') && e.response.status == 403 ) {
-                            Alert.alert('새로운 기기','다른 기기에서 로그인하여 로그아웃 되었습니다.');
-                            AsyncStorage.clear();
-                            MyContext.LOGOUT();
-                        }
-                        else { 
-                            Alert.alert('다시 시도해주세요.');
-                            setModalVisible(false);
-                            setRefresh(false);
-                        }
-                    })
-                    
-                }
-                
-        })
-        .catch( e=> {
+            else {
+                requestOrders()
+            }
 
-        })
+            
+          
     }
         
         
     },[MyContext.bidRef , isFocused ]);
 
+    const requestOrders = () => {
+    
+        tmp = region?.split(',')
+        API.get(`/api/orders?regions=seoul`)
+        .then( res => {
+            let rawData = res.data.data;
+            // 새로운 데이터 X
+            if ( rawData.length == 0 ) setData([]);
+            // 10개씩 로드 
+            else if ( rawData.length > loadThresh ) {
+                let tmp =  _.slice(rawData,0,loadThresh) ;
+                setData ( tmp );
+                setFullData( _.drop(rawData,loadThresh) ) ;
+            }
+            // 10개미만 모두 로드
+            else {
+                setData( rawData );
+                setFullData([]);
+            }
+        })
+        .catch( e => {
+            if ( e.response != null && e.response.hasOwnProperty('status') && e.response.status == 403 ) {
+                Alert.alert('새로운 기기','다른 기기에서 로그인하여 로그아웃 되었습니다.');
+                AsyncStorage.clear();
+                MyContext.LOGOUT();
+            }
+            else { 
+                Alert.alert('다시 시도해주세요.');
+                setModalVisible(false);
+                setRefresh(false);
+            }
+        })
+    }
+
+    
 
     return (
     <Provider>
-        <Portal>
+        {/* <Portal>
             <Modal visible={modalVisible} contentContainerStyle={{ backgroundColor: 'white' , width: '100%' , height: 500 , marginRight: 10 , bottom: 0 , position: 'absolute' }}>
                 <View style={{ width: '100%' , height: 500  }}>
                     <IconButton icon='close' style={{ alignSelf: 'flex-end' , top: 0  }} onPress={() => { setModalVisible(false)}} />
@@ -304,18 +230,23 @@ export default function ( props ) {
                             )
                         })
                     }
-                    <Button onPress={requestOrders} icon='magnify' style={{ flex: 1 , justifyContent: 'center' , margin: 3 , marginTop: 50 }} color={colors.main} mode='contained'>검색하기</Button>
+                    <Button labelStyle={{ color: 'white' }} onPress={requestOrders} icon='magnify' style={{ flex: 1 , justifyContent: 'center' , margin: 3 , marginTop: 50 }} color={colors.main} mode='contained'>검색하기</Button>
                 </View>
             </Modal>
-        </Portal>
+        </Portal> */}
 
             
-        <Appbar.Header style={{ backgroundColor: 'transparent' , elevation: 0 }}>
-                <Appbar.Content title={shopName} titleStyle={{ fontFamily : 'DoHyeon-Regular' , fontSize: 30 , color: 'lightgray' , alignSelf: 'center'  }} />
-                {/* <Appbar.Action icon="bell-outline" color='gray' onPress={() => {}} /> */}
-                {/* <Appbar.Action icon="cog-outline" color='gray' onPress={() => { props.navigation.navigate('MyPage')}} /> */}
+        <Appbar.Header style={{ backgroundColor: 'white' , elevation: 0   }}>
+            {
+                region.length == 0 ? 
+                <ActivityIndicator color='black' style={{ marginLeft: 20 }} />
+                :
+                <IconButton icon='car-multiple' size={25} color={'black'}/>
+            }
+            <Text style={{ marginLeft: 10 , fontSize: 27 , fontWeight: 'bold' , color: 'black' }}>{region}</Text>
+            {/* <Appbar.Content title={shopName} titleStyle={{ fontWeight: 'bold' , fontSize: 22 , color: 'lightgray' , alignSelf: 'center' , margin: 5 }} /> */}
         </Appbar.Header>   
-        <Tab.Navigator  sceneContainerStyle={{ backgroundColor: 'white' }} screenOptions={{ tabBarActiveTintColor: 'black' , tabBarIndicatorStyle: { backgroundColor: 'black' , borderWidth: 2 } , tabBarLabelStyle: { fontWeight: 'bold' , fontSize: 15 }   }}    initialRouteName={BidBefore}>
+        <Tab.Navigator  sceneContainerStyle={{ backgroundColor: 'white' }} screenOptions={{ tabBarStyle: { } , tabBarActiveTintColor: 'black' , tabBarInactiveTintColor: 'lightgray' , tabBarIndicatorStyle: { backgroundColor: 'black' , borderWidth: 2 , borderColor: 'black' } , tabBarLabelStyle: { fontWeight: 'bold' , fontSize: 17 }   }}    initialRouteName={BidBefore}>
             <Tab.Screen name="BidBefore" component={BidBefore} options={{ title: '입찰 전' }} />
             <Tab.Screen name="BidRegister_current" component={BidRegister_current} options={{ title: '입찰 중'  }}/>
             <Tab.Screen name="BidRegister_history" component={BidRegister_history} options={{ title: '입찰결과' }}/>
@@ -324,136 +255,161 @@ export default function ( props ) {
     );
 }
 
+// 신차패키지
 // 각각의 입찰요청항목
-function Item ( { item , navigation , id } ) {
-    const [expanded,setExpanded] = React.useState(false) ;
+function Item ( { item , navigation , id , shopName } ) {
+    const [expanded,setExpanded] = React.useState(true) ;
     return( 
-                    <List.Section key={id}>
-                          <List.Accordion
-                            title={item.carName}
-                            style={styles.listAccordionStyle}
-                            titleStyle= {{ fontWeight : 'bold' , fontFamily: 'DoHyeon-Regular' , fontSize: 23 , color :  expanded ? 'red' : 'black'   }}
-                            expanded={expanded}
-                            onPress={()=>{setExpanded(!expanded)}}
-                            description='자세한 정보를 확인하세요.'
-                            right ={ props => <Row style={{ alignItems: 'center' }}>
-                                <Text>{translate('region',item.region)}</Text>
-                                <List.Icon icon='chevron-down' />
-                            </Row> }
-                            
-                            // left={props => <List.Icon {...props} icon="car-hatchback" color={'black'}  />}
-                           >
-                            <View style={{ backgroundColor: 'white' , margin: 10 , borderWidth: 1 , borderRadius: 10 , borderColor: 'lightgray' }}>
-                                { item.options.tinting && 
-                                    <>
-                                        <List.Item titleStyle={styles.listStyle} title ='틴팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
-                                        <ScrollView horizontal={true}>
-                                            {
-                                                _.map(item.options.detailTinting,(value,key) => { 
-                                                    if (key == 'ETC' && value != null && value.length != 0  ) return <Chip key={key} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
-                                                    if(value) return <Chip key={key+'a'} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('tinting',key) }</Chip>  
-                                                })
-                                            }
-                                        </ScrollView>
-                                    </> }
-                                {item.options.ppf && 
-                                    <>
-                                        <List.Item titleStyle={styles.listStyle}  title ='PPF' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
-                                        <ScrollView horizontal={true}>
-                                            {
-                                                _.map(item.options.detailPpf,(value,key) => { 
-                                                    if (key == 'ETC' && value != null && value.length != 0 ) return <Chip key={key} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
-                                                    if(value) return <Chip key={key+'a'} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('ppf',key) }</Chip>  
-                                                })
-                                            }
-                                        </ScrollView>
-                                    </>
+            // <List.Section key={id}>
+                // {/* <List.Accordion
+                // title={item.carName}
+                // style={styles.listAccordionStyle}
+                // titleStyle= {{ fontWeight : 'bold' , fontFamily: 'DoHyeon-Regular' , fontSize: 23 , color :  expanded ? 'red' : 'black'   }}
+                // expanded={expanded}
+                // onPress={()=>{ setExpanded(!expanded) }}
+                // description='자세한 정보를 확인하세요.'
+                // right ={ props => <Row style={{ alignItems: 'center' }}>
+                //     <Text>{translate('region',item.region)}</Text>
+                //     <List.Icon icon='chevron-down' />
+                // </Row> }
+                // > */}
+                <>
+                <RowItem onPress={ () => { setExpanded(!expanded) }}>
+                    <Text style={{fontWeight : 'bold' , fontFamily: 'DoHyeon-Regular' , fontSize: 25 , marginLeft: 20  }}>{item.carName}</Text>
+                    <Badge size={ 28 } style={{ alignSelf: 'center' , marginLeft: 10 , backgroundColor: colors.main , color: 'white' }}>신차</Badge>
+                    {/* <Badge size={ 28 } style={{ alignSelf: 'center' , marginLeft: 10 , backgroundColor: 'rgb(111,222,198)' , color: 'white' }}>케어</Badge> */}
+                    <Badge size={ 28 } style={{ alignSelf: 'center' , marginLeft: 10 , backgroundColor: 'black' , color: 'white' }}>딜러</Badge>
+                    <Row style={{ right: 5 , position: 'absolute' }}>
+                    <Text>{translate('region',item.region)}</Text>
+                    <IconButton icon={ expanded ? 'chevron-down' : 'chevron-up' } />
+                    </Row>
+                </RowItem>
+                <Collapsible collapsed={expanded} duration={100}>
+                <View style={{ backgroundColor: 'white' , margin: 10 , borderWidth: 1 , borderRadius: 10 , borderColor: 'lightgray' }}>
+                    { item.options.tinting && 
+                        <>
+                            <List.Item titleStyle={styles.listStyle} title ='틴팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <ScrollView horizontal={true}>
+                                {
+                                    _.map(item.options.detailTinting,(value,key) => { 
+                                        if (key == 'ETC' && value != null && value.length != 0  ) return <Chip key={key} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
+                                        if(value) return <Chip key={key+'a'} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('tinting',key) }</Chip>  
+                                    })
                                 }
-                                {item.options.blackbox && 
-                                    <>
-                                        <List.Item titleStyle={styles.listStyle}  title ='블랙박스' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10}/>} />
-                                        <ScrollView horizontal={true}>
-                                            {
-                                                _.map(item.options.detailBlackbox,(value,key) => { 
-                                                    if (key == 'ETC' && value != null && value.length != 0 ) return <Chip key={key} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
-                                                    if(value) return <Chip key={key+'a'}  style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('blackbox',key) }</Chip>  
-                                                })
-                                            }
-                                        </ScrollView>
-                                    </>
+                            </ScrollView>
+                        </> }
+                    {item.options.ppf && 
+                        <>
+                            <List.Item titleStyle={styles.listStyle}  title ='PPF' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <ScrollView horizontal={true}>
+                                {
+                                    _.map(item.options.detailPpf,(value,key) => { 
+                                        if (key == 'ETC' && value != null && value.length != 0 ) return <Chip key={key} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
+                                        if(value) return <Chip key={key+'a'} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('ppf',key) }</Chip>  
+                                    })
                                 }
-                                {item.options.battery && 
-                                    <>
-                                        <List.Item titleStyle={styles.listStyle}  title ='보조배터리' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10}/>} />
-                                        <ScrollView horizontal={true}>
-                                            {
-                                                _.map(item.options.detailBattery,(value,key) => { 
-                                                    if (key == 'ETC' && value != null && value.length != 0 ) return <Chip  key={key} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
-                                                    if(value) return <Chip key={key+'a'}  style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('battery',key) }</Chip>  
-                                                })
-                                            }
-                                        </ScrollView>
-                                    </>
+                            </ScrollView>
+                        </>
+                    }
+                    {item.options.blackbox && 
+                        <>
+                            <List.Item titleStyle={styles.listStyle}  title ='블랙박스' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10}/>} />
+                            <ScrollView horizontal={true}>
+                                {
+                                    _.map(item.options.detailBlackbox,(value,key) => { 
+                                        if (key == 'ETC' && value != null && value.length != 0 ) return <Chip key={key} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
+                                        if(value) return <Chip key={key+'a'}  style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('blackbox',key) }</Chip>  
+                                    })
                                 }
-                                {item.options.afterblow && 
-                                    <>
-                                        <List.Item titleStyle={styles.listStyle}  title ='애프터블로우' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10}/>} />
-                                        <ScrollView horizontal={true}>
-                                            {
-                                                _.map(item.options.detailAfterblow,(value,key) => { 
-                                                    if (key == 'ETC' && value != null && value.length != 0 ) return <Chip  key={key} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
-                                                    if(value) return <Chip key={key+'a'}  style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('afterblow',key) }</Chip>  
-                                                })
-                                            }
-                                        </ScrollView>
-                                    </>
+                            </ScrollView>
+                        </>
+                    }
+                    {item.options.battery && 
+                        <>
+                            <List.Item titleStyle={styles.listStyle}  title ='보조배터리' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10}/>} />
+                            <ScrollView horizontal={true}>
+                                {
+                                    _.map(item.options.detailBattery,(value,key) => { 
+                                        if (key == 'ETC' && value != null && value.length != 0 ) return <Chip  key={key} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
+                                        if(value) return <Chip key={key+'a'}  style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('battery',key) }</Chip>  
+                                    })
                                 }
-                                {item.options.soundproof && 
-                                    <>
-                                        <List.Item titleStyle={styles.listStyle}  title ='방음' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10}/>} />
-                                        <ScrollView horizontal={true}>
-                                            {
-                                                _.map(item.options.detailSoundproof,(value,key) => { 
-                                                    if (key == 'ETC' && value != null && value.length != 0 ) return <Chip key={key} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
-                                                    if(value) return <Chip key={key+'a'}  style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('soundproof',key) }</Chip>  
-                                                })
-                                            }
-                                        </ScrollView>
-                                    </>
+                            </ScrollView>
+                        </>
+                    }
+                    {item.options.afterblow && 
+                        <>
+                            <List.Item titleStyle={styles.listStyle}  title ='애프터블로우' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10}/>} />
+                            <ScrollView horizontal={true}>
+                                {
+                                    _.map(item.options.detailAfterblow,(value,key) => { 
+                                        if (key == 'ETC' && value != null && value.length != 0 ) return <Chip  key={key} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
+                                        if(value) return <Chip key={key+'a'}  style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('afterblow',key) }</Chip>  
+                                    })
                                 }
-                                {item.options.wrapping && 
-                                    <>
-                                        <List.Item titleStyle={styles.listStyle}  title ='랩핑' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10}/>} />
-                                        <ScrollView horizontal={true}>
-                                            {
-                                                _.map(item.options.detailWrapping,(value,key) => { 
-                                                    if (key == 'DESIGN' && value != null && value.length != 0 ) return <Chip key={key} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
-                                                    if(value) return <Chip key={key+'a'} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('wrapping',key) }</Chip>  
-                                                })
-                                            }
-                                        </ScrollView>
-                                    </>
+                            </ScrollView>
+                        </>
+                    }
+                    {item.options.soundproof && 
+                        <>
+                            <List.Item titleStyle={styles.listStyle}  title ='방음' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10}/>} />
+                            <ScrollView horizontal={true}>
+                                {
+                                    _.map(item.options.detailSoundproof,(value,key) => { 
+                                        if (key == 'ETC' && value != null && value.length != 0 ) return <Chip key={key} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
+                                        if(value) return <Chip key={key+'a'}  style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('soundproof',key) }</Chip>  
+                                    })
                                 }
-                                {item.options.glasscoating && <><List.Item titleStyle={styles.listStyle}  title ='유리막코팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} /></>} 
-                                {item.options.undercoating && <><List.Item titleStyle={styles.listStyle}  title ='언더코팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} /></>}
-                                <Divider style={{ marginTop: 5 }} />
-                                <List.Item 
-                                    // style={{ borderWidth: 1 ,borderColor: 'lightgray'}}
-                                    titleStyle={{  fontWeight: 'bold' }} 
-                                    descriptionStyle={{ paddingTop: 5 , fontWeight: 'bold' , fontSize: 17 }}
-                                    title='요청사항:' description={item.require} />
-                                <Button 
-                                        icon='account-cash' 
-                                        mode='outlined' 
-                                        color={colors.main}
-                                        mode='contained' 
-                                        onPress={ () => { navigation.navigate('BidRegister',{ data : item , id : id }) } }
-                                        style={{ margin: 3 , marginTop: 20 }} labelStyle={{  fontSize: 17 }} >
-                                    작성하기
-                                </Button>
-                            </View>
-                          </List.Accordion>
-                    </List.Section>
+                            </ScrollView>
+                        </>
+                    }
+                    {item.options.wrapping && 
+                        <>
+                            <List.Item titleStyle={styles.listStyle}  title ='랩핑' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10}/>} />
+                            <ScrollView horizontal={true}>
+                                {
+                                    _.map(item.options.detailWrapping,(value,key) => { 
+                                        if (key == 'DESIGN' && value != null && value.length != 0 ) return <Chip key={key} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
+                                        if(value) return <Chip key={key+'a'} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('wrapping',key) }</Chip>  
+                                    })
+                                }
+                            </ScrollView>
+                        </>
+                    }
+                    {item.options.glasscoating && <><List.Item titleStyle={styles.listStyle}  title ='유리막코팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} /></>} 
+                    {item.options.bottomcoating && 
+                        <>
+                            <List.Item titleStyle={styles.listStyle}  title ='하부코팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <ScrollView horizontal={true}>
+                                {
+                                    _.map(item.options.detailBottomcoating,(value,key) => { 
+                                        if (key == 'ETC' && value != null && value.length != 0 ) return <Chip key={key} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
+                                        if(value) return <Chip key={key+'a'} style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('bottomcoating',key) }</Chip>  
+                                    })
+                                }
+                            </ScrollView>
+                        </>
+                    }
+                    <Divider style={{ marginTop: 5 }} />
+                    <List.Item 
+                        // style={{ borderWidth: 1 ,borderColor: 'lightgray'}}
+                        titleStyle={{  fontWeight: 'bold' }} 
+                        descriptionStyle={{ paddingTop: 5 , fontWeight: 'bold' , fontSize: 17 }}
+                        title='요청사항:' description={item.require} />
+                    <Button 
+                            icon='account-cash' 
+                            mode='outlined' 
+                            color={colors.main}
+                            mode='contained' 
+                            onPress={ () => { navigation.navigate('BidRegister',{ data : item , id : id , name: shopName }) } }
+                            style={{ margin: 3 , marginTop: 20 }} labelStyle={{  fontSize: 17 , color: 'white'  }} >
+                        작성하기
+                    </Button>
+                </View>
+                </Collapsible>
+                </>
+                // {/* </List.Accordion> */}
+            // </List.Section>
     )
 }
 
@@ -463,8 +419,19 @@ const Row = styled.View`
     align-items: center;
     flex-direction: row;
 `;
-
-
+const RowItem = styled.TouchableOpacity`
+    height: 70px;
+    align-items: center;
+    flex-direction: row;
+`;
+const AlignButton = styled.TouchableOpacity`
+    border: 1px lightgray;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    align-items: center;
+`;
 
 const styles = {
     containerStyle : {
@@ -480,7 +447,7 @@ const styles = {
         marginLeft: 10 
     } ,
     scrollChipStyle : {
-        margin: 3 , padding: 3 , borderRadius : 10  , backgroundColor: colors.main , justifyContent: 'center' , alignItems: 'center'
+        margin: 5 , padding: 3 , borderWidth: 1 ,borderColor: 'lightgray' , borderRadius : 20  , backgroundColor: 'white' , justifyContent: 'center' , alignItems: 'center'
     } ,
     chipTextStyle : {
     } , 
@@ -598,6 +565,10 @@ function translate(option,item){
         gwangju: '광주',
         jeju: '제주',
     }
+    const res_Bottomcoating = {
+        UNDER: '언더코팅' ,
+        POLYMER: '폴리머코팅' ,
+    }
     if(option === 'tinting') return res_Tinting[item];
     else if(option === 'ppf') return res_Ppf[item];
     else if(option === 'blackbox') return res_Blackbox[item];
@@ -606,4 +577,5 @@ function translate(option,item){
     else if(option === 'soundproof') return res_Soundproof[item];
     else if(option === 'wrapping') return res_Wrapping[item];
     else if(option === 'region') return res_Region[item];
+    else if(option === 'bottomcoating') return res_Bottomcoating[item];
 }

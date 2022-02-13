@@ -51,7 +51,8 @@ const styles = {
         margin : 5 , 
         paddingLeft: 5 ,
         paddingRight : 5 ,
-        marginRight: 10
+        marginRight: 10 ,
+        elevation: 0
     }  , 
     modalButton : {
         height: 50 ,
@@ -63,7 +64,7 @@ const styles = {
 const options = [
     { name : '틴팅'} ,
     { name : 'PPF'} ,
-    { name : '블랙박스'} ,
+    { name : '블랙박스'} ,
     { name : '보조배터리'} ,
     { name : '애프터블로우'} ,
     { name : '방음'} ,
@@ -169,7 +170,7 @@ export default function( props ){
                 {
                     options.map((item,i)=>{
                         return(
-                            <Button key={i} style={styles.button} color='rgb(230,230,230)' labelStyle={{ fontSize: 15 , color: '#964b00' }}  onPress={ () => { setValue(i+1) }} mode = { value == i+1 && 'contained'}>
+                            <Button key={i} style={styles.button} color='rgb(230,230,230)' labelStyle={{ fontSize: 15 , color: '#964b00' }}  onPress={ () => { setValue(i+1) }} mode = { value == i+1 ? 'contained' : 'text' }>
                                 {item.name}
                             </Button>
                         )

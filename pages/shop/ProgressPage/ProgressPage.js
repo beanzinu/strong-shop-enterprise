@@ -116,7 +116,6 @@ export default function( props ) {
         })
         .then(res => {
             
-           console.log(res);
         
            url = [] ;
            res.map((file,index) =>  {
@@ -260,7 +259,7 @@ export default function( props ) {
     const RenderItem = ({item}) =>  {
         return(
             <CButton key={item} onPress={ () =>  { setIndex(item.id) ; setVisible(true) }}>
-                <FastImage  key={item.url} source={{ uri : item.url }} style={{ width: '100%' , height: '100%' }}/>
+                <FastImage resizeMode={FastImage.resizeMode.cover}  key={item.url} source={{ uri : item.url }} style={{ width: '100%' , height: '100%' }}/>
             </CButton>
         )
     }
@@ -269,15 +268,15 @@ export default function( props ) {
         <Provider>
         {/* 사진 상세보기 */}
         <Portal>
-        <Modal visible={visible} onDismiss={() => { setVisible(false) }} contentContainerStyle={{ width: '100%', height: '100%' , backgroundColor: 'black' , elevation: 3 , marginBottom: 50 }}>
+        <Modal visible={visible} onDismiss={() => { setVisible(false) }} contentContainerStyle={{ width: '100%', height: '100%' , backgroundColor: 'black' , elevation: 3  }}>
             {/* <IconButton icon='close' style={{   }} color='white' onPress={ () => { setVisible(false) }} /> */}
             <ImageViewer 
                 renderImage={ props =>
-                <FastImage source={{ uri : props.source.uri }} style={{ width: '100%' , height: '100%' }}/>
+                <FastImage resizeMode={FastImage.resizeMode.cover}  source={{ uri : props.source.uri }} style={{ width: '100%' , height: '100%' }}/>
             } 
                 imageUrls={pictures} enableSwipeDown={true} onCancel={ () => {setVisible(false)} } index={index} 
                 enablePreload={true}
-                renderHeader={() =><IconButton icon='close' style={{   }} color='white' onPress={ () => { setVisible(false) }} /> }
+                renderHeader={() =><IconButton icon='close' style={{ alignSelf: 'flex-end'  }} color='white' onPress={ () => { setVisible(false) }} /> }
             />
         </Modal>
         <Modal visible={modalVisible} onDismiss={() => { setModalVisible(false); setRefresh(false); }} contentContainerStyle={{ width: '100%', height: '100%' , backgroundColor: 'transparent' }}>
@@ -303,7 +302,7 @@ export default function( props ) {
                         newPictures.map(picture => {
                             return(
                                 <SwiperView key={picture} style={{ width: '90%' , height: 300 , alignSelf: 'center' }} key={picture.id}>
-                                    <FastImage key={picture} source={{ uri: picture.path }} style={{ width: '100%' , height: '100%' }} />
+                                    <FastImage resizeMode={FastImage.resizeMode.cover}  key={picture} source={{ uri: picture.path }} style={{ width: '100%' , height: '100%' }} />
                                 </SwiperView>
                             )
                         })
@@ -314,6 +313,7 @@ export default function( props ) {
             <Button style={{ alignSelf: 'center' , width: '80%' , marginTop: 20 }} mode='contained' color={colors.main}
                 disabled={refresh}
                 onPress={ () => { requestUploadImage(newPictures) }}
+                labelStyle={{ color: 'white'}}
             >
                 전송하기
             </Button>
@@ -429,6 +429,7 @@ export default function( props ) {
                                         onPress={ () => { openNew() } }
                                         mode='contained'
                                         color={colors.main}
+                                        labelStyle={{ color: 'white'}}
                                         icon='image'
                                     >
                                         {'추가하기'}
@@ -437,6 +438,7 @@ export default function( props ) {
                                         onPress={ () => { state == 2 ? requestExamFin() : requestConstructFin() } }
                                         mode='contained'
                                         color={colors.main}
+                                        labelStyle={{ color: 'white'}}
                                         icon='check'
                                     >
                                         {state == 2 ? '검수완료' : '시공완료' }

@@ -9,6 +9,7 @@ import analytics from '@react-native-firebase/analytics';
 import firebase from '@react-native-firebase/app'
 
 // Async
+import API from '../../../server/API';
 import store from '../../../storage/store';
 import axios from 'axios';
 import fetch from '../../../storage/fetch';
@@ -90,7 +91,7 @@ export default function( props ) {
 
         if ( address != null ) await getCoord(address) ;
 
-        data = {
+        let data = {
             introduction : info ,
             contact: contact ,
             blogUrl : blogUrl ,
@@ -102,19 +103,8 @@ export default function( props ) {
             longitude: longitude
         } ;
 
-        
-        try {
-            const res = await fetch('auth') ;
-            const auth = res.auth ;
-            // 서버 ( POST/PUT )
-            axios({
-                method: 'POST' ,
-                url: `${server.url}/api/companyinfo`,
-                data: data ,
-                headers: {
-                    Auth: auth 
-                }
-            })
+        try {   
+            API.post('/api/companyinfo',data)
             .then ( async (res)=>  {
                 // 저장성공시
                 await store('Info',data) ;
@@ -167,10 +157,10 @@ export default function( props ) {
                 </Modal>
             </Portal>
             <Appbar.Header style={{ backgroundColor: colors.main  }}>
-                <Appbar.BackAction size={17} onPress={() => { props.navigation.goBack() }}/>
-                <Appbar.Content title='업체 소개'  style={{ flex:1 }}/>
-                <View>
-                    <Button color='white'  onPress={addInfo} >수정하기</Button>
+                <Appbar.BackAction color='white' size={20} onPress={() => { props.navigation.goBack() }}/>
+                {/* <Appbar.Content title='업체 소개'  style={{ flex:1 }} titleStyle={{ color: 'white' , alignSelf: 'center' }} /> */}
+                <View style={{ right: 0 , position: 'absolute' }}>
+                    <Button color='white' labelStyle={{ fontSize: 17 }}  onPress={addInfo} >수정하기</Button>
                 </View>
             </Appbar.Header>
             <Row style={{ alignItems: 'center' , marginTop: 20 }}> 

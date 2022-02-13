@@ -40,7 +40,10 @@ export default function() {
         API.get('/api/biddinghistory')
         .then(res => {
             if ( res.data.statusCode == 200 ) {
-                if ( res.data.data == null || res.data.data.length == 0 ) return;
+                if ( res.data.data == null || res.data.data.length == 0 )  {
+                    setLoading(false);
+                    return;
+                }
                 else parseData(res.data.data) ;
             }
             setLoading(false);
@@ -64,7 +67,7 @@ export default function() {
                 loading ? <ActivityIndicator style={{ marginTop: 20 }} size='large' color='black' /> : 
                 data == null ? 
                 (
-                    <View style={{ height: Dimensions.get('screen').height*0.8 , justifyContent: 'center' , alignItems: 'center'  }}>
+                    <View style={{ height: Dimensions.get('screen').height*0.6 , justifyContent: 'center' , alignItems: 'center'  }}>
                             {/* <Avatar.Icon icon='account-arrow-left' style={{ backgroundColor: 'transparent'}} color='black'/> */}
                             <Text>현재 입찰내역이 없어요.</Text>
                     </View>
@@ -94,7 +97,7 @@ export default function() {
                     })
                 )
             }
-            <Divider style={{ borderBottomWidth: 10 , borderColor: 'rgb(244,244,244)'  }} />
+            {/* <Divider style={{ borderBottomWidth: 10 , borderColor: 'rgb(244,244,244)'  }} /> */}
         </KeyboardAwareScrollView>
     );
 }

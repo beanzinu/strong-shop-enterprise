@@ -43,7 +43,7 @@ export default function( props ) {
                         {
                             options.map((item,i)=>{
                                 return(
-                                    <Button key={i} style={{ ...styles.button }} labelStyle={{ fontSize: 15 , color: '#964b00' }} color='rgb(230,230,230)' onPress={ () => { setValue(i+1) }} mode = { value == i+1 && 'contained'}>
+                                    <Button key={i} style={{ ...styles.button , elevation: 0 }} labelStyle={{ fontSize: 15 , color: '#964b00' }} color='rgb(230,230,230)' onPress={ () => { setValue(i+1) }} mode = { value == i+1 ? 'contained' : 'text' }>
                                         {item.name}
                                     </Button>
                                 )
@@ -132,7 +132,7 @@ function Product( {DATA, listControl} ) {
 const options = [
     { name : '틴팅'} ,
     { name : 'PPF'} ,
-    { name : '블랙박스'} ,
+    { name : '블랙박스'} ,
     { name : '보조배터리'} ,
     { name : '애프터블로우'} ,
     { name : '방음'} ,
@@ -167,7 +167,8 @@ const styles = {
         margin: 16 ,
         right: 0 ,
         bottom: 0 ,
-        backgroundColor : colors.main
+        backgroundColor : colors.main ,
+        elevation: 0
     }
 } ;
 

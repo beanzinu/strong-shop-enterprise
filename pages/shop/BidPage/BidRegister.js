@@ -1,6 +1,6 @@
 import React from 'react' ;
 import styled from 'styled-components';
-import { Title , IconButton , Button , TextInput, Avatar , Chip , List , Provider , Modal , Portal } from 'react-native-paper';
+import { Title , IconButton , Button , TextInput, Avatar , Chip , List , Provider , Modal , Portal, Divider, Appbar , Badge } from 'react-native-paper';
 import axios from 'axios';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import colors from '../../../color/colors';
@@ -8,17 +8,36 @@ import { Alert } from 'react-native';
 import Collapsible from 'react-native-collapsible';
 import _, { after } from 'lodash';
 import fetch from '../../../storage/fetch';
+import store from '../../../storage/store';
+import API from '../../../server/API';
 import server from '../../../server/server';
 import LottieView from 'lottie-react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import AppContext from '../../../storage/AppContext';
+import { Image } from 'react-native';
+import FastImage from 'react-native-fast-image';
 
 
 const Container = styled.SafeAreaView``;
+const View = styled.View``;
+const MenuView = styled.View`
+    border: 2px rgb(240,240,240);  
+    margin: 10px;
+    padding: 5px; 
+`;
 const Text = styled.Text``;
 const Row = styled.View`
     flex-direction: row;
     align-items: center;
+`;
+const ButtonRow = styled.View`
+    align-items: center;
+    flex-direction: row;
+    width: 100%;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    /* border-bottom-width: 1px; */
+    /* border-color: lightgray; */
 `;
 // const TextInput = styled.TextInput`
 //     width: 90% ;
@@ -40,24 +59,29 @@ const styles= {
         color: 'black',
     } ,
     label : {
-        margin: 10 ,
-        fontFamily : 'DoHyeon-Regular' , 
-        paddingTop: 10 ,
-        fontSize: 25
+        // margin: 15 ,
+        // fontFamily : 'DoHyeon-Regular' , 
+        // paddingTop: 10 ,
+        fontSize: 20 ,
+        fontWeight: 'bold'
     } ,
     theme : { 
         colors : {
             underlineColor : 'black' ,
-            primary : 'black' ,
+            primary : 'gray' ,
             background: 'white' ,
         }
     } ,
     chipStyle : {
         backgroundColor: 'rgb(220,220,220)',
-        margin : 3
+        margin : 7
     } ,
     chipTextStyle : {
     } , 
+    textInput : { 
+        backgroundColor: 'white' , 
+        margin: 5  
+    }
 }
 
 function translate(option,item){
@@ -115,6 +139,10 @@ function translate(option,item){
         gwangju: '광주',
         jeju: '제주',
     }
+    const res_Bottomcoating = {
+        UNDER: '언더코팅' ,
+        POLYMER: '폴리머코팅' ,
+    }
     if(option === 'tinting') return res_Tinting[item];
     else if(option === 'ppf') return res_Ppf[item];
     else if(option === 'blackbox') return res_Blackbox[item];
@@ -123,6 +151,7 @@ function translate(option,item){
     else if(option === 'soundproof') return res_Soundproof[item];
     else if(option === 'wrapping') return res_Wrapping[item];
     else if(option === 'region') return res_Region[item];
+    else if(option === 'bottomcoating') return res_Bottomcoating[item];
 }
 
 export default function( props ) {
@@ -145,12 +174,14 @@ export default function( props ) {
     const [wrappingPrice,setWrappingPrice] = React.useState('');
     const [glasscoating,setGlasscoating] = React.useState('');
     const [glasscoatingPrice,setGlasscoatingPrice] = React.useState('');
-    const [undercoating,setUndercoating] = React.useState('');
-    const [undercoatingPrice,setUndercoatingPrice] = React.useState('');
+    const [bottomcoating,setBottomcoating] = React.useState('');
+    const [bottomcoatingPrice,setBottomcoatingPrice] = React.useState('');
     const MyContext = React.useContext(AppContext);
+
+    const [picture,setPicture] = React.useState(null);
     
     const getSum = () => {
-        return Number(tintingPrice) + Number(ppfPrice) + Number(blackboxPrice) + Number(batteryPrice) + Number(afterblowPrice) + Number(soundproofPrice) + Number(wrappingPrice) + Number(glasscoatingPrice) + Number(undercoatingPrice) ;
+        return Number(tintingPrice) + Number(ppfPrice) + Number(blackboxPrice) + Number(batteryPrice) + Number(afterblowPrice) + Number(soundproofPrice) + Number(wrappingPrice) + Number(glasscoatingPrice) + Number(bottomcoatingPrice) ;
     }
 
 
@@ -160,6 +191,31 @@ export default function( props ) {
         setData( props.route.params.data ) ;
         setId ( props.route.params.id) ;
 
+        fetch('Info')
+        .then( async(res) => {
+            if (res?.backgroundImageUrl != null) {
+                setPicture( res.backgroundImageUrl);
+            }
+            else {
+                // 1. 서버에게 요청하여 Info 정보 받아옴.
+                API.get('/api/companyinfo')
+                .then(res=> {
+                    // 2. Info 정보를 setData()
+                    try {
+                        if ( res.data.statusCode == 200 ) {
+                            store('Info',{ 'backgroundImageUrl' : res.data.data.backgroundImageUrl })
+                            setPicture( res.data.data.backgroundImageUrl);
+                        }
+                    }
+                    catch(e) {
+                        //
+                    }
+                })
+                .catch( e => { 
+                    // console.log(e.response);
+                 })
+            }
+        })
 
     },[]);
     
@@ -173,7 +229,7 @@ export default function( props ) {
         if ( (data.options['soundproof'] ) ) if ( !soundproof.length || !soundproofPrice.length )  flag = false;
         if ( (data.options['wrapping'] ) ) if ( !wrapping.length || !wrappingPrice.length )  flag = false;
         if ( (data.options['glasscoating'] ) ) if ( !glasscoating.length || !glasscoatingPrice.length )  flag = false;
-        if ( (data.options['undercoating'] ) ) if ( !undercoating.length || !undercoatingPrice.length )  flag = false;
+        if ( (data.options['bottomcoating'] ) ) if ( !bottomcoating.length || !bottomcoatingPrice.length )  flag = false;
         return flag ;
     }
 
@@ -223,8 +279,8 @@ export default function( props ) {
         if ( data.options['glasscoating']  ) {
             data1['glasscoating'] = glasscoating , data1['glasscoatingPrice'] = glasscoatingPrice;
         }
-        if ( data.options['undercoating']  ) {
-            data1['undercoating'] = undercoating , data1['undercoatingPrice'] = undercoatingPrice;
+        if ( data.options['bottomcoating']  ) {
+            data1['bottomcoating'] = bottomcoating , data1['undercoatingPrice'] = bottomcoatingPrice;
         }
 
         data1['totalPrice'] = getSum().toString() ;
@@ -281,6 +337,15 @@ export default function( props ) {
     return(               
         <Provider>
         <KeyboardAwareScrollView style={{ backgroundColor: 'white' }}>
+        <Appbar.Header style={{ backgroundColor: 'white' , elevation: 0 }}>
+            <Appbar.BackAction onPress={() => { props.navigation.goBack() }}/>
+            <Row>
+                {/* <Avatar.Icon icon='car-arrow-left' color={colors.main} style={{ backgroundColor: 'transparent'}} /> */}
+                <Title style={{ fontWeight: 'bold' , marginLeft: 20 , fontSize: 22 }}>{data.carName}</Title>
+            </Row>
+            <Badge size={ 28 } style={{ alignSelf: 'center' , marginLeft: 10 , backgroundColor: colors.main , color: 'white' }}>신차</Badge>
+            <Badge size={ 28 } style={{ alignSelf: 'center' , marginLeft: 10 , backgroundColor: 'black' , color: 'white' }}>딜러</Badge>
+        </Appbar.Header>
 
         <Portal>
             <Modal visible={requesting} style={{ alignItems: 'center' , justifyContent: 'center' , backgroundColor: 'transparent' }} >
@@ -288,24 +353,40 @@ export default function( props ) {
             </Modal>
         </Portal>
 
-            <Row style={{ borderBottomWidth: 1 , borderBottomColor: 'gray' }}>
-                <Avatar.Icon icon='car-arrow-left' color='black' style={{ backgroundColor: 'transparent'}} />
-                <Title style={{ ...styles.title  }}>{data.carName}</Title>
-            </Row>
+            <ButtonRow>
+            {
+                    picture == null ? 
+                    (
+                        <Image source={require('../../../resource/Loading.jpeg')} style={{ width: 40 , height: 40 , borderRadius: 10 , marginLeft: 10 }}/>
+                    ):
+                    (
+                        <FastImage source = {{ uri : picture }} style={{ width: 40 , height: 40 , borderRadius: 10 , marginLeft: 10 }}  resizeMode='cover' />
+                    )
+            }
+            <Title style={{ marginLeft: 20 , fontSize: 17 , fontWeight: 'bold' }}>{props.route.params.name}</Title>
+            </ButtonRow>
+            
+            {/* <Divider style={{ height: 5 , backgroundColor: 'rgb(230,230,230)' }} /> */}
+
             {
                 data?.options?.tinting && (
-                    <>
-                    <Title style={styles.label}>틴팅</Title>
+                    <MenuView>
+                    <Row>
+                        <IconButton icon='clipboard-outline' />
+                        <Title style={styles.label}>틴팅</Title>
+                    </Row>
                     <ScrollView horizontal={true}>
                         {
-                             _.map(data.options.detailTinting,(value,key) => { 
-                                    if (key == 'ETC' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
+                            _.map(data.options.detailTinting,(value,key) => { 
+                                if (key == 'ETC' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
                                     if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('tinting',key) }</Chip>  
                             })
                         }
                     </ScrollView>
-                    <TextInput placeholder='제품명' theme={styles.theme}
-                        style={{ backgroundColor: 'white' , marginTop: 10 }}
+                    <TextInput 
+                        placeholder='제품명' 
+                        theme={styles.theme}
+                        style={styles.textInput}
                         onSubmitEditing={ () => { this.tintingPrice.focus() }}
                         value={tinting}
                         onChangeText={value=>{ setTinting(value) }}
@@ -314,18 +395,21 @@ export default function( props ) {
                         ref= { (input) =>{this.tintingPrice = input }}
                         keyboardType='number-pad'
                         theme={styles.theme}
-                        style={{ backgroundColor: 'white' }}
+                        style={styles.textInput}
                         right={<TextInput.Affix text='만원'/>}
                         value={tintingPrice}
                         onChangeText={value=>{ setTintingPrice(value) }}
                     />
-                    </>
+                    </MenuView>
                 )
             }
             {
                 data?.options?.ppf && (
-                    <>
-                    <Title style={styles.label}>PPF</Title>
+                    <MenuView>
+                    <Row>
+                        <IconButton icon='clipboard-outline' />
+                        <Title style={styles.label}>PPF</Title>
+                    </Row>
                     <ScrollView horizontal={true}>
                         {
                              _.map(data.options.detailPpf,(value,key) => { 
@@ -335,7 +419,7 @@ export default function( props ) {
                         }
                     </ScrollView>
                     <TextInput placeholder='제품명' theme={styles.theme}
-                        style={{ backgroundColor: 'white' , marginTop: 10 }}
+                        style={styles.textInput}
                         onSubmitEditing={ () => { this.ppfPrice.focus() }}
                         value={ppf}
                         onChangeText={value=>{ setPpf(value) }}
@@ -344,18 +428,21 @@ export default function( props ) {
                         ref= { (input) =>{this.ppfPrice = input }}
                         keyboardType='number-pad'
                         theme={styles.theme}
-                        style={{ backgroundColor: 'white' }}
+                        style={styles.textInput}
                         right={<TextInput.Affix text='만원'/>}
                         value={ppfPrice}
                         onChangeText={value=>{ setPpfPrice(value) }}
                     />
-                    </>
+                </MenuView>
                 )
             }
             {
                 data?.options?.blackbox && (
-                    <>
-                    <Title style={styles.label}>블랙박스</Title>
+                    <MenuView>
+                    <Row>
+                        <IconButton icon='clipboard-outline' />
+                        <Title style={styles.label}>블랙박스</Title>
+                    </Row>
                     <ScrollView horizontal={true}>
                         {
                              _.map(data.options.detailBlackbox,(value,key) => { 
@@ -365,7 +452,7 @@ export default function( props ) {
                         }
                     </ScrollView>
                     <TextInput placeholder='제품명' theme={styles.theme}
-                        style={{ backgroundColor: 'white' , marginTop: 10 }}
+                        style={styles.textInput}
                         onSubmitEditing={ () => { this.blackboxPrice.focus() }}
                         value={blackbox}
                         onChangeText={value=>{ setBlackbox(value) }}
@@ -374,18 +461,21 @@ export default function( props ) {
                         ref= { (input) =>{this.blackboxPrice = input }}
                         keyboardType='number-pad'
                         theme={styles.theme}
-                        style={{ backgroundColor: 'white' }}
+                        style={styles.textInput}
                         right={<TextInput.Affix text='만원'/>}
                         value={blackboxPrice}
                         onChangeText={value=>{ setBlackboxPrice(value) }}
                     />
-                    </>
+                </MenuView>
                 )
             }
             {
                 data?.options?.battery && (
-                    <>
-                    <Title style={styles.label}>보조배터리</Title>
+                    <MenuView>
+                    <Row>
+                        <IconButton icon='clipboard-outline' />
+                        <Title style={styles.label}>보조배터리</Title>
+                    </Row>
                     <ScrollView horizontal={true}>
                         {
                              _.map(data.options.detailBattery,(value,key) => { 
@@ -395,7 +485,7 @@ export default function( props ) {
                         }
                     </ScrollView>
                     <TextInput placeholder='제품명' theme={styles.theme}
-                        style={{ backgroundColor: 'white' , marginTop: 10 }}
+                        style={styles.textInput}
                         onSubmitEditing={ () => { this.batteryPrice.focus() }}
                         value={battery}
                         onChangeText={value=>{ setBattery(value) }}
@@ -404,161 +494,183 @@ export default function( props ) {
                         ref= { (input) =>{this.batteryPrice = input }}
                         keyboardType='number-pad'
                         theme={styles.theme}
-                        style={{ backgroundColor: 'white' }}
+                        style={styles.textInput}
                         right={<TextInput.Affix text='만원'/>}
                         value={batteryPrice}
                         onChangeText={value=>{ setBatteryPrice(value) }}
                     />
-                    </>
+                </MenuView>
                 )
             }
             {
                 data?.options?.afterblow && (
-                    <>
-                    <Title style={styles.label}>애프터블로우</Title>
+                    <MenuView>  
+                    <Row>
+                        <IconButton icon='clipboard-outline' />
+                        <Title style={styles.label}>애프터블로우</Title>
+                    </Row>
                     <ScrollView horizontal={true}>
                         {
-                             _.map(data.options.detailAfterblow,(value,key) => { 
-                                    if (key == 'ETC' && value != null && value.length != 0  ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
-                                    if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('afterblow',key) }</Chip>  
+                            _.map(data.options.detailAfterblow,(value,key) => { 
+                                if (key == 'ETC' && value != null && value.length != 0  ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
+                                if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('afterblow',key) }</Chip>  
                             })
                         }
                     </ScrollView>
                     <TextInput placeholder='제품명' theme={styles.theme}
-                        style={{ backgroundColor: 'white' , marginTop: 10 }}
+                        style={styles.textInput}
                         onSubmitEditing={ () => { this.afterblowPrice.focus() }}
                         value={afterblow}
                         onChangeText={value=>{ setAfterblow(value) }}
-                    />
+                        />
                     <TextInput placeholder='가격' 
                         ref= { (input) =>{this.afterblowPrice = input }}
                         keyboardType='number-pad'
                         theme={styles.theme}
-                        style={{ backgroundColor: 'white' }}
+                        style={styles.textInput}
                         right={<TextInput.Affix text='만원'/>}
                         value={afterblowPrice}
                         onChangeText={value=>{ setAfterblowPrice(value) }}
-                    />
-                    </>
+                        />
+                </MenuView>
                 )
             }
             {
                 data?.options?.soundproof && (
-                    <>
-                    <Title style={styles.label}>방음</Title>
+                    <MenuView>
+                    <Row>
+                        <IconButton icon='clipboard-outline' />
+                        <Title style={styles.label}>방음</Title>
+                    </Row>
                     <ScrollView horizontal={true}>
                         {
-                             _.map(data.options.detailSoundproof,(value,key) => { 
-                                    if (key == 'ETC' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
-                                    if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('soundproof',key) }</Chip>  
+                            _.map(data.options.detailSoundproof,(value,key) => { 
+                                if (key == 'ETC' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
+                                if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('soundproof',key) }</Chip>  
                             })
                         }
                     </ScrollView>
                     <TextInput placeholder='제품명' theme={styles.theme}
-                        style={{ backgroundColor: 'white' , marginTop: 10 }}
+                        style={styles.textInput}
                         onSubmitEditing={ () => { this.soundproofPrice.focus() }}
                         value={soundproof}
                         onChangeText={value=>{ setSoundproof(value) }}
-                    />
+                        />
                     <TextInput placeholder='가격' 
                         ref= { (input) =>{this.soundproofPrice = input }}
                         keyboardType='number-pad'
                         theme={styles.theme}
-                        style={{ backgroundColor: 'white' }}
+                        style={styles.textInput}
                         right={<TextInput.Affix text='만원'/>}
                         value={soundproofPrice}
                         onChangeText={value=>{ setSoundproofPrice(value) }}
-                    />
-                    </>
+                        />
+                </MenuView>
                 )
             }
             {
                 data?.options?.wrapping && (
-                    <>
-                    <Title style={styles.label}>랩핑</Title>
+                    <MenuView>
+                    <Row>
+                        <IconButton icon='clipboard-outline' />
+                        <Title style={styles.label}>랩핑</Title>
+                    </Row>
                     <ScrollView horizontal={true}>
                         {
-                             _.map(data.options.detailWrapping,(value,key) => { 
-                                    if (key == 'DESIGN' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
-                                    if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('soundproof',key) }</Chip>  
+                            _.map(data.options.detailWrapping,(value,key) => { 
+                                if (key == 'DESIGN' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
+                                if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('soundproof',key) }</Chip>  
                             })
                         }
                     </ScrollView>
                     <TextInput placeholder='제품명' theme={styles.theme}
-                        style={{ backgroundColor: 'white' , marginTop: 10 }}
+                        style={styles.textInput}
                         onSubmitEditing={ () => { this.wrappingPrice.focus() }}
                         value={wrapping}
                         onChangeText={value=>{ setWrapping(value) }}
-                    />
+                        />
                     <TextInput placeholder='가격' 
                         ref= { (input) =>{this.wrappingPrice = input }}
                         keyboardType='number-pad'
                         theme={styles.theme}
-                        style={{ backgroundColor: 'white' }}
+                        style={styles.textInput}
                         right={<TextInput.Affix text='만원'/>}
                         value={wrappingPrice}
                         onChangeText={value=>{ setWrappingPrice(value) }}
-                    />
-                    </>
+                        />
+                    </MenuView>
                 )
             }
             {
                 data?.options?.glasscoating && (
-                    <>
-                    <Title style={styles.label}>유리막코팅</Title>
-                    
+                    <MenuView>
+                    <Row>
+                        <IconButton icon='clipboard-outline' />
+                        <Title style={styles.label}>유리막코팅</Title>
+                    </Row>
                     <TextInput placeholder='제품명' theme={styles.theme}
-                        style={{ backgroundColor: 'white' , marginTop: 10 }}
+                        style={styles.textInput}
                         onSubmitEditing={ () => { this.glasscoatingPrice.focus() }}
                         value={glasscoating}
                         onChangeText={value=>{ setGlasscoating(value) }}
-                    />
+                        />
                     <TextInput placeholder='가격' 
                         ref= { (input) =>{this.glasscoatingPrice = input }}
                         keyboardType='number-pad'
                         theme={styles.theme}
-                        style={{ backgroundColor: 'white' }}
+                        style={styles.textInput}
                         right={<TextInput.Affix text='만원'/>}
                         value={glasscoatingPrice}
                         onChangeText={value=>{ setGlasscoatingPrice(value) }}
-                    />
-                    </>
+                        />
+                </MenuView>
                 )
             }
             {
-                data?.options?.undercoating && (
-                    <>
-                    <Title style={styles.label}>언더코팅</Title>
-                    
+                data?.options?.bottomcoating && (
+                    <MenuView>
+                    <Row>
+                        <IconButton icon='clipboard-outline' />
+                        <Title style={styles.label}>하부코팅</Title>
+                    </Row>
+                    <ScrollView horizontal={true}>
+                        {
+                             _.map(data.options.detailBottomcoating,(value,key) => { 
+                                    if (key == 'ETC' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
+                                    if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('bottomcoating',key) }</Chip>  
+                            })
+                        }
+                    </ScrollView>
+
                     <TextInput placeholder='제품명' theme={styles.theme}
                         style={{ backgroundColor: 'white' , marginTop: 10 }}
-                        onSubmitEditing={ () => { this.undercoatingPrice.focus() }}
-                        value={undercoating}
-                        onChangeText={value=>{ setUndercoating(value) }}
-                    />
+                        onSubmitEditing={ () => { this.bottomcoatingPrice.focus() }}
+                        value={bottomcoating}
+                        onChangeText={value=>{ setBottomcoating(value) }}
+                        />
                     <TextInput placeholder='가격' 
-                        ref= { (input) =>{this.undercoatingPrice = input }}
+                        ref= { (input) =>{this.bottomcoatingPrice = input }}
                         keyboardType='number-pad'
                         theme={styles.theme}
                         style={{ backgroundColor: 'white' }}
                         right={<TextInput.Affix text='만원'/>}
-                        value={undercoatingPrice}
-                        onChangeText={value=>{ setUndercoatingPrice(value) }}
-                    />
-                    </>
+                        value={bottomcoatingPrice}
+                        onChangeText={value=>{ setBottomcoatingPrice(value) }}
+                        />
+                </MenuView>
                 )
             }
             <List.Section style={{ marginTop: 10 }} >
-                <List.Accordion title='요청사항확인' titleStyle={{ fontWeight: 'bold' }} style={{ backgroundColor: 'white',borderWidth: 1,borderColor: 'lightgray' }} theme={{ colors: { primary: 'black' }}}>
-                        <Text style={{ borderWidth:1 , padding: 10 , paddingTop: 20 , paddingBottom: 20 , borderColor: 'lightgray',fontSize: 17 }}>{data.require}</Text>
+                <List.Accordion title='요청사항확인' titleStyle={{ fontWeight: 'bold' }} style={{ backgroundColor: 'white' }} theme={{ colors: { primary: 'black' }}}>
+                        <Text style={{ borderWidth:2 , padding: 10 , paddingTop: 20 , paddingBottom: 20 , borderColor: 'lightgray',fontSize: 17 }}>{data.require? data.require : '없음' }</Text>
                 </List.Accordion>
             </List.Section>
            
             <List.Item title='지역' right={props => <Title>{translate('region',data.region)}</Title>}></List.Item>
             <List.Item title='최종가격' right={props => <Title>{getSum()} 만원</Title>}></List.Item>
             <Button color = { colors.main } 
-                style={{ margin : 3 , marginTop: 20 , marginBottom: 20 }}
-                labelStyle = {{ fontSize: 17 }}
+                style={{ margin : 10 , marginTop: 20 , marginBottom: 20 }}
+                labelStyle = {{ fontSize: 17 , color: 'white' }}
                 onPress={ () => { checkRegister() }}
                 mode='contained' 
                 disabled={requesting}

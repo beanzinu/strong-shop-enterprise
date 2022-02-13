@@ -41,10 +41,6 @@ const ImageView = styled.View`
     overflow: hidden;
 `;
 
-const testData = [
-    {"bidding_id": 5, "constructionImageUrlResponseDtos": [], "detail": "{\"tinting\":\"루마\",\"tintingPrice\":\"100\",\"totalPrice\":\"100\",\"carName\":\"AVANTE HYBRID\"}", "id": 6, "inspectionImageUrlRequestDtos": [], "order_id": 4, "shipmentLocation": null, "state": "CAR_EXAMINATION", "userResponseDto": {"birth": null, "email": "ys05143@naver.com", "gender": null, "id": 1, "nickname": "허지훈", "phoneNumber": "01012341234", "profileImage": "http://k.kakaocdn.net/dn/bnznMs/btrazLTprkY/9wznFjIGhM1VNPc1PGZG11/img_640x640.jpg", "realName": null, "thumbnailImage": "http://k.kakaocdn.net/dn/bnznMs/btrazLTprkY/9wznFjIGhM1VNPc1PGZG11/img_110x110.jpg"}},
-]
-
 const state = {
     DESIGNATING_SHIPMENT_LOCATION : '출고지 지정' ,
     CAR_EXAMINATION : '신차검수' ,
@@ -53,7 +49,9 @@ const state = {
     CONSTRUCTION_COMPLETED : '시공완료/출고'
 }
 
-
+const testData = [
+    {"bidding_id": 1234, "constructionImageUrlResponseDtos": [], "detail": "{\"tinting\":\"틴팅A\",\"tintingPrice\":\"10\",\"blackbox\":\"블박B\",\"blackboxPrice\":\"10\",\"battery\":\"보조C\",\"batteryPrice\":\"10\",\"afterblow\":\"애프터블로우D\",\"afterblowPrice\":\"10\",\"totalPrice\":\"40\",\"carName\":\"AVANTE N\"}", "id": 92, "inspectionImageUrlRequestDtos": [], "order_id": 90, "shipmentLocation": "부산 영도구 중리북로 5 12", "state": "CAR_EXAMINATION", "userResponseDto": {"birth": null, "email": "wlsdn1372@hanmail.net", "gender": null, "id": 44, "loginMethod": "KAKAO", "nickname": "케어", "phoneNumber": "01012341234", "profileImage": "http://k.kakaocdn.net/dn/cJBhWJ/btrfjR1BULj/IGUGK4GpNJfoqFAtkZH02k/img_640x640.jpg", "realName": null, "thumbnailImage": "http://k.kakaocdn.net/dn/cJBhWJ/btrfjR1BULj/IGUGK4GpNJfoqFAtkZH02k/img_110x110.jpg"}}
+]
 
 const ChatView = ( props  ) =>   {
     const MyContext = React.useContext(AppContext);
@@ -148,7 +146,7 @@ const ChatView = ( props  ) =>   {
                     key = {i} // key로 구분
                     onPress={ () => { props.navigation.navigate('ProgressPage' , { id : item.id , data: item, imageUrl : item.userResponseDto.profileImage.includes('https') ? item.userResponseDto.profileImage : item.userResponseDto.profileImage.replace('http','https') })  } }>
                     <Card.Title title={`${item.userResponseDto.nickname} 고객`} subtitle={state[item.state]} 
-                                titleStyle={{ margin: 10 }} subtitleStyle= {{ margin: 10 }}
+                                titleStyle={{ margin: 10 , color: 'black' }} subtitleStyle= {{ margin: 10 }}
                                 left={ props => <ImageView><Image source={{ uri: item.userResponseDto.profileImage.includes('https') ? item.userResponseDto.profileImage : item.userResponseDto.profileImage.replace('http','https') }} style={{ width: '100%', height: '100%' }} /></ImageView>  } 
                                 right={ props => temp[item.id] > 0 && <Avatar.Text {...props} label={temp[item.id]} style={{ marginRight: 10  , backgroundColor : colors.main }} /> }
                     />
@@ -163,7 +161,7 @@ const ChatView = ( props  ) =>   {
             <ActivityIndicator color={'black'}  size='large' style={{ marginTop: 100 }} /> 
         :
         <>
-            <Appbar.Header style={{ backgroundColor: 'white' }}>
+            <Appbar.Header style={{ backgroundColor: 'white' , elevation: 0 }}>
                 <Appbar.Content title='시공 관리' />
                 <Appbar.Action icon='refresh' onPress={() => { reloadClients() }} />
             </Appbar.Header>

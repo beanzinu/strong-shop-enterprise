@@ -13,6 +13,9 @@ import {Notification} from "react-native-in-app-message";
 import { Appearance } from 'react-native';
 import colors from './color/colors';
 //test
+import CareRegister from './pages/shop/BidPage/CareRegister';
+import CarePage from './pages/shop/ProgressPage/CarePage';
+import MainTest from './pages/shop/Test/MainTest';
 import messaging from '@react-native-firebase/messaging';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import store from './storage/store';
@@ -20,6 +23,31 @@ import fetch from './storage/fetch';
 import server from './server/server';
 import { ImageBackground } from 'react-native';
 import { Image } from 'react-native'
+
+export const cacheNotifications = (remoteMessage) => {
+  const notification = remoteMessage.notification;
+
+  fetch('noti')
+  .then( res => {
+    let data;
+    if ( res == null ) data = [] ;
+    else data = res.data ;
+
+    data.push({
+      title : notification.title ,
+      body : `${remoteMessage.data.name} 고객님이 ${notification.body}하셨습니다.`  ,
+      // createdAt : '2021-11-20' ,
+      // createdAt : moment(new Date()).utc(true).format('YYYY-MM-DD hh:mm') ,
+      createdAt : moment(remoteMessage.data.time).format('YYYY-MM-DD hh:mm') ,
+      read: false ,
+    })
+
+    store('noti',{data : data})
+    
+  })
+  .catch ( e => { })
+
+}
 
 
 function App (props) {
@@ -91,30 +119,7 @@ function App (props) {
     ) 
   }
   
-  const cacheNotifications = (remoteMessage) => {
-    const notification = remoteMessage.notification;
-
-    fetch('noti')
-    .then( res => {
-      let data;
-      if ( res == null ) data = [] ;
-      else data = res.data ;
-
-      data.push({
-        title : notification.title ,
-        body : `${remoteMessage.data.name} 고객님이 ${notification.body}하셨습니다.`  ,
-        // createdAt : '2021-11-20' ,
-        // createdAt : moment(new Date()).utc(true).format('YYYY-MM-DD hh:mm') ,
-        createdAt : moment(remoteMessage.data.time).format('YYYY-MM-DD hh:mm') ,
-        read: false ,
-      })
-
-      store('noti',{data : data})
-      
-    })
-    .catch ( e => { })
-
-  }
+ 
 
   React.useEffect(() => {
 
@@ -170,7 +175,7 @@ function App (props) {
       
       setTimeout(() => {
         setLoading(true);
-      },3000);
+      },2000);
 
       return unsubscribe,onNotification;
       
@@ -178,6 +183,9 @@ function App (props) {
 
   },[]);
 
+  return(
+    <CareRegister />
+  )
 
   return (
       <AppContext.Provider value={userSettings}>
@@ -198,8 +206,10 @@ function App (props) {
               <NewRegister getMain={setMainVisible}/>
           ) 
           : 
-          (
-            <ImageBackground source={require('./resource/LoadingImage.jpeg')} style={{ flex: 1}} />
+          ( 
+            <View style={{ backgroundColor: colors.main , flex: 1 , alignItems: 'center' , justifyContent: 'center' }}>
+              <ImageBackground resizeMode='cover' source={require('./resource/Loading.jpeg')} style={{ width: '100%' , height: '100%' }} />
+            </View>
           )   
         } 
 
