@@ -437,7 +437,7 @@ PODS:
   - react-native-nmap (0.0.66):
     - NMapsMap
     - React
-  - react-native-pager-view (5.4.9):
+  - react-native-pager-view (5.4.11):
     - React-Core
   - react-native-safe-area-context (3.3.0):
     - React-Core
@@ -537,7 +537,7 @@ PODS:
     - React
   - RNPermissions (3.0.5):
     - React-Core
-  - RNReanimated (2.0.0):
+  - RNReanimated (2.4.1):
     - DoubleConversion
     - FBLazyVector
     - FBReactNativeSpec
@@ -563,7 +563,6 @@ PODS:
     - React-RCTNetwork
     - React-RCTSettings
     - React-RCTText
-    - React-RCTVibration
     - ReactCommon/turbomodule/core
     - Yoga
   - RNScreens (3.5.0):
@@ -890,7 +889,7 @@ SPEC CHECKSUMS:
   react-native-multiple-image-picker: e73ad1b4f8a5687828c07aa46b35205894168089
   react-native-netinfo: 1c7676413ab265759c7b3da205efab163f5366ef
   react-native-nmap: cfcc5402746040494c544ea90a6062f49505acdf
-  react-native-pager-view: 3ee7d4c7697fb3ef788346e834a60cca97ed8540
+  react-native-pager-view: 7f00d63688f7df9fad86dfb0154814419cc5eb8d
   react-native-safe-area-context: 61c8c484a3a9e7d1fda19f7b1794b35bbfd2262a
   react-native-webview: 133a6a5149f963259646e710b4545c67ef35d7c9
   React-perflogger: 25373e382fed75ce768a443822f07098a15ab737
@@ -915,7 +914,7 @@ SPEC CHECKSUMS:
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNNaverLogin: 41f3c2dba742f0828d775b170b427ac7ebb40660
   RNPermissions: 7043bacbf928eae25808275cfe73799b8f618911
-  RNReanimated: 64f6c5789f82818c07ba3c71864b73619cb23c76
+  RNReanimated: 58e7b950e0172235ff8296dd39ec145f9577e301
   RNScreens: 01ab149b5dd5c27f5ff26741b1d2bdf2cee1af35
   RNSVG: 551acb6562324b1d52a4e0758f7ca0ec234e278f
   RNVectorIcons: 4143ba35feebab8fdbe6bc43d1e776b393d47ac8

@@ -162,6 +162,7 @@ export default function( props ) {
         })
         setRefresh(true);
 
+
         API.post(`/api/contract/${state ==2 ?'4':'6'}/${data.id}`,body,{
             headers: { 'content-type': 'multipart/form-data' }
         })

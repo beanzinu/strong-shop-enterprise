@@ -5,8 +5,7 @@ import axios from 'axios';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import colors from '../../../color/colors';
 import { Alert } from 'react-native';
-import Collapsible from 'react-native-collapsible';
-import _, { after } from 'lodash';
+import _ from 'lodash';
 import fetch from '../../../storage/fetch';
 import store from '../../../storage/store';
 import API from '../../../server/API';
@@ -16,6 +15,8 @@ import { ScrollView } from 'react-native-gesture-handler';
 import AppContext from '../../../storage/AppContext';
 import { Image } from 'react-native';
 import FastImage from 'react-native-fast-image';
+import Collapsible from 'react-native-collapsible';
+import ScrollableTabView from 'react-native-scrollable-tab-view';
 
 
 const Container = styled.SafeAreaView``;
@@ -39,6 +40,10 @@ const ButtonRow = styled.View`
     /* border-bottom-width: 1px; */
     /* border-color: lightgray; */
 `;
+const SwiperView = styled.View`
+    width: 100%;
+    height: 350px;
+`;
 // const TextInput = styled.TextInput`
 //     width: 90% ;
 //     height: 50px;
@@ -47,6 +52,12 @@ const ButtonRow = styled.View`
 //     border: 1px lightgray;
 //     border-radius: 10px;
 // `;
+const RowButton = styled.TouchableOpacity`
+    width: 100%;
+    height: 50px;
+    align-items: center;
+    flex-direction: row;
+`;
 
 
 const styles= {
@@ -154,7 +165,7 @@ function translate(option,item){
     else if(option === 'bottomcoating') return res_Bottomcoating[item];
 }
 
-export default function( props ) {
+export default function BidRegister( props ) {
     const [requesting,setRequesting] = React.useState(false);
     const [data,setData] = React.useState({}) ;
     const [id,setId] = React.useState('');
@@ -179,6 +190,7 @@ export default function( props ) {
     const MyContext = React.useContext(AppContext);
 
     const [picture,setPicture] = React.useState(null);
+    const [collapsed,setCollapsed] = React.useState(true);
     
     const getSum = () => {
         return Number(tintingPrice) + Number(ppfPrice) + Number(blackboxPrice) + Number(batteryPrice) + Number(afterblowPrice) + Number(soundproofPrice) + Number(wrappingPrice) + Number(glasscoatingPrice) + Number(bottomcoatingPrice) ;
@@ -334,7 +346,8 @@ export default function( props ) {
         return value.replaceAll(',','');
     }
 
-    return(               
+    return(       
+        data ? (        
         <Provider>
         <KeyboardAwareScrollView style={{ backgroundColor: 'white' }}>
         <Appbar.Header style={{ backgroundColor: 'white' , elevation: 0 }}>
@@ -368,8 +381,21 @@ export default function( props ) {
             
             {/* <Divider style={{ height: 5 , backgroundColor: 'rgb(230,230,230)' }} /> */}
 
+            <RowButton onPress={() => {setCollapsed(!collapsed)}} >
+            <IconButton icon='pencil' color={collapsed ? 'black': 'lightgray'} />
+            <Title style={{ ...styles.label , color: collapsed ? 'black' : 'lightgray' }}>견적 작성하기</Title>
+            <IconButton icon={ collapsed ? 'chevron-down' : 'chevron-up' } color={collapsed ? 'black': 'lightgray'}  style={{ position: 'absolute' , right: 0  }}/>
+            </RowButton>
+
+            <Collapsible collapsed={collapsed}>
+            <SwiperView>
+            <ScrollableTabView
+                tabBarTextStyle={{ fontSize: 15 }}
+                tabBarActiveTextColor={colors.main} tabBarInactiveTextColor='rgb(220,220,220)' tabBarUnderlineStyle={{ backgroundColor: colors.main }}
+                >
             {
                 data?.options?.tinting && (
+                    <SwiperView tabLabel='틴팅'>
                     <MenuView>
                     <Row>
                         <IconButton icon='clipboard-outline' />
@@ -378,7 +404,7 @@ export default function( props ) {
                     <ScrollView horizontal={true}>
                         {
                             _.map(data.options.detailTinting,(value,key) => { 
-                                if (key == 'ETC' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
+                                // if (key == 'ETC' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
                                     if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('tinting',key) }</Chip>  
                             })
                         }
@@ -401,10 +427,12 @@ export default function( props ) {
                         onChangeText={value=>{ setTintingPrice(value) }}
                     />
                     </MenuView>
+                    </SwiperView>
                 )
             }
             {
                 data?.options?.ppf && (
+                    <SwiperView tabLabel='PPF'>
                     <MenuView>
                     <Row>
                         <IconButton icon='clipboard-outline' />
@@ -434,10 +462,12 @@ export default function( props ) {
                         onChangeText={value=>{ setPpfPrice(value) }}
                     />
                 </MenuView>
+                </SwiperView>
                 )
             }
-            {
+            {/* {
                 data?.options?.blackbox && (
+                    <SwiperView tabLabel='블랙박스'>
                     <MenuView>
                     <Row>
                         <IconButton icon='clipboard-outline' />
@@ -467,10 +497,13 @@ export default function( props ) {
                         onChangeText={value=>{ setBlackboxPrice(value) }}
                     />
                 </MenuView>
+                </SwiperView>
                 )
             }
+
             {
                 data?.options?.battery && (
+                    <SwiperView tabLabel='배터리'>
                     <MenuView>
                     <Row>
                         <IconButton icon='clipboard-outline' />
@@ -500,10 +533,13 @@ export default function( props ) {
                         onChangeText={value=>{ setBatteryPrice(value) }}
                     />
                 </MenuView>
+                </SwiperView>
                 )
             }
+
             {
                 data?.options?.afterblow && (
+                    <SwiperView tabLabel='애프터블로우'>
                     <MenuView>  
                     <Row>
                         <IconButton icon='clipboard-outline' />
@@ -533,10 +569,12 @@ export default function( props ) {
                         onChangeText={value=>{ setAfterblowPrice(value) }}
                         />
                 </MenuView>
+                </SwiperView>
                 )
             }
             {
                 data?.options?.soundproof && (
+                    <SwiperView tabLabel='방음'>
                     <MenuView>
                     <Row>
                         <IconButton icon='clipboard-outline' />
@@ -566,10 +604,12 @@ export default function( props ) {
                         onChangeText={value=>{ setSoundproofPrice(value) }}
                         />
                 </MenuView>
+                </SwiperView>
                 )
             }
             {
                 data?.options?.wrapping && (
+                    <SwiperView tabLabel='랩핑'>
                     <MenuView>
                     <Row>
                         <IconButton icon='clipboard-outline' />
@@ -599,10 +639,12 @@ export default function( props ) {
                         onChangeText={value=>{ setWrappingPrice(value) }}
                         />
                     </MenuView>
+                    </SwiperView>
                 )
             }
             {
                 data?.options?.glasscoating && (
+                    <SwiperView tabLabel='유리막코팅'> 
                     <MenuView>
                     <Row>
                         <IconButton icon='clipboard-outline' />
@@ -624,10 +666,12 @@ export default function( props ) {
                         onChangeText={value=>{ setGlasscoatingPrice(value) }}
                         />
                 </MenuView>
+                </SwiperView>
                 )
             }
             {
                 data?.options?.bottomcoating && (
+                    <SwiperView tabLabel='하부코팅'>
                     <MenuView>
                     <Row>
                         <IconButton icon='clipboard-outline' />
@@ -658,8 +702,13 @@ export default function( props ) {
                         onChangeText={value=>{ setBottomcoatingPrice(value) }}
                         />
                 </MenuView>
+                </SwiperView>
                 )
-            }
+            } */}
+            </ScrollableTabView>
+            </SwiperView>
+            </Collapsible>
+
             <List.Section style={{ marginTop: 10 }} >
                 <List.Accordion title='요청사항확인' titleStyle={{ fontWeight: 'bold' }} style={{ backgroundColor: 'white' }} theme={{ colors: { primary: 'black' }}}>
                         <Text style={{ borderWidth:2 , padding: 10 , paddingTop: 20 , paddingBottom: 20 , borderColor: 'lightgray',fontSize: 17 }}>{data.require? data.require : '없음' }</Text>
@@ -678,6 +727,9 @@ export default function( props ) {
                     { requesting ? '입찰 중...' : '입찰하기'}
             </Button>
         </KeyboardAwareScrollView>
-        </Provider>   
+        </Provider>  
+        )
+        :
+        <ActivityIndicator color={colors.main} style={{ marginTop: 20 }} /> 
     );
 }

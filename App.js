@@ -183,9 +183,9 @@ function App (props) {
 
   },[]);
 
-  return(
-    <CareRegister />
-  )
+  // return(
+  //   <CareRegister />
+  // )
 
   return (
       <AppContext.Provider value={userSettings}>

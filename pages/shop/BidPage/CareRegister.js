@@ -1,12 +1,15 @@
 import React from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { Appbar , Title , Badge, IconButton , TextInput , Chip , List , Button} from 'react-native-paper';
+import { Appbar , Title , Badge, IconButton , TextInput , Chip , List , Button , ActivityIndicator} from 'react-native-paper';
 import { FlatList , Image , ScrollView  , Text } from 'react-native';
 import Swiper from 'react-native-swiper';
 import styled from 'styled-components';
 import colors from '../../../color/colors';
 import Collapsible from 'react-native-collapsible';
 import _ from 'lodash';
+import FastImage from 'react-native-fast-image';
+import ScrollableTabView from 'react-native-scrollable-tab-view';
+
 const Row = styled.View`
     flex-direction: row;
     align-items: center;
@@ -40,7 +43,7 @@ const test = [{ id: 1 },{ id: 2 },{ id: 3 },{ id: 4 },{ id: 5 }]
 
 function translate( key , value ) {
     const carWash = {
-        detailCarWash : '디테일링세차' ,
+        detailingCarWash : '디테일링세차' ,
         handCarWash : '손세차' ,
         steamCarWash : '스팀세차'
     };
@@ -64,22 +67,24 @@ function translate( key , value ) {
     
 }
 
-const RenderItem = (item) => {
+const RenderItem = ({ key , item }) => {
     return(
-        <View style={{ width: '100%' , height: 300 , margin: 1 }}>
-            <Image resizeMode='stretch' source={require('../../../resource/Loading.jpeg')} style={{ width: '100%' , height: '100%'}} />
-            <Text style={{ margin : 10 , fontSize: 15 }}>{item.id}{'hi\nhi\nhi'} </Text>
+        <View key={key} style={{ width: '100%' , height: 300 , margin: 1 }}>
+            <FastImage resizeMode='stretch' source={{ uri: item.imageUrl }} style={{ width: '100%' , height: '100%'}} />
+            <Text style={{ margin : 10 , fontSize: 15 }}>{ item.comment ? item.comment : "" } </Text>
         </View>
     );
 }
 
-export default function CareRegister(){
-    const [data,setData] = React.useState(sample);
+export default function CareRegister( props ){
+    const [loading,setLoading] = React.useState(true);
+    const [data,setData] = React.useState(null);
+    const [images,setImages] = React.useState(null);
     const [collapsed,setCollapsed] = React.useState(true);
     const [requesting,setRequesting] = React.useState(false);
-    const [index,setIndex] = React.useState(0);
-    const [option,setOption] = React.useState('세차');
-    const [optionList,setOptionList] = React.useState([]);
+    // const [index,setIndex] = React.useState(0);
+    // const [option,setOption] = React.useState('세차');
+    // const [optionList,setOptionList] = React.useState([]);
     const viewRef = React.useRef(null);
 
     const [carWash,setCarWash] = React.useState('');
@@ -97,23 +102,6 @@ export default function CareRegister(){
         return Number(carWashPrice)+Number(insidePrice)+Number(outsidePrice)+Number(scratchPrice)+Number(etcPrice) ;
     }
 
-    function handleSwiper( key ){
-        optionList.forEach((item) => {
-            if( item[1] == key ) {
-                setIndex( item[0] );
-                setOption( item[1] );
-            }
-        })
-    }
-    function handleIndex( i ){
-        alert( i % optionList.length )
-        // optionList.forEach((item) => {
-        //     if( item[0] == i % optionList.length ) {
-        //         setOption( item[1] );
-        //     }
-        // })
-    }
-
     React.useEffect(() =>  {
         setTimeout(() => {
             viewRef.current?.scrollToEnd()
@@ -121,31 +109,20 @@ export default function CareRegister(){
     },[ collapsed ]);
 
     React.useEffect(() => {
-
-        let l = [] ;
-        let tmp = 0 ;
-        // props 로 변경
-        if( data.options.carWash ) {
-            l.push([tmp++,'세차']); 
-        }
-        if ( data.options.inside ) {
-            l.push([tmp++,'내부'])
-        }
-        if ( data.options.outside ) {
-            l.push([tmp++,'외부'])
-        }
-        if ( data.options.scratch ) {
-            l.push([tmp++,'스크레치'])
-        }
-        if ( data.options.etc.length ) {
-            l.push([tmp++,'기타'])
-        }
-        setOptionList(l);
+        setData( props.route.params.data,
+            setImages( props.route.params.imageUrls ) ,
+            setLoading(false)
+        );
 
     },[]);
+    
+
 
     return(
+            loading ? <ActivityIndicator color={colors.main} style={{ marginTop: 20 }} /> :
+        (
         <KeyboardAwareScrollView 
+            style={{ backgroundColor: 'white' }}
             ref={viewRef}
             nestedScrollEnabled={true} 
             showsVerticalScrollIndicator={false}
@@ -163,8 +140,8 @@ export default function CareRegister(){
         <ImageView style={{ marginTop: 20}}>
         <Swiper>
             {
-                test.map( item => {
-                    return <RenderItem key={item.id}/> 
+                images.map( item => {
+                    return <RenderItem key={item.id} item={item}/> 
                 })
             }
         </Swiper>
@@ -177,30 +154,22 @@ export default function CareRegister(){
         </RowButton>
         <Collapsible collapsed={collapsed}>
 
-        <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+        {/* <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
             { data.options.carWash && <Chip onPress={() => handleSwiper('세차')} style={ option == '세차' ?  styles.optionChipStyle : styles.unOptionChipStyle } textStyle={ option == '세차' ? styles.optionChipTextStyle : styles.unOptionChipTextStyle }>{'세차'}</Chip>}
             { data.options.inside && <Chip onPress={() =>handleSwiper('내부')} style={ option == '내부' ?  styles.optionChipStyle : styles.unOptionChipStyle } textStyle={ option == '내부' ? styles.optionChipTextStyle : styles.unOptionChipTextStyle }>{'내부'}</Chip>}
             { data.options.outside && <Chip onPress={() => handleSwiper('외부')} style={ option == '외부' ?  styles.optionChipStyle : styles.unOptionChipStyle } textStyle={ option == '외부' ? styles.optionChipTextStyle : styles.unOptionChipTextStyle }>{'외부'}</Chip>}
             { data.options.scratch && <Chip onPress={() => handleSwiper('스크레치')} style={ option == '스크레치' ?  styles.optionChipStyle : styles.unOptionChipStyle } textStyle={ option == '스크레치' ? styles.optionChipTextStyle : styles.unOptionChipTextStyle }>{'스크레치'}</Chip>}
             { data.options.etc && <Chip onPress={() => handleSwiper('기타')} style={ option == '기타' ?  styles.optionChipStyle : styles.unOptionChipStyle } textStyle={ option == '기타' ? styles.optionChipTextStyle : styles.unOptionChipTextStyle }>{'기타'}</Chip>}
-        </ScrollView>
-        <SwiperView>
+        </ScrollView> */}
 
-        <Swiper 
-            index={index}
-            onIndexChanged={(index) => { handleIndex( index ) }}
-            // prevButton={<IconButton size={40} icon='chevron-left' color='black' />}
-            // nextButton={<IconButton size={40} icon='chevron-right' color='black' />}
-            showsButtons={true} 
-            showsPagination={false} 
-            // scrollToOverflowEnabled={false} 
-            loop={false}
-            // overScrollMode='never'
-            // automaticallyAdjustContentInsets={true}
+        <SwiperView>
+        <ScrollableTabView 
+            tabBarTextStyle={{ fontSize: 15 }}
+            tabBarActiveTextColor={colors.main} tabBarInactiveTextColor='rgb(220,220,220)' tabBarUnderlineStyle={{ backgroundColor: colors.main }}
         >
         {
             data?.options?.carWash && (
-                    <SwiperView>
+                    <SwiperView tabLabel='세차'>
                     <MenuView>
                     <Row>
                         <IconButton icon='clipboard-outline' />
@@ -236,7 +205,7 @@ export default function CareRegister(){
             }
         {
             data?.options?.inside && (
-                    <SwiperView>
+                    <SwiperView tabLabel='내부'>
                     <MenuView>
                     <Row>
                         <IconButton icon='clipboard-outline' />
@@ -272,7 +241,7 @@ export default function CareRegister(){
             }
         {
             data?.options?.outside && (
-                    <SwiperView>
+                    <SwiperView tabLabel='외부'>
                     <MenuView>
                     <Row>
                         <IconButton icon='clipboard-outline' />
@@ -308,7 +277,7 @@ export default function CareRegister(){
             }
         {
             data?.options?.scratch && (
-                    <SwiperView>
+                    <SwiperView tabLabel='스크레치'>
                     <MenuView>
                     <Row>
                         <IconButton icon='clipboard-outline' />
@@ -341,17 +310,17 @@ export default function CareRegister(){
                     </MenuView>
                     </SwiperView>
                 )
-            }
+        }
         {
-            data?.options?.etc.length && (
-                    <SwiperView>
+            data?.options?.etc && (
+                    <SwiperView tabLabel='기타' >
                     <MenuView>
                     <Row>
                         <IconButton icon='clipboard-outline' />
                         <Title style={styles.label}>기타</Title>
                     </Row>
                     <ScrollView horizontal={true}> 
-                        <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{data.options.etc}</Chip>  
+                        <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{data.options.detailEtc}</Chip>  
                     </ScrollView>
                     <TextInput 
                         placeholder='제품명' 
@@ -374,10 +343,11 @@ export default function CareRegister(){
                     </SwiperView>
                 )
             }
-        </Swiper>
+        
+        </ScrollableTabView>
         </SwiperView>
 
-        <List.Item title='지역' right={props => <Title>{data.region}</Title>}></List.Item>
+        <List.Item style={{ marginTop: 30 }} title='지역' right={props => <Title>{data.region}</Title>}></List.Item>
         <List.Item title='최종가격' right={props => <Title>{getSum()} 만원</Title>}></List.Item>
         <Button color = { colors.main } 
             style={{ margin : 10 , marginTop: 20 , marginBottom: 50 }}
@@ -391,7 +361,9 @@ export default function CareRegister(){
         </Collapsible>
 
         </KeyboardAwareScrollView>
+        )
     )
+    
 }
 
 const styles= {

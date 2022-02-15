@@ -41,29 +41,30 @@ export default function ( props ) {
     const [modalVisible,setModalVisible] = React.useState(false);
     const [regions,setRegions] = React.useState(defaultRegions) ;
     const [refresh,setRefresh] = React.useState(false);
+    // 전체 , 신차 , 케어
+    const [filter,setFilter] = React.useState('전체');
     const MyContext = React.useContext(AppContext);
     const isFocused = useIsFocused();
     
 
     const RenderItem= ({ item }) => {
         let tmp = JSON.parse(item.details);
-        return (
-            <Item item={tmp} navigation={props.navigation} key={item.id} id = {item.id} shopName={shopName}/>
-        )
+        // 신차
+        if( item.kind == 'NewCarPackage' && ( filter == '신차' || filter == '전체' ) )
+            return <Item item={tmp} navigation={props.navigation} key={item.id} id = {item.id} shopName={shopName}/>
+        // 케어 
+        else if( item.kind == 'Care' && filter == '케어' || filter == '전체' ){
+            return <CareItem item={tmp} navigation={props.navigation} key={item.id} id={item.id} imageUrls={item.responseDtos}/>
+        }
     }
-
-    // const checkRegions = () => {
-    //     if ( regions.seoul || regions.incheon || regions.daejeon || regions.busan || regions.daegu || regions.gwangju || regions.jeju )
-    //         return false 
-    //     return true ;
-    // }
 
     function BidBefore() {
         // 신차패키지 , 케어 필터
-        const [filter,setFilter] = React.useState('전체');
 
         const handleFilter = (item) => {
-            setFilter( item );
+            setFilter( item  ,
+                // MyContext.setBidRef(!MyContext.bidRef)    
+            );
         }
 
         return (
@@ -75,7 +76,7 @@ export default function ( props ) {
                 <Button labelStyle={{ fontWeight: 'bold'}} style={{ padding: 3,  margin: 5  }} color={ filter == '전체' ? 'black' : 'lightgray' } onPress={ () => { handleFilter('전체') } }>
                     전체
                 </Button>
-                <Button labelStyle={{ fontWeight: 'bold'}} style={{ padding: 3, margin: 5  }} color={ filter == '신차패키지' ? 'black' : 'lightgray' } onPress={ () => { handleFilter('신차패키지') } }>
+                <Button labelStyle={{ fontWeight: 'bold'}} style={{ padding: 3, margin: 5  }} color={ filter == '신차' ? 'black' : 'lightgray' } onPress={ () => { handleFilter('신차') } }>
                     신차패키지
                 </Button>
                 <Button labelStyle={{ fontWeight: 'bold'}} style={{ padding: 3 , margin: 5 }} color={ filter == '케어' ? 'black' : 'lightgray' } onPress={ () => { handleFilter('케어') } }>
@@ -92,13 +93,6 @@ export default function ( props ) {
                             contentContainerStyle={{ height: Dimensions.get('screen').height*0.6 , justifyContent: 'center' , alignItems: 'center'  }}
                         >   
                             <Title style={{ fontSize: 15 }}>{'아직 입찰요청이 없어요.'}</Title>
-                            {/* <BidBeforeView onPress={() => {  setModalVisible(true) }}>
-                            <Title style= {{ fontSize: 14 }}>
-                                {
-                                    checkRegions() ? '지역을 선택해 주세요.' : '아직 입찰요청이 없어요.'
-                                }
-                            </Title>
-                            </BidBeforeView> */}
                         </ScrollView>
                     ) :
                     (
@@ -157,9 +151,10 @@ export default function ( props ) {
             // 업체이름 가져오기
             API.get('/api/company')  
             .then( res => {
+                // console.log(res.data.data);
                 setShopName( res?.data.data.name );
                 setRegion( res?.data.data.region ,
-                    requestOrders()
+                    requestOrders(res.data.data.region)
                 ),
                 setLoading(false);
             })
@@ -177,11 +172,13 @@ export default function ( props ) {
         
     },[MyContext.bidRef , isFocused ]);
 
-    const requestOrders = () => {
-    
-        tmp = region?.split(',')
-        API.get(`/api/orders?regions=seoul`)
+    const requestOrders = ( val ) => {
+
+        tmp = val ? val.split(',') : region.split(',');
+
+        API.get(`/api/orders?regions=${tmp}`)
         .then( res => {
+            // console.log(res.data.data);
             let rawData = res.data.data;
             // 새로운 데이터 X
             if ( rawData.length == 0 ) setData([]);
@@ -215,27 +212,6 @@ export default function ( props ) {
 
     return (
     <Provider>
-        {/* <Portal>
-            <Modal visible={modalVisible} contentContainerStyle={{ backgroundColor: 'white' , width: '100%' , height: 500 , marginRight: 10 , bottom: 0 , position: 'absolute' }}>
-                <View style={{ width: '100%' , height: 500  }}>
-                    <IconButton icon='close' style={{ alignSelf: 'flex-end' , top: 0  }} onPress={() => { setModalVisible(false)}} />
-                    {
-                        REGION.map(region=>{
-                            return(
-                                <Button icon={ regions[region.key] && 'check-decagram' } key={region.key} style={{ flex: 1 , justifyContent: 'center' , margin: 3 }} mode='outlined' color={'black'}
-                                    onPress={ () => { handleRegion(region.key) } }
-                                >
-                                    {region.value}
-                                </Button>
-                            )
-                        })
-                    }
-                    <Button labelStyle={{ color: 'white' }} onPress={requestOrders} icon='magnify' style={{ flex: 1 , justifyContent: 'center' , margin: 3 , marginTop: 50 }} color={colors.main} mode='contained'>검색하기</Button>
-                </View>
-            </Modal>
-        </Portal> */}
-
-            
         <Appbar.Header style={{ backgroundColor: 'white' , elevation: 0   }}>
             {
                 region.length == 0 ? 
@@ -254,31 +230,104 @@ export default function ( props ) {
     </Provider>
     );
 }
-
+// 케어
+function CareItem( { navigation , item , id , imageUrls }) {
+    const [expanded,setExpanded] = React.useState(true) ;
+    return(
+        <>
+        <RowItem onPress={ () => { setExpanded(!expanded) }}>
+            <Text style={{fontWeight : 'bold' , fontFamily: 'DoHyeon-Regular' , fontSize: 25 , marginLeft: 20  }}>{item.carName}</Text>
+            <Badge size={ 30 } style={{ alignSelf: 'center' , marginLeft: 10 , backgroundColor: colors.care , color: 'white' , paddingLeft: 10 , paddingRight: 10 }}>케어</Badge>
+            <Badge size={ 30 } style={{ alignSelf: 'center' , marginLeft: 10 , backgroundColor: 'black' , color: 'white' , paddingLeft: 10 , paddingRight: 10 }}>딜러</Badge>
+            <Row style={{ right: 5 , position: 'absolute' }}>
+            <Text>{translate('region',item.region)}</Text>
+            <IconButton icon={ expanded ? 'chevron-down' : 'chevron-up' } />
+            </Row>
+        </RowItem>
+        <Collapsible collapsed={expanded} duration={100}>
+                <View style={{ backgroundColor: 'white' , margin: 10 , borderWidth: 1 , borderRadius: 10 , borderColor: 'lightgray' }}>
+                    { item.options.carWash && 
+                        <>
+                            <List.Item titleStyle={styles.listStyle} title ='세차' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <ScrollView horizontal={true}>
+                            {
+                                _.map(item.options.detailCarWash,(value,key) => { 
+                                    if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('carWash',key) }</Chip>  
+                                })
+                            }
+                            </ScrollView>
+                    </> }
+                    { item.options.inside && 
+                        <>
+                            <List.Item titleStyle={styles.listStyle} title ='내부' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <ScrollView horizontal={true}>
+                            {
+                                _.map(item.options.detailInside,(value,key) => { 
+                                    if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('inside',key) }</Chip>  
+                                })
+                            }
+                            </ScrollView>
+                    </> }
+                    { item.options.outside && 
+                        <>
+                            <List.Item titleStyle={styles.listStyle} title ='외부' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <ScrollView horizontal={true}>
+                            {
+                                _.map(item.options.detailOutside,(value,key) => { 
+                                    if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('outside',key) }</Chip>  
+                                })
+                            }
+                            </ScrollView>
+                    </> }
+                    { item.options.scratch && 
+                        <>
+                            <List.Item titleStyle={styles.listStyle} title ='스크레치' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <ScrollView horizontal={true}>
+                            {
+                                _.map(item.options.detailScratch,(value,key) => { 
+                                    if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('scratch',key) }</Chip>  
+                                })
+                            }
+                            </ScrollView>
+                    </> }
+                    { item.options.etc && 
+                        <>
+                            <List.Item titleStyle={styles.listStyle} title ='기타' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <ScrollView horizontal={true}>
+                                <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{item.options.detailEtc}</Chip>  
+                            </ScrollView>
+                    </> }
+                    
+                    <Divider style={{ marginTop: 5 }} />
+                    <List.Item 
+                        // style={{ borderWidth: 1 ,borderColor: 'lightgray'}}
+                        titleStyle={{  fontWeight: 'bold' }} 
+                        descriptionStyle={{ paddingTop: 5 , fontWeight: 'bold' , fontSize: 17 }}
+                        title='요청사항:' description={item.require} />
+                    <Button 
+                            icon='account-cash' 
+                            mode='outlined' 
+                            color={colors.main}
+                            mode='contained' 
+                            onPress={ () => { navigation.navigate('CareRegister',{ data : item , id : id , imageUrls: imageUrls  }) } }
+                            style={{ margin: 3 , marginTop: 20 }} labelStyle={{  fontSize: 17 , color: 'white'  }} >
+                        작성하기
+                    </Button>
+                </View>
+                </Collapsible>
+        </>
+    );
+}
 // 신차패키지
 // 각각의 입찰요청항목
 function Item ( { item , navigation , id , shopName } ) {
     const [expanded,setExpanded] = React.useState(true) ;
     return( 
-            // <List.Section key={id}>
-                // {/* <List.Accordion
-                // title={item.carName}
-                // style={styles.listAccordionStyle}
-                // titleStyle= {{ fontWeight : 'bold' , fontFamily: 'DoHyeon-Regular' , fontSize: 23 , color :  expanded ? 'red' : 'black'   }}
-                // expanded={expanded}
-                // onPress={()=>{ setExpanded(!expanded) }}
-                // description='자세한 정보를 확인하세요.'
-                // right ={ props => <Row style={{ alignItems: 'center' }}>
-                //     <Text>{translate('region',item.region)}</Text>
-                //     <List.Icon icon='chevron-down' />
-                // </Row> }
-                // > */}
                 <>
                 <RowItem onPress={ () => { setExpanded(!expanded) }}>
                     <Text style={{fontWeight : 'bold' , fontFamily: 'DoHyeon-Regular' , fontSize: 25 , marginLeft: 20  }}>{item.carName}</Text>
-                    <Badge size={ 28 } style={{ alignSelf: 'center' , marginLeft: 10 , backgroundColor: colors.main , color: 'white' }}>신차</Badge>
-                    {/* <Badge size={ 28 } style={{ alignSelf: 'center' , marginLeft: 10 , backgroundColor: 'rgb(111,222,198)' , color: 'white' }}>케어</Badge> */}
-                    <Badge size={ 28 } style={{ alignSelf: 'center' , marginLeft: 10 , backgroundColor: 'black' , color: 'white' }}>딜러</Badge>
+                    <Badge size={ 30 } style={{ alignSelf: 'center' , marginLeft: 10 , backgroundColor: colors.main , color: 'white' , paddingLeft: 10 , paddingRight: 10  }}>신차</Badge>
+                    <Badge size={ 30 } style={{ alignSelf: 'center' , marginLeft: 10 , backgroundColor: 'black' , color: 'white' , paddingLeft: 10 , paddingRight: 10}}>딜러</Badge>
                     <Row style={{ right: 5 , position: 'absolute' }}>
                     <Text>{translate('region',item.region)}</Text>
                     <IconButton icon={ expanded ? 'chevron-down' : 'chevron-up' } />
@@ -408,8 +457,6 @@ function Item ( { item , navigation , id , shopName } ) {
                 </View>
                 </Collapsible>
                 </>
-                // {/* </List.Accordion> */}
-            // </List.Section>
     )
 }
 
@@ -511,6 +558,7 @@ const defaultRegions = {
 }
 
 function translate(option,item){
+    
     const res_Tinting = {
         LUMA: '루마',
         SOLAR: '솔라가드',
@@ -569,6 +617,26 @@ function translate(option,item){
         UNDER: '언더코팅' ,
         POLYMER: '폴리머코팅' ,
     }
+    // 케어
+    const carWash = {
+        detailingCarWash : '디테일링세차' ,
+        handCarWash : '손세차' ,
+        steamCarWash : '스팀세차'
+    };
+    const inside = {
+        insideCleaning : '실내크리닝' ,
+        insideSoundProof : '실내방음'
+    };
+    const outside = {
+        Wrapping: '랩핑' ,
+        dent: '덴트' ,
+        painting: '도색'
+    };
+    const scratch = {
+        glassCoating: '유리막코팅' ,
+        polishing : '광택'
+    };
+
     if(option === 'tinting') return res_Tinting[item];
     else if(option === 'ppf') return res_Ppf[item];
     else if(option === 'blackbox') return res_Blackbox[item];
@@ -578,4 +646,8 @@ function translate(option,item){
     else if(option === 'wrapping') return res_Wrapping[item];
     else if(option === 'region') return res_Region[item];
     else if(option === 'bottomcoating') return res_Bottomcoating[item];
+    else if( option == 'carWash' ) return carWash[item];
+    else if( option == 'inside' ) return inside[item];
+    else if( option == 'outside' ) return outside[item];
+    else if( option == 'scratch' ) return scratch[item];
 }

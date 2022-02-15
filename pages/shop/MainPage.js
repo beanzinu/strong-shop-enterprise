@@ -12,6 +12,7 @@ import AppContext from '../../storage/AppContext';
 // pages 
 import BidPage from './BidPage/BidPage';
 import BidRegister from './BidPage/BidRegister';
+import CareRegister from './BidPage/CareRegister';
 import ChatPage from './ProgressPage/ChatPage'
 import ChatDetailPage from './ProgressPage/ChatDetailPage';
 import HomePage from './HomePage';
@@ -71,6 +72,7 @@ function BidRoute() {
             <Stack.Navigator screenOptions={{ headerLeft : props => ( <IconButton {...props} icon='chevron-left' size={24} /> ) }}>
                 <Stack.Screen name='BidPage' component={BidPage} options={{ headerShown : false }}/>
                 <Stack.Screen name='BidRegister' component={BidRegister} options={{ headerShown: false }} />
+                <Stack.Screen name='CareRegister' component={CareRegister} options={{ headerShown: false }} />
             </Stack.Navigator>
         </NavigationContainer>
     )
