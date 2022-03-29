@@ -123,7 +123,6 @@ function App (props) {
 
   React.useEffect(() => {
 
-
     // alert(Appearance.getColorScheme())
 
     const authStatus = messaging().requestPermission();
@@ -184,7 +183,7 @@ function App (props) {
   },[]);
 
   // return(
-  //   <CareRegister />
+  //   <CarePage />
   // )
 
   return (
@@ -208,7 +207,7 @@ function App (props) {
           : 
           ( 
             <View style={{ backgroundColor: colors.main , flex: 1 , alignItems: 'center' , justifyContent: 'center' }}>
-              <ImageBackground resizeMode='cover' source={require('./resource/Loading.jpeg')} style={{ width: '100%' , height: '100%' }} />
+              <ImageBackground resizeMode='stretch' source={require('./resource/Loading.jpeg')} style={{ width: '100%' , height: '100%' }} />
             </View>
           )   
         } 

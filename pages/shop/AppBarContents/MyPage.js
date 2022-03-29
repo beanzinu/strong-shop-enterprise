@@ -311,7 +311,7 @@ export default function( props ) {
                 <Avatar.Icon size={40} icon='bullhorn' style={{ backgroundColor: 'transparent'}} color='black'/>
                 <Title style={styles.title}>공지사항</Title>
             </Row> */}
-            <ButtonRow style={{ height: 60 , borderTopWidth:1 , borderBottomWidth:1 , borderColor: 'lightgray' }} onPress={() => { props.navigation.navigate('CS') }}>
+            <ButtonRow style={{ height: 60 , borderTopWidth: 0.5 , borderBottomWidth: 0.5 , borderColor: 'rgb(230,230,230)' }} onPress={() => { props.navigation.navigate('CS') }}>
                 <Avatar.Icon size={40} icon='chat-plus' style={{ backgroundColor: 'transparent'}} color='black'/>
                 <Title style={styles.title}>고객문의</Title>
             </ButtonRow>

@@ -29,12 +29,14 @@ function CS_Write( props ){
       })    
 
     const handleButton = () => {
-        Alert.alert('문의하기','등록하시겠습니까?',[{
+        Alert.alert('문의하기','등록하시겠습니까?',[
+        {
+            text: '취소'
+        }  
+        ,{
             text: '확인',
             onPress: () => { addItem() }
-        } ,{
-            text: '취소'
-        }
+        } 
         ]) 
     }
 
@@ -88,7 +90,7 @@ function CS_Write( props ){
             props.navigation.goBack();
 
         } catch (error) {
-            console.log(error);
+            // console.log(error);
             Alert.alert('다시 시도해주세요.');
         }
       }

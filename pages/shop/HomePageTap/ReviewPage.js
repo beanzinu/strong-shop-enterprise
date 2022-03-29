@@ -1,18 +1,21 @@
 import styled from "styled-components";
 import colors from "../../../color/colors";
 import React from "react";
-import { FlatList } from "react-native";
-import { Card , Avatar , Divider , Button, ActivityIndicator } from "react-native-paper";
+import { FlatList, KeyboardAvoidingView } from "react-native";
+import { Card , Avatar , Divider , Button, ActivityIndicator , Title, IconButton  } from "react-native-paper";
 import { Alert } from "react-native";
 import moment from "moment";
 import axios from "axios";
 import _ from "lodash";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import InputScrollView from "react-native-input-scroll-view";
 // storage
 import API from "../../../server/API";
 import server from "../../../server/server";
 import fetch from "../../../storage/fetch";
 import AppContext from "../../../storage/AppContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import commonStyles from "../../../components/commonStyles";
 
 export default function( props ) {
     const [DATA,setDATA]  = React.useState([]) ;
@@ -24,6 +27,7 @@ export default function( props ) {
     const RenderItem =  ({index,item}) => {
         if (item.content == null) return <View style={{ height: 300 }}></View>
         return(
+            <KeyboardAwareScrollView>
             <Card style= {{ margin: 20 }}>
             <Card.Content>
                 <Row>
@@ -38,12 +42,13 @@ export default function( props ) {
                 <Text style={styles.text}>{item.content}</Text>
                 <Divider style={{ borderColor: 'gray' , borderWidth: 1 , marginTop: 10 }}/>
                 <Row>
-                    <Avatar.Icon size={24} icon='account' style={{ backgroundColor: colors.main }} />
+                    <Avatar.Icon color='white' size={24} icon='account' style={{ backgroundColor: colors.main }} />
                     <Text style={styles.userName}>사장님</Text>
                 </Row>
                 <Reply item = {item} index={index}/>
             </Card.Content>
             </Card>
+            </KeyboardAwareScrollView>
         )
     }
   
@@ -78,16 +83,22 @@ export default function( props ) {
                     <ActivityIndicator size='large' style={{ marginTop: 20 }} color={'black'} />
                 ) : 
                 (
+                    <View style={commonStyles.view}>
+                        <Row style={commonStyles.titleRow}>
+                        <Title style= {{ fontSize: 23 , fontFamily: 'DoHyeon-Regular'  }}> 리뷰 </Title>
+                        </Row>
+                    {
                     DATA.length == 0 ? 
                     (
                         <View
-                            style={{ flex: 1 , alignItems: 'center' , justifyContent: 'center' , backgroundColor: 'white' }}
+                            style={{ flex: 1 , alignItems: 'center' , justifyContent: 'center' , backgroundColor: 'transparent' }}
                         >
-                            <Text>현재 리뷰가 없어요.</Text>
+                            <IconButton icon='alert' color={colors.emptyTitle} />
+                            <Title style={{ color: colors.emptyTitle }}>현재 리뷰가 없어요.</Title>
                         </View>
                     ):
                     (
-                    <>
+                    <KeyboardAvoidingView>
                     <FlatList
                         // refreshing={refresh}
                         // onRefresh={handleRefresh}
@@ -96,6 +107,8 @@ export default function( props ) {
                         renderItem = { RenderItem }
                         horizontal= {false}
                         keyExtractor= { (item) => item.id }
+                        keyboardDismissMode='on-drag'
+                        keyboardShouldPersistTaps='always'
                         onScrollToIndexFailed={() => {
                             DATA.push({
                                 id : 'new'
@@ -105,8 +118,10 @@ export default function( props ) {
                             // },1000) ;
                         }}
                     />
-                    </>
+                    </KeyboardAvoidingView>
                     )
+                    }
+                    </View>
                 )
             }
         </>
@@ -132,13 +147,14 @@ function Reply({item,index}) {
     const handleReply = () =>  {
         Alert.alert('답글을 다시겠습니까?','',[
             {
+                text: '취소'
+            } ,
+            {
                 text: '확인',
                 onPress : () => {
-                    requestReply();
+                    if( !reply?.length ) Alert.alert('답변을 작성해주세요.');
+                    else requestReply();
                 }
-            },
-            {
-                text: '취소'
             }
         ])
     }
@@ -167,7 +183,7 @@ function Reply({item,index}) {
                 </View>
             ) : (
                 <>
-                <View style={{ flex: 1 }}>
+                {/* <View style={{ flex: 1 }}> */}
                 <TextInput placeholder='리뷰에 대한 답변을 작성해주세요.'
                 value={reply}
                 onChangeText = { value => setReply(value) }
@@ -178,10 +194,13 @@ function Reply({item,index}) {
                     if ( e.nativeEvent.contentSize.height > inputHeight ) setInputHeight(inputHeight+50);
                 }}
                 onPressIn = {() => { 
-                    this.flatList.scrollToIndex({ index: index+0.5 });
+                    setTimeout(() => {
+                        this.flatList.scrollToIndex({ index: index+0.5 });
+
+                    },500);
                 } }
                 />
-                </View>
+                {/* </View> */}
                 {
                 item.reply == null && (
                     <View style={{ alignItems: 'flex-end' ,width: '100%' }}>

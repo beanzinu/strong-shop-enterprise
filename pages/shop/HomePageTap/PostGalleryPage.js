@@ -12,7 +12,12 @@ import server from '../../../server/server';
 import fetch from '../../../storage/fetch';
 import FastImage from 'react-native-fast-image';
 import AppContext from '../../../storage/AppContext';
+import commonStyles from '../../../components/commonStyles';
 
+const Row = styled.View`
+    flex-direction: row;
+    align-items: center;
+`;
 const PostButton = styled.TouchableOpacity`
     width: 33.3%;
     height: 120px;
@@ -27,6 +32,9 @@ const styles = {
     button : {
         alignSelf: 'flex-end' ,
         padding: 5 ,
+    } ,
+    view : {
+        borderWidth: 1 , borderColor: colors.main , backgroundColor: colors.submain , paddingBottom: 30 , marginLeft: 10 , marginRight: 10 , borderRadius: 5
     }
 }
 
@@ -77,27 +85,31 @@ export default function( props ) {
 
 
     return (
-        <View style={{ backgroundColor: 'white' , flex: 1}}>  
+        <View style={{ backgroundColor: 'white' , flex: 1 , ...commonStyles.view }}>  
         {
             loading ? (
                 <ActivityIndicator style={{ marginTop: 20 }} size='large' color='black'/>
             ):
             (
                 <>
-                <Button icon='pencil-plus-outline' 
-                    style={ styles.button }
-                    color={colors.main}
-                    onPress={ () =>  { props.navigation.navigate('PostRegister', { data : props.data ,  name : shopName , imageUrl: imageUrl  }) }}
-                >
-                    작성하기
-                </Button>
+                    <Row style={commonStyles.titleRow}>
+                        <Title style= {{ fontSize: 23 , fontFamily: 'Jua-Regular'  }}> 작업갤러리 </Title>
+                        <Button icon='pencil-plus-outline' 
+                            style={{ position: 'absolute',right: 0 }}
+                            labelStyle={{ fontSize: 15 , fontFamily: 'Jua-Regular' }}
+                            color={colors.main}
+                            onPress={ () =>  { props.navigation.navigate('PostRegister', { data : props.data ,  name : shopName , imageUrl: imageUrl  }) }}
+                            >
+                            작성하기
+                        </Button>
+                    </Row>
                 {
                     postData.length == 0 ? (
-                        <PostView style={{ backgroundColor: 'white' , justifyContent: 'center' , alignItems: 'center' , flex: 1}}
+                        <PostView style={{ backgroundColor: 'transparent' , justifyContent: 'center' , alignItems: 'center' , flex: 1}}
                             onPress={() => { props.navigation.navigate('PostRegister', { data : props.data ,  name : shopName , imageUrl : imageUrl   }) }}
                         >
-                            <Avatar.Icon icon='camera-plus' style={{ backgroundColor: 'transparent'}} color={'black'}/>
-                            <Title>시공사진을 등록해보세요.</Title>
+                            <Avatar.Icon icon='camera-plus' style={{ backgroundColor: 'transparent'}} color={colors.main}/>
+                            <Title style={{ color: colors.emptyTitle }}>시공사진을 등록해보세요.</Title>
                         </PostView>
                     ) :
                     (

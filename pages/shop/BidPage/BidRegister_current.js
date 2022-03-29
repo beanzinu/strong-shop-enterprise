@@ -71,7 +71,10 @@ export default function() {
                         const item = items.detail ;
                         return(
                             <List.Section>
-                                <BidList.A item={item} />
+                                {
+                                    item?.kind == 'Care' ? 
+                                    <BidList.Care_A item={item} /> : <BidList.A item={item} />
+                                }
                             </List.Section>
                             
                         )

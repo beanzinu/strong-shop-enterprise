@@ -91,14 +91,14 @@ export default function( props ) {
                             Alert.alert(`${item.page}페이지`,`삭제하시겠습니까?`,
                             [
                                 {
+                                    'text' : '취소' ,
+                                    onPress : () => {  }
+                                } ,
+                                {
                                     'text' : '삭제' ,
                                     onPress : () => {
                                         deletePost(data,item.page);
                                     }
-                                },
-                                {
-                                    'text' : '취소' ,
-                                    onPress : () => {  }
                                 }
                             ]
                             )  

@@ -8,6 +8,7 @@ import { FlatList } from 'react-native';
 import API from '../../../server/API';
 import AppContext from '../../../storage/AppContext';
 import { useIsFocused } from '@react-navigation/native';
+import commonStyles from '../../../components/commonStyles';
 
 export default function( props ) {
     const [value,setValue] = React.useState(1);
@@ -30,7 +31,7 @@ export default function( props ) {
     },[MyContext.productRefresh]);
 
     return(
-            <View style={{ flex: 1 , backgroundColor: 'white' }}>
+            <View style={{ flex: 1 , ...commonStyles.view }}>
             {
             loading ? 
             (
@@ -38,13 +39,24 @@ export default function( props ) {
             ) : 
             (
                 <>
+                <Row style={commonStyles.titleRow}>
+                    <Title style= {{ fontSize: 23 , fontFamily: 'Jua-Regular'  }}> 취급상품 </Title>
+                    <Button icon='pencil-plus-outline' 
+                        style={{ right: 0 ,position: 'absolute' }}
+                        labelStyle={{ fontSize: 15 , fontFamily: 'Jua-Regular' }}
+                        color={colors.main}
+                        onPress={ () => { props.navigation.navigate('ProductRegister',{ data : DATA}) }}
+                        >
+                        작성하기
+                    </Button>
+                </Row>
                 <View style={{ height: 60 }}> 
-                    <ScrollView horizontal={true}  style={{ height : 80  , backgroundColor: 'white'  }} showsHorizontalScrollIndicator={false}>
+                    <ScrollView horizontal={true}  style={{ height : 80  , backgroundColor: 'transparent'  }} showsHorizontalScrollIndicator={false}>
                         {
                             options.map((item,i)=>{
                                 return(
-                                    <Button key={i} style={{ ...styles.button , elevation: 0 }} labelStyle={{ fontSize: 15 , color: '#964b00' }} color='rgb(230,230,230)' onPress={ () => { setValue(i+1) }} mode = { value == i+1 ? 'contained' : 'text' }>
-                                        {item.name}
+                                    <Button key={i} style={{ ...styles.button , elevation: 0 }} labelStyle={{ fontFamily: 'NotoSansKR-Medium' , fontSize: value == i+1 ? 16 : 13 , color: value == i+1 ? 'black' : colors.title , fontWeight: value == i+1 ? 'bold' : 'normal' }} color='transparent' onPress={ () => { setValue(i+1) }} mode = { value == i+1 ? 'contained' : 'text' }>
+                                        {'#'}{item.name}
                                     </Button>
                                 )
                             })
@@ -62,9 +74,9 @@ export default function( props ) {
                 { value == 9 && <Product DATA={DATA?.undercoating} listControl={props.listControl}/> }
                 { value == 10 && <Product DATA={DATA?.etc} listControl={props.listControl}/> }
 
-                <FAB style={styles.fab} icon='pencil' color='white' 
+                {/* <FAB style={styles.fab} icon='pencil' color='white' 
                     onPress={ () => { props.navigation.navigate('ProductRegister',{ data : DATA}) }}
-                    />
+                    /> */}
                 </>
             )
             }
@@ -76,19 +88,20 @@ function ProductItem( {item} ) {
     const [visible,setVisible] = React.useState(false) ;
 
     return (
-        <Card>
-        <Card.Content>
-            <Row style= {{ alignItems: 'center' }}>
+        <Card style={{ backgroundColor: 'transparent' , ...commonStyles.row , height: visible ? 200 : 60 , justifyContent: 'center' , marginTop: 10 , marginBottom: 10 }}>
+        <Card.Content style={{  }}>
+            <TouchableRow onPress={() =>  {setVisible(!visible) }}>
                 <Text>{item.name}</Text>
-                <IconButton icon={ visible ? 'chevron-up' : 'chevron-down'  } 
+                <IconButton icon={ visible ? 'chevron-up' : 'chevron-down'  }
+                    style={{ position: 'absolute', right: 0 , margin: 0 , paddingBottom: 5 }}
                     color='black'
                     size={20}
                     onPress={ () => setVisible(!visible) } 
                 />
-            </Row>
+            </TouchableRow>
             {
                 visible && (
-                    <SubText  >{item.additionalInfo}</SubText>
+                    <SubText>{item.additionalInfo}</SubText>
                 )
             }                        
         </Card.Content>
@@ -108,8 +121,8 @@ function Product( {DATA, listControl} ) {
         <>
         {
             DATA == null || DATA.length == 0 ? (
-                <View style={{ backgroundColor: 'white' , justifyContent: 'center' , alignItems: 'center' , flex: 1}}>
-                    {/* <Avatar.Icon icon='note-plus' style={{ backgroundColor: 'transparent'}} color={'gray'}/> */}
+                <View style={{ backgroundColor: 'transparent' , justifyContent: 'center' , alignItems: 'center' , flex: 1}}>
+                    <Avatar.Icon icon='note-plus' style={{ backgroundColor: 'transparent'}} color={colors.main}/>
                     <Title style={{ fontSize: 14 , color: 'black' }}>취급상품을 등록해보세요.</Title>
                 </View>
             ) :
@@ -169,19 +182,28 @@ const styles = {
         bottom: 0 ,
         backgroundColor : colors.main ,
         elevation: 0
+    } , 
+    view : {
+        borderWidth: 1 , borderColor: colors.main , backgroundColor: colors.submain , paddingBottom: 30 , marginLeft: 10 , marginRight: 10 , borderRadius: 5
     }
 } ;
 
 const Row = styled.View`
     flex-direction: row;
 `;
+const TouchableRow = styled.TouchableOpacity`
+    flex-direction: row;
+`;
+
 const Text = styled.Text`
     padding: 5px ;
     font-weight: bold;
 `;
 const SubText = styled.Text`
-    padding : 5px ; 
+    margin-top: 10px;
+    padding : 10px ; 
     border : 1px lightgray;
+    border-radius: 5px;
 `;
 
 const TouchableOpacity = styled.TouchableOpacity`

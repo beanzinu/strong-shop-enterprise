@@ -4,8 +4,8 @@ import { Title , IconButton , Button , TextInput, Avatar , Chip , List , Provide
 import axios from 'axios';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import colors from '../../../color/colors';
-import { Alert } from 'react-native';
-import _ from 'lodash';
+import { Alert, Platform } from 'react-native';
+import _, { after }  from 'lodash';
 import fetch from '../../../storage/fetch';
 import store from '../../../storage/store';
 import API from '../../../server/API';
@@ -17,11 +17,14 @@ import { Image } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import Collapsible from 'react-native-collapsible';
 import ScrollableTabView from 'react-native-scrollable-tab-view';
+import SwiperView from 'react-native-swiper-view';
 
 
 const Container = styled.SafeAreaView``;
 const View = styled.View``;
 const MenuView = styled.View`
+    width: 100%;
+    /* height: 300px; */
     border: 2px rgb(240,240,240);  
     margin: 10px;
     padding: 5px; 
@@ -40,10 +43,7 @@ const ButtonRow = styled.View`
     /* border-bottom-width: 1px; */
     /* border-color: lightgray; */
 `;
-const SwiperView = styled.View`
-    width: 100%;
-    height: 350px;
-`;
+
 // const TextInput = styled.TextInput`
 //     width: 90% ;
 //     height: 50px;
@@ -85,13 +85,13 @@ const styles= {
     } ,
     chipStyle : {
         backgroundColor: 'rgb(220,220,220)',
-        margin : 7
+        margin : 7 ,
     } ,
     chipTextStyle : {
     } , 
     textInput : { 
         backgroundColor: 'white' , 
-        margin: 5  
+        marginTop: 30 ,
     }
 }
 
@@ -190,17 +190,15 @@ export default function BidRegister( props ) {
     const MyContext = React.useContext(AppContext);
 
     const [picture,setPicture] = React.useState(null);
-    const [collapsed,setCollapsed] = React.useState(true);
+    const [tabList,setTabList] = React.useState([]);
     
-    const getSum = () => {
-        return Number(tintingPrice) + Number(ppfPrice) + Number(blackboxPrice) + Number(batteryPrice) + Number(afterblowPrice) + Number(soundproofPrice) + Number(wrappingPrice) + Number(glasscoatingPrice) + Number(bottomcoatingPrice) ;
-    }
-
-
     React.useEffect(() => {
     
         // BidPage 에서 data를 받아옴
-        setData( props.route.params.data ) ;
+        setData( props.route.params.data ,
+            ) ;
+        getTabList( props.route.params.data ) ;
+
         setId ( props.route.params.id) ;
 
         fetch('Info')
@@ -230,6 +228,435 @@ export default function BidRegister( props ) {
         })
 
     },[]);
+
+    const getSum = () => {
+        return Number(tintingPrice) + Number(ppfPrice) + Number(blackboxPrice) + Number(batteryPrice) + Number(afterblowPrice) + Number(soundproofPrice) + Number(wrappingPrice) + Number(glasscoatingPrice) + Number(bottomcoatingPrice) ;
+    }
+
+    let swipeList = [];
+
+    const autoSwipe = ( current ) => {
+
+        if( Platform.OS == 'android' ) return;
+
+        var next = 0;
+        for ( i in swipeList ){
+            if( swipeList[i].name == current ) {
+                next = Number(i)+1 ;
+                break;
+            }
+        }
+
+        // 마지막 Swiper
+        if( next == swipeList.length ) return;
+        // if( current == "틴팅" && ( !tinting.length || !tintingPrice.length ) ) return;
+        // else if( current == "PPF" && ( !ppf.length || !ppfPrice.length ) ) return;
+        // else if( current == "블랙박스" && ( !blackbox.length || !blackboxPrice.length ) ) return;
+        // else if( current == "애프터블로우" && ( !afterblow.length || !afterblowPrice.length ) ) return;
+        // else if( current == "방음" && ( !soundproof.length || !soundproofPrice.length ) ) return;
+        // else if( current == "랩핑" && ( !wrapping.length || !wrappingPrice.length ) ) return;
+        // else if( current == "유리막코팅" && ( !glasscoating.length || !glasscoatingPrice.length ) ) return;
+        // else if( current == "하부코팅" && ( !bottomcoating.length || !bottomcoatingPrice.length ) ) return;
+
+        const nextInput = swipeList[next]?.name 
+
+        if( nextInput == "틴팅"  ) this.tinting.focus();
+        else if( nextInput == "PPF"  ) this.ppf.focus();
+        else if( nextInput == "블랙박스"  ) this.blackbox.focus();
+        else if( nextInput == "보조배터리"  ) this.battery.focus();
+        else if( nextInput == "애프터블로우"  ) this.afterblow.focus();
+        else if( nextInput == "방음"  ) this.soundproof.focus();
+        else if( nextInput == "랩핑"  ) this.wrapping.focus();
+        else if( nextInput == "유리막코팅"  ) this.glasscoating.focus();
+        else if( nextInput == "하부코팅" ) this.bottomcoating.focus();
+        
+    }
+    
+    function Tinting({ data }){ 
+        return(
+            <MenuView>
+            <Row>
+                <IconButton icon='clipboard-outline' />
+                <Title style={styles.label}>틴팅</Title>
+            </Row>
+            <ScrollView horizontal={true}>
+                {
+                    _.map(data?.options?.detailTinting,(value,key) => { 
+                        if (key == 'ETC' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
+                        if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('tinting',key) }</Chip>  
+                    })
+                }
+            </ScrollView>
+            <TextInput 
+                placeholder='제품명' 
+                theme={styles.theme}
+                style={styles.textInput}
+                onSubmitEditing={ () => { this.tintingPrice.focus() }}
+                // value={tinting}
+                onChangeText={value=>{ setTinting(value) }}
+            />
+            <TextInput placeholder='가격' 
+                ref= { (input) =>{this.tintingPrice = input }}
+                keyboardType='number-pad'
+                theme={styles.theme}
+                style={styles.textInput}
+                right={<TextInput.Affix text='만원'/>}
+                // onSubmitEditing={() => autoSwipe('틴팅')}
+                onBlur={() => autoSwipe('틴팅') }
+                // value={tintingPrice}
+                onChangeText={value=>{ setTintingPrice(value) }}
+            />
+            </MenuView>
+
+        )
+    }
+    function Ppf({ data }){
+        return(
+                    <MenuView>
+                    <Row>
+                        <IconButton icon='clipboard-outline' />
+                        <Title style={styles.label}>PPF</Title>
+                    </Row>
+                    <ScrollView horizontal={true}>
+                        {
+                             _.map(data?.options?.detailPpf,(value,key) => { 
+                                    if (key == 'ETC' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
+                                    if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('ppf',key) }</Chip>  
+                            })
+                        }
+                    </ScrollView>
+                    <TextInput placeholder='제품명' theme={styles.theme}
+                        ref={ (input) =>{this.ppf = input } }
+                        style={styles.textInput}
+                        onSubmitEditing={ () => { this.ppfPrice.focus() }}
+                        // value={ppf}
+                        onChangeText={value=>{ setPpf(value) }}
+                    />
+                    <TextInput placeholder='가격' 
+                        ref= { (input) =>{this.ppfPrice = input }}
+                        keyboardType='number-pad'
+                        theme={styles.theme}
+                        style={styles.textInput}
+                        right={<TextInput.Affix text='만원'/>}
+                        onBlur={() => autoSwipe('PPF') }
+                        // value={ppfPrice}
+                        onChangeText={value=>{ setPpfPrice(value) }}
+                    />
+                </MenuView>
+        )
+    }
+    function Blackbox({ data }){
+        return(
+            <MenuView>
+            <Row>
+                <IconButton icon='clipboard-outline' />
+                <Title style={styles.label}>블랙박스</Title>
+            </Row>
+            <ScrollView horizontal={true}>
+                {
+                        _.map(data?.options?.detailBlackbox,(value,key) => { 
+                            if (key == 'ETC' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
+                            if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('blackbox',key) }</Chip>  
+                    })
+                }
+            </ScrollView>
+            <TextInput placeholder='제품명' theme={styles.theme}
+                ref= { (input) =>{this.blackbox = input }}
+                style={styles.textInput}
+                onSubmitEditing={ () => { this.blackboxPrice.focus() }}
+                // value={blackbox}
+                onChangeText={value=>{ setBlackbox(value) }}
+            />
+            <TextInput placeholder='가격' 
+                ref= { (input) =>{this.blackboxPrice = input }}
+                keyboardType='number-pad'
+                theme={styles.theme}
+                style={styles.textInput}
+                right={<TextInput.Affix text='만원'/>}
+                onBlur={() => autoSwipe('블랙박스') }
+                // value={blackboxPrice}
+                onChangeText={value=>{ setBlackboxPrice(value) }}
+            />
+        </MenuView>
+        );
+    }
+    function Battery({ data }){
+        return(
+                    <MenuView>
+                    <Row>
+                        <IconButton icon='clipboard-outline' />
+                        <Title style={styles.label}>보조배터리</Title>
+                    </Row>
+                    <ScrollView horizontal={true}>
+                        {
+                             _.map(data?.options?.detailBattery,(value,key) => { 
+                                    if (key == 'ETC' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
+                                    if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('battery',key) }</Chip>  
+                            })
+                        }
+                    </ScrollView>
+                    <TextInput placeholder='제품명' theme={styles.theme}
+                        ref= { (input) =>{this.battery = input }}
+                        style={styles.textInput}
+                        onSubmitEditing={ () => { this.batteryPrice.focus() }}
+                        // value={battery}
+                        onChangeText={value=>{ setBattery(value) }}
+                    />
+                    <TextInput placeholder='가격' 
+                        ref= { (input) =>{this.batteryPrice = input }}
+                        keyboardType='number-pad'
+                        theme={styles.theme}
+                        style={styles.textInput}
+                        right={<TextInput.Affix text='만원'/>}
+                        onBlur={() => autoSwipe('보조배터리') }
+                        // value={batteryPrice}
+                        onChangeText={value=>{ setBatteryPrice(value) }}
+                    />
+                </MenuView>
+        );
+    }
+    function Afterblow({ data }){
+        return(
+                    <MenuView>  
+                    <Row>
+                        <IconButton icon='clipboard-outline' />
+                        <Title style={styles.label}>애프터블로우</Title>
+                    </Row>
+                    <ScrollView horizontal={true}>
+                        {
+                            _.map(data?.options?.detailAfterblow,(value,key) => { 
+                                if (key == 'ETC' && value != null && value.length != 0  ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
+                                if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('afterblow',key) }</Chip>  
+                            })
+                        }
+                    </ScrollView>
+                    <TextInput placeholder='제품명' theme={styles.theme}
+                        ref= { (input) =>{this.afterblow = input }}
+                        style={styles.textInput}
+                        onSubmitEditing={ () => { this.afterblowPrice.focus() }}
+                        // value={afterblow}
+                        onChangeText={value=>{ setAfterblow(value) }}
+                        />
+                    <TextInput placeholder='가격' 
+                        ref= { (input) =>{this.afterblowPrice = input }}
+                        keyboardType='number-pad'
+                        theme={styles.theme}
+                        style={styles.textInput}
+                        right={<TextInput.Affix text='만원'/>}
+                        onBlur={() => autoSwipe('애프터블로우') }
+                        // value={afterblowPrice}
+                        onChangeText={value=>{ setAfterblowPrice(value) }}
+                        />
+                </MenuView>
+        )
+    }
+    function Soundproof({ data }){
+        return(
+                    <MenuView>
+                    <Row>
+                        <IconButton icon='clipboard-outline' />
+                        <Title style={styles.label}>방음</Title>
+                    </Row>
+                    <ScrollView horizontal={true}>
+                        {
+                            _.map(data?.options?.detailSoundproof,(value,key) => { 
+                                if (key == 'ETC' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
+                                if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('soundproof',key) }</Chip>  
+                            })
+                        }
+                    </ScrollView>
+                    <TextInput placeholder='제품명' theme={styles.theme}
+                        ref= { (input) =>{this.soundproof = input }}
+                        style={styles.textInput}
+                        onSubmitEditing={ () => { this.soundproofPrice.focus() }}
+                        // value={soundproof}
+                        onChangeText={value=>{ setSoundproof(value) }}
+                        />
+                    <TextInput placeholder='가격' 
+                        ref= { (input) =>{this.soundproofPrice = input }}
+                        keyboardType='number-pad'
+                        theme={styles.theme}
+                        style={styles.textInput}
+                        right={<TextInput.Affix text='만원'/>}
+                        onBlur={() => autoSwipe('방음') }
+                        // value={soundproofPrice}
+                        onChangeText={value=>{ setSoundproofPrice(value) }}
+                        />
+                </MenuView>
+        );
+    }
+    function Wrapping({ data }){
+        return(
+                    <MenuView>
+                    <Row>
+                        <IconButton icon='clipboard-outline' />
+                        <Title style={styles.label}>랩핑</Title>
+                    </Row>
+                    <ScrollView horizontal={true}>
+                        {
+                            _.map(data?.options?.detailWrapping,(value,key) => { 
+                                if (key == 'DESIGN' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
+                                if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('soundproof',key) }</Chip>  
+                            })
+                        }
+                    </ScrollView>
+                    <TextInput placeholder='제품명' theme={styles.theme}
+                        ref= { (input) =>{this.wrapping = input }}
+                        style={styles.textInput}
+                        onSubmitEditing={ () => { this.wrappingPrice.focus() }}
+                        // value={wrapping}
+                        onChangeText={value=>{ setWrapping(value) }}
+                        />
+                    <TextInput placeholder='가격' 
+                        ref= { (input) =>{this.wrappingPrice = input }}
+                        keyboardType='number-pad'
+                        theme={styles.theme}
+                        style={styles.textInput}
+                        right={<TextInput.Affix text='만원'/>}
+                        onBlur={() => autoSwipe('랩핑') }
+                        // value={wrappingPrice}
+                        onChangeText={value=>{ setWrappingPrice(value) }}
+                        />
+                    </MenuView>
+        )
+    }
+    function Glasscoating({ data }){
+        return( 
+                    <MenuView>
+                    <Row>
+                        <IconButton icon='clipboard-outline' />
+                        <Title style={styles.label}>유리막코팅</Title>
+                    </Row>
+                    <TextInput placeholder='제품명' theme={styles.theme}
+                        ref= { (input) =>{this.glasscoating = input }}
+                        style={styles.textInput}
+                        onSubmitEditing={ () => { this.glasscoatingPrice.focus() }}
+                        // value={glasscoating}
+                        onChangeText={value=>{ setGlasscoating(value) }}
+                        />
+                    <TextInput placeholder='가격' 
+                        ref= { (input) =>{this.glasscoatingPrice = input }}
+                        keyboardType='number-pad'
+                        theme={styles.theme}
+                        style={styles.textInput}
+                        right={<TextInput.Affix text='만원'/>}
+                        onBlur={() => autoSwipe('유리막코팅') }
+                        // value={glasscoatingPrice}
+                        onChangeText={value=>{ setGlasscoatingPrice(value) }}
+                        />
+                </MenuView>
+        );
+    }
+    function Bottomcoating({ data }){
+        return(
+                    <MenuView>
+                    <Row>
+                        <IconButton icon='clipboard-outline' />
+                        <Title style={styles.label}>하부코팅</Title>
+                    </Row>
+                    <ScrollView horizontal={true}>
+                        {
+                             _.map(data?.options?.detailBottomcoating,(value,key) => { 
+                                    if (key == 'ETC' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
+                                    if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('bottomcoating',key) }</Chip>  
+                            })
+                        }
+                    </ScrollView>
+
+                    <TextInput placeholder='제품명' theme={styles.theme}
+                        ref= { (input) =>{this.bottomcoating = input }}
+                        style={{ backgroundColor: 'white' , marginTop: 10 }}
+                        onSubmitEditing={ () => { this.bottomcoatingPrice.focus() }}
+                        // value={bottomcoating}
+                        onChangeText={value=>{ setBottomcoating(value) }}
+                        />
+                    <TextInput placeholder='가격' 
+                        ref= { (input) =>{this.bottomcoatingPrice = input }}
+                        keyboardType='number-pad'
+                        theme={styles.theme}
+                        style={{ backgroundColor: 'white' }}
+                        right={<TextInput.Affix text='만원'/>}
+                        onBlur={() => autoSwipe('하부코팅') }
+                        // value={bottomcoatingPrice}
+                        onChangeText={value=>{ setBottomcoatingPrice(value) }}
+                        />
+                </MenuView>
+        );
+    }
+    function BidItem() {
+        return(
+            <>
+            {
+                data?.options?.tinting && <Tinting />
+            }
+            {
+                data?.options?.ppf && <Ppf />
+            }
+            {
+                data?.options?.blackbox && <Blackbox />
+            }
+            {
+                data?.options?.battery && <Battery />
+            }
+            {
+                data?.options?.afterblow && <Afterblow />
+            }
+            {
+                data?.options?.soundproof && <Soundproof />
+            }
+            {
+                data?.options?.wrapping && <Wrapping />
+            }
+            {
+                data?.options?.glasscoating && <Glasscoating />
+            }
+            {
+                data?.options?.bottomcoating && <Bottomcoating />
+            }
+        </>
+        )
+    }
+
+    function getTabList( list ) {
+        let result = []
+        if( list.options.tinting ) {
+            result.push( { name: '틴팅' , component: <Tinting data={list} /> } )
+        }
+        if( list.options.ppf ) {
+            result.push( { name: 'PPF' , component: <Ppf data={list}/> })
+        }
+        if( list.options.blackbox ) {
+            result.push( { name: '블랙박스' , component: <Blackbox data={list} /> 
+            })
+        }
+        if( list.options.battery ) {
+            result.push( { name: '보조배터리' , component: <Battery data={list} /> 
+            })
+        }
+        if( list.options.afterblow ) {
+            result.push( { name: '애프터블로우' , component: <Afterblow data={list} /> 
+            })
+        }
+        if( list.options.soundproof ) {
+            result.push( { name: '방음' , component: <Soundproof data={list} /> 
+            })
+        }
+        if( list.options.wrapping ) {
+            result.push( { name: '랩핑' , component: <Wrapping data={list} /> 
+            })
+        }
+        if( list.options.glasscoating ) {
+            result.push( { name: '유리막코팅' , component: <Glasscoating data={list} /> 
+            })
+        }
+        if( list.options.bottomcoating ) {
+            result.push( { name: '하부코팅' , component: <Bottomcoating data={list} /> 
+            })
+        }
+        
+        setTabList(result);
+        swipeList = result;
+    }
     
     checkInput = () => {
         flag = true ;
@@ -252,11 +679,11 @@ export default function BidRegister( props ) {
         if ( flag )
         Alert.alert('입찰하시겠습니까?','',[
             {
+                text: '취소'
+            } ,
+            {
                 text: '확인',
                 onPress: () => { requestBidding() }
-            },
-            {
-                text: '취소'
             }
         ])
         //false
@@ -292,11 +719,13 @@ export default function BidRegister( props ) {
             data1['glasscoating'] = glasscoating , data1['glasscoatingPrice'] = glasscoatingPrice;
         }
         if ( data.options['bottomcoating']  ) {
-            data1['bottomcoating'] = bottomcoating , data1['undercoatingPrice'] = bottomcoatingPrice;
+            data1['bottomcoating'] = bottomcoating , data1['bottomcoatingPrice'] = bottomcoatingPrice;
         }
 
         data1['totalPrice'] = getSum().toString() ;
         data1['carName'] = data.carName ;
+        // 신차
+        data1['kind'] = "NewCarPackage";
         
         const token = await fetch('auth');
         const auth = token.auth ;
@@ -356,9 +785,11 @@ export default function BidRegister( props ) {
                 {/* <Avatar.Icon icon='car-arrow-left' color={colors.main} style={{ backgroundColor: 'transparent'}} /> */}
                 <Title style={{ fontWeight: 'bold' , marginLeft: 20 , fontSize: 22 }}>{data.carName}</Title>
             </Row>
-            <Badge size={ 28 } style={{ alignSelf: 'center' , marginLeft: 10 , backgroundColor: colors.main , color: 'white' }}>신차</Badge>
-            <Badge size={ 28 } style={{ alignSelf: 'center' , marginLeft: 10 , backgroundColor: 'black' , color: 'white' }}>딜러</Badge>
-        </Appbar.Header>
+            <Badge size={ 28 } style={{ alignSelf: 'center' , marginLeft: 10 , backgroundColor: colors.main , color: 'white' , paddingLeft: 10 , paddingRight: 10 }}>신차</Badge>
+            {
+                data?.role == "DEALER" && <Badge size={ 28 } style={{ alignSelf: 'center' , marginLeft: 10 , backgroundColor: 'black' , color: 'white' , paddingLeft: 10 , paddingRight: 10 }}>딜러</Badge>
+            }        
+            </Appbar.Header>
 
         <Portal>
             <Modal visible={requesting} style={{ alignItems: 'center' , justifyContent: 'center' , backgroundColor: 'transparent' }} >
@@ -366,7 +797,7 @@ export default function BidRegister( props ) {
             </Modal>
         </Portal>
 
-            <ButtonRow>
+            {/* <ButtonRow>
             {
                     picture == null ? 
                     (
@@ -377,337 +808,21 @@ export default function BidRegister( props ) {
                     )
             }
             <Title style={{ marginLeft: 20 , fontSize: 17 , fontWeight: 'bold' }}>{props.route.params.name}</Title>
-            </ButtonRow>
+            </ButtonRow> */}
             
             {/* <Divider style={{ height: 5 , backgroundColor: 'rgb(230,230,230)' }} /> */}
 
-            <RowButton onPress={() => {setCollapsed(!collapsed)}} >
-            <IconButton icon='pencil' color={collapsed ? 'black': 'lightgray'} />
-            <Title style={{ ...styles.label , color: collapsed ? 'black' : 'lightgray' }}>견적 작성하기</Title>
-            <IconButton icon={ collapsed ? 'chevron-down' : 'chevron-up' } color={collapsed ? 'black': 'lightgray'}  style={{ position: 'absolute' , right: 0  }}/>
-            </RowButton>
+            <SwiperView 
+            tabList={tabList} 
+            tabBarStyles = {{ backgroundColor: colors.main , color: colors.main }}
+            tabBarLineStyles={{ backgroundColor: 'transparent'  }} 
+            tabHeaderStyles={{ backgroundColor: 'transparent' }}  
+            tabButtonStyles={{ backgroundColor: 'transparent' }}
+            tabButtonTextActiveStyles={{ color: colors.main }}
+            tabButtonTextStyles={{ color: 'lightgray' }}
+            />
 
-            <Collapsible collapsed={collapsed}>
-            <SwiperView>
-            <ScrollableTabView
-                tabBarTextStyle={{ fontSize: 15 }}
-                tabBarActiveTextColor={colors.main} tabBarInactiveTextColor='rgb(220,220,220)' tabBarUnderlineStyle={{ backgroundColor: colors.main }}
-                >
-            {
-                data?.options?.tinting && (
-                    <SwiperView tabLabel='틴팅'>
-                    <MenuView>
-                    <Row>
-                        <IconButton icon='clipboard-outline' />
-                        <Title style={styles.label}>틴팅</Title>
-                    </Row>
-                    <ScrollView horizontal={true}>
-                        {
-                            _.map(data.options.detailTinting,(value,key) => { 
-                                // if (key == 'ETC' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
-                                    if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('tinting',key) }</Chip>  
-                            })
-                        }
-                    </ScrollView>
-                    <TextInput 
-                        placeholder='제품명' 
-                        theme={styles.theme}
-                        style={styles.textInput}
-                        onSubmitEditing={ () => { this.tintingPrice.focus() }}
-                        value={tinting}
-                        onChangeText={value=>{ setTinting(value) }}
-                    />
-                    <TextInput placeholder='가격' 
-                        ref= { (input) =>{this.tintingPrice = input }}
-                        keyboardType='number-pad'
-                        theme={styles.theme}
-                        style={styles.textInput}
-                        right={<TextInput.Affix text='만원'/>}
-                        value={tintingPrice}
-                        onChangeText={value=>{ setTintingPrice(value) }}
-                    />
-                    </MenuView>
-                    </SwiperView>
-                )
-            }
-            {
-                data?.options?.ppf && (
-                    <SwiperView tabLabel='PPF'>
-                    <MenuView>
-                    <Row>
-                        <IconButton icon='clipboard-outline' />
-                        <Title style={styles.label}>PPF</Title>
-                    </Row>
-                    <ScrollView horizontal={true}>
-                        {
-                             _.map(data.options.detailPpf,(value,key) => { 
-                                    if (key == 'ETC' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
-                                    if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('ppf',key) }</Chip>  
-                            })
-                        }
-                    </ScrollView>
-                    <TextInput placeholder='제품명' theme={styles.theme}
-                        style={styles.textInput}
-                        onSubmitEditing={ () => { this.ppfPrice.focus() }}
-                        value={ppf}
-                        onChangeText={value=>{ setPpf(value) }}
-                    />
-                    <TextInput placeholder='가격' 
-                        ref= { (input) =>{this.ppfPrice = input }}
-                        keyboardType='number-pad'
-                        theme={styles.theme}
-                        style={styles.textInput}
-                        right={<TextInput.Affix text='만원'/>}
-                        value={ppfPrice}
-                        onChangeText={value=>{ setPpfPrice(value) }}
-                    />
-                </MenuView>
-                </SwiperView>
-                )
-            }
-            {/* {
-                data?.options?.blackbox && (
-                    <SwiperView tabLabel='블랙박스'>
-                    <MenuView>
-                    <Row>
-                        <IconButton icon='clipboard-outline' />
-                        <Title style={styles.label}>블랙박스</Title>
-                    </Row>
-                    <ScrollView horizontal={true}>
-                        {
-                             _.map(data.options.detailBlackbox,(value,key) => { 
-                                    if (key == 'ETC' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
-                                    if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('blackbox',key) }</Chip>  
-                            })
-                        }
-                    </ScrollView>
-                    <TextInput placeholder='제품명' theme={styles.theme}
-                        style={styles.textInput}
-                        onSubmitEditing={ () => { this.blackboxPrice.focus() }}
-                        value={blackbox}
-                        onChangeText={value=>{ setBlackbox(value) }}
-                    />
-                    <TextInput placeholder='가격' 
-                        ref= { (input) =>{this.blackboxPrice = input }}
-                        keyboardType='number-pad'
-                        theme={styles.theme}
-                        style={styles.textInput}
-                        right={<TextInput.Affix text='만원'/>}
-                        value={blackboxPrice}
-                        onChangeText={value=>{ setBlackboxPrice(value) }}
-                    />
-                </MenuView>
-                </SwiperView>
-                )
-            }
 
-            {
-                data?.options?.battery && (
-                    <SwiperView tabLabel='배터리'>
-                    <MenuView>
-                    <Row>
-                        <IconButton icon='clipboard-outline' />
-                        <Title style={styles.label}>보조배터리</Title>
-                    </Row>
-                    <ScrollView horizontal={true}>
-                        {
-                             _.map(data.options.detailBattery,(value,key) => { 
-                                    if (key == 'ETC' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
-                                    if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('battery',key) }</Chip>  
-                            })
-                        }
-                    </ScrollView>
-                    <TextInput placeholder='제품명' theme={styles.theme}
-                        style={styles.textInput}
-                        onSubmitEditing={ () => { this.batteryPrice.focus() }}
-                        value={battery}
-                        onChangeText={value=>{ setBattery(value) }}
-                    />
-                    <TextInput placeholder='가격' 
-                        ref= { (input) =>{this.batteryPrice = input }}
-                        keyboardType='number-pad'
-                        theme={styles.theme}
-                        style={styles.textInput}
-                        right={<TextInput.Affix text='만원'/>}
-                        value={batteryPrice}
-                        onChangeText={value=>{ setBatteryPrice(value) }}
-                    />
-                </MenuView>
-                </SwiperView>
-                )
-            }
-
-            {
-                data?.options?.afterblow && (
-                    <SwiperView tabLabel='애프터블로우'>
-                    <MenuView>  
-                    <Row>
-                        <IconButton icon='clipboard-outline' />
-                        <Title style={styles.label}>애프터블로우</Title>
-                    </Row>
-                    <ScrollView horizontal={true}>
-                        {
-                            _.map(data.options.detailAfterblow,(value,key) => { 
-                                if (key == 'ETC' && value != null && value.length != 0  ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
-                                if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('afterblow',key) }</Chip>  
-                            })
-                        }
-                    </ScrollView>
-                    <TextInput placeholder='제품명' theme={styles.theme}
-                        style={styles.textInput}
-                        onSubmitEditing={ () => { this.afterblowPrice.focus() }}
-                        value={afterblow}
-                        onChangeText={value=>{ setAfterblow(value) }}
-                        />
-                    <TextInput placeholder='가격' 
-                        ref= { (input) =>{this.afterblowPrice = input }}
-                        keyboardType='number-pad'
-                        theme={styles.theme}
-                        style={styles.textInput}
-                        right={<TextInput.Affix text='만원'/>}
-                        value={afterblowPrice}
-                        onChangeText={value=>{ setAfterblowPrice(value) }}
-                        />
-                </MenuView>
-                </SwiperView>
-                )
-            }
-            {
-                data?.options?.soundproof && (
-                    <SwiperView tabLabel='방음'>
-                    <MenuView>
-                    <Row>
-                        <IconButton icon='clipboard-outline' />
-                        <Title style={styles.label}>방음</Title>
-                    </Row>
-                    <ScrollView horizontal={true}>
-                        {
-                            _.map(data.options.detailSoundproof,(value,key) => { 
-                                if (key == 'ETC' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
-                                if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('soundproof',key) }</Chip>  
-                            })
-                        }
-                    </ScrollView>
-                    <TextInput placeholder='제품명' theme={styles.theme}
-                        style={styles.textInput}
-                        onSubmitEditing={ () => { this.soundproofPrice.focus() }}
-                        value={soundproof}
-                        onChangeText={value=>{ setSoundproof(value) }}
-                        />
-                    <TextInput placeholder='가격' 
-                        ref= { (input) =>{this.soundproofPrice = input }}
-                        keyboardType='number-pad'
-                        theme={styles.theme}
-                        style={styles.textInput}
-                        right={<TextInput.Affix text='만원'/>}
-                        value={soundproofPrice}
-                        onChangeText={value=>{ setSoundproofPrice(value) }}
-                        />
-                </MenuView>
-                </SwiperView>
-                )
-            }
-            {
-                data?.options?.wrapping && (
-                    <SwiperView tabLabel='랩핑'>
-                    <MenuView>
-                    <Row>
-                        <IconButton icon='clipboard-outline' />
-                        <Title style={styles.label}>랩핑</Title>
-                    </Row>
-                    <ScrollView horizontal={true}>
-                        {
-                            _.map(data.options.detailWrapping,(value,key) => { 
-                                if (key == 'DESIGN' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
-                                if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('soundproof',key) }</Chip>  
-                            })
-                        }
-                    </ScrollView>
-                    <TextInput placeholder='제품명' theme={styles.theme}
-                        style={styles.textInput}
-                        onSubmitEditing={ () => { this.wrappingPrice.focus() }}
-                        value={wrapping}
-                        onChangeText={value=>{ setWrapping(value) }}
-                        />
-                    <TextInput placeholder='가격' 
-                        ref= { (input) =>{this.wrappingPrice = input }}
-                        keyboardType='number-pad'
-                        theme={styles.theme}
-                        style={styles.textInput}
-                        right={<TextInput.Affix text='만원'/>}
-                        value={wrappingPrice}
-                        onChangeText={value=>{ setWrappingPrice(value) }}
-                        />
-                    </MenuView>
-                    </SwiperView>
-                )
-            }
-            {
-                data?.options?.glasscoating && (
-                    <SwiperView tabLabel='유리막코팅'> 
-                    <MenuView>
-                    <Row>
-                        <IconButton icon='clipboard-outline' />
-                        <Title style={styles.label}>유리막코팅</Title>
-                    </Row>
-                    <TextInput placeholder='제품명' theme={styles.theme}
-                        style={styles.textInput}
-                        onSubmitEditing={ () => { this.glasscoatingPrice.focus() }}
-                        value={glasscoating}
-                        onChangeText={value=>{ setGlasscoating(value) }}
-                        />
-                    <TextInput placeholder='가격' 
-                        ref= { (input) =>{this.glasscoatingPrice = input }}
-                        keyboardType='number-pad'
-                        theme={styles.theme}
-                        style={styles.textInput}
-                        right={<TextInput.Affix text='만원'/>}
-                        value={glasscoatingPrice}
-                        onChangeText={value=>{ setGlasscoatingPrice(value) }}
-                        />
-                </MenuView>
-                </SwiperView>
-                )
-            }
-            {
-                data?.options?.bottomcoating && (
-                    <SwiperView tabLabel='하부코팅'>
-                    <MenuView>
-                    <Row>
-                        <IconButton icon='clipboard-outline' />
-                        <Title style={styles.label}>하부코팅</Title>
-                    </Row>
-                    <ScrollView horizontal={true}>
-                        {
-                             _.map(data.options.detailBottomcoating,(value,key) => { 
-                                    if (key == 'ETC' && value != null && value.length != 0 ) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{value}</Chip> 
-                                    if(value) return <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{translate('bottomcoating',key) }</Chip>  
-                            })
-                        }
-                    </ScrollView>
-
-                    <TextInput placeholder='제품명' theme={styles.theme}
-                        style={{ backgroundColor: 'white' , marginTop: 10 }}
-                        onSubmitEditing={ () => { this.bottomcoatingPrice.focus() }}
-                        value={bottomcoating}
-                        onChangeText={value=>{ setBottomcoating(value) }}
-                        />
-                    <TextInput placeholder='가격' 
-                        ref= { (input) =>{this.bottomcoatingPrice = input }}
-                        keyboardType='number-pad'
-                        theme={styles.theme}
-                        style={{ backgroundColor: 'white' }}
-                        right={<TextInput.Affix text='만원'/>}
-                        value={bottomcoatingPrice}
-                        onChangeText={value=>{ setBottomcoatingPrice(value) }}
-                        />
-                </MenuView>
-                </SwiperView>
-                )
-            } */}
-            </ScrollableTabView>
-            </SwiperView>
-            </Collapsible>
 
             <List.Section style={{ marginTop: 10 }} >
                 <List.Accordion title='요청사항확인' titleStyle={{ fontWeight: 'bold' }} style={{ backgroundColor: 'white' }} theme={{ colors: { primary: 'black' }}}>

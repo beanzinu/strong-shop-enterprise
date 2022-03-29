@@ -201,13 +201,14 @@ export default function MainPage( props ) {
 
     return(
         <BottomNavigation
-            style={{ }}
-            barStyle= {{ backgroundColor: 'white' , borderTopLeftRadius: 10 , borderTopRightRadius: 10 }}
+            keyboardHidesNavigationBar={false}
+            style={{ elevation: 0 }}
+            barStyle= {{ backgroundColor: 'white' , borderTopLeftRadius: 10 , borderTopRightRadius: 10  , elevation: 0 }}
             getBadge={ (routes) => {
                 if ( routes.route.key == 'chat') return MyContext.badge
             } } 
-            activeColor={'black'}
-            inactiveColor='lightgray'
+            activeColor={colors.main}
+            inactiveColor={colors.submain}
             navigationState={{ index, routes  }}
             shifting={true}
             onTabPress={(index) => { handleTabPress(index.route) }}

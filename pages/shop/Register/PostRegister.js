@@ -66,7 +66,8 @@ const styles= {
     } ,
     title : {
         fontSize: 15 , 
-        fontWeight: 'bold'
+        fontWeight: 'bold' ,
+        fontFamily: 'NotoSansKR-Medium'
     } ,
     text : {
         margin: 10 ,
@@ -144,12 +145,13 @@ export default function( props ) {
     removePictures = () =>  {
         Alert.alert('사진을 모두 지우시겠습니까?','',[
             {
+                text: '취소'
+            },
+            {
                 text: '확인' ,
                 onPress: () => { setPictures(null); setCache([]); }
             }
-            ,{
-                text: '취소'
-            }
+            
         ])
     }
 

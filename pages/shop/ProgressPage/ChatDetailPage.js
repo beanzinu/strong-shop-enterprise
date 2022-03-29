@@ -35,7 +35,7 @@ const db = database().ref(`chat${ props.route.params.id }`);
 
 
 
-  const RenderAvatar = () => { return ( <Avatar.Image source={{ uri: props.route.params.imageUrl }} size={30} icon='cash' color='white' />) }
+  const RenderAvatar = () => { return ( <Avatar.Image style={{ backgroundColor: colors.main }} source={{ uri: props.route.params.imageUrl }} size={30} icon='cash' color='white' />) }
 
     async function getData ( ){
 
@@ -278,11 +278,12 @@ const db = database().ref(`chat${ props.route.params.id }`);
 
   return (
     <>
-     <Appbar.Header style={{ backgroundColor: 'transparent' }}>
+     <Appbar.Header style={{ backgroundColor: 'white' , elevation: 0 }}>
         <Appbar.BackAction color='black' onPress={() => { db.off() ; props.navigation.goBack() }} />   
         <Appbar.Content titleStyle={{  fontSize: 20 }} title={ `${props.route.params.name} 고객` } /> 
     </Appbar.Header>
     <GiftedChat
+        messagesContainerStyle={{ backgroundColor: 'white' }}
         messages={messages}
         onSend={messages => onSend(messages)}
         renderSystemMessage={this.onRenderSystemMessage}

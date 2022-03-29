@@ -14,6 +14,8 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		2D4C9FCB97A122302AEAF01D /* libPods-StrongShop-StrongShopTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B58D1C7129E3C4375862C0C2 /* libPods-StrongShop-StrongShopTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		FC28175127F1B02800E0F92F /* Jua-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FC28175027F1B02800E0F92F /* Jua-Regular.ttf */; };
+		FC28175327F1B03600E0F92F /* NotoSansKR-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = FC28175227F1B03600E0F92F /* NotoSansKR-Medium.otf */; };
 		FCA1A560272A71FE0034E5C9 /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCA1A55F272A71FE0034E5C9 /* File.swift */; };
 		FCBC4A4F26E78E7C00CAFE68 /* EastSeaDokdo-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FCBC4A4E26E78E7C00CAFE68 /* EastSeaDokdo-Regular.ttf */; };
 		FCBC4A5126E7912D00CAFE68 /* SongMyung-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FCBC4A5026E7912D00CAFE68 /* SongMyung-Regular.ttf */; };
@@ -49,6 +51,8 @@
 		AA59529B677124089BDCCFD3 /* Pods-StrongShop-StrongShopTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-StrongShop-StrongShopTests.release.xcconfig"; path = "Target Support Files/Pods-StrongShop-StrongShopTests/Pods-StrongShop-StrongShopTests.release.xcconfig"; sourceTree = "<group>"; };
 		B58D1C7129E3C4375862C0C2 /* libPods-StrongShop-StrongShopTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-StrongShop-StrongShopTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		FC28175027F1B02800E0F92F /* Jua-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Jua-Regular.ttf"; sourceTree = "<group>"; };
+		FC28175227F1B03600E0F92F /* NotoSansKR-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "NotoSansKR-Medium.otf"; sourceTree = "<group>"; };
 		FC91416C26C424920077FF86 /* Zocial.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Zocial.ttf; sourceTree = "<group>"; };
 		FC91416D26C424930077FF86 /* FontAwesome5_Brands.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = FontAwesome5_Brands.ttf; sourceTree = "<group>"; };
 		FC91416E26C424930077FF86 /* MaterialCommunityIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = MaterialCommunityIcons.ttf; sourceTree = "<group>"; };
@@ -193,6 +197,8 @@
 		FC91416B26C424720077FF86 /* Fonts */ = {
 			isa = PBXGroup;
 			children = (
+				FC28175027F1B02800E0F92F /* Jua-Regular.ttf */,
+				FC28175227F1B03600E0F92F /* NotoSansKR-Medium.otf */,
 				FCBC4A5226E794DE00CAFE68 /* DoHyeon-Regular.ttf */,
 				FCBC4A5026E7912D00CAFE68 /* SongMyung-Regular.ttf */,
 				FC91417026C424930077FF86 /* AntDesign.ttf */,
@@ -311,9 +317,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FC28175127F1B02800E0F92F /* Jua-Regular.ttf in Resources */,
 				FCBC4A5326E794DE00CAFE68 /* DoHyeon-Regular.ttf in Resources */,
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				FCBC4A5126E7912D00CAFE68 /* SongMyung-Regular.ttf in Resources */,
+				FC28175327F1B03600E0F92F /* NotoSansKR-Medium.otf in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				FCBC4A4F26E78E7C00CAFE68 /* EastSeaDokdo-Regular.ttf in Resources */,
 				FCD1D33A27426AB70078AFD5 /* GoogleService-Info.plist in Resources */,

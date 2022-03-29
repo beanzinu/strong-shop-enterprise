@@ -27,6 +27,7 @@ import store from '../../storage/store';
 // Tab Navigator
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import analytics from '@react-native-firebase/analytics';
+import CustomBar from '../../components/CustomBar';
 
 
 const Tab = createMaterialTopTabNavigator();
@@ -89,10 +90,10 @@ function TabViews({ navigation  }) {
     const MyContext = React.useContext(AppContext);
 
     const [routes] = React.useState([
-      { key: 'first', title: '정보' },
-      { key: 'second', title: '작업갤러리' },
-      { key: 'third', title: '취급상품' },
-      { key: 'fourth', title: '리뷰' },
+      { key: 'first', title: '#정보' },
+      { key: 'second', title: '#갤러리' },
+      { key: 'third', title: '#취급상품' },
+      { key: 'fourth', title: '#리뷰' },
     ]);
   
     const renderScene = ({ route }) => {
@@ -153,11 +154,17 @@ function TabViews({ navigation  }) {
         // lazy={true}
         renderTabBar={ props => 
             <TabBar {...props}
-            indicatorStyle={{ backgroundColor: 'black' , borderWidth: 2 }}
-            style={{ backgroundColor: 'white'   }}
-            labelStyle={{ fontWeight: 'bold' , fontSize: 15 }} 
-            activeColor={'black'} 
-            inactiveColor='lightgray'/>
+            indicatorStyle={{ backgroundColor: 'white' , borderWidth: 2 , borderColor: 'transparent' }}
+            style={{ backgroundColor: 'white'  }}
+            renderLabel={ 
+                props => 
+                <Text 
+                style={{ color: props.focused ? 'black' : '#d18b60' , fontSize : props.focused ? 13 : 12 , fontFamily: 'NotoSansKR-Medium'  }}>
+                    {props.route.title}
+                </Text>}
+            // activeColor={'white'} 
+            // inactiveColor={'#d18b60'}
+            />
         }
         // initialLayout={{ width: layout.width }}
       />
@@ -242,19 +249,18 @@ export default function( props ) {
     
 
     return (
-        <>
-        <Appbar.Header style={{ backgroundColor: colors.main , alignItems: 'center' , height: 70  }}>
-            <Appbar.Content onPress={()=> { setCollapsed(!collapsed) }}  title={shopName} titleStyle={{  color: 'white' , fontWeight: 'bold' , fontSize: shopName.length > 10 ? 12 : shopName.length > 5 ? 24 : 25  }}  />
-            {/* <Appbar.Action icon={ collapsed ? 'chevron-down' : 'chevron-up' } onPress={() => { setCollapsed(!collapsed)}} style={{}}/> */}
-            {/* <Appbar.Action  style={{ flex: 1 }}/> */}
+        <View style={{ backgroundColor: 'white' , flex: 1}}>
+        <Appbar.Header style={{ backgroundColor: colors.main , justifyContent: 'flex-end' , height: 70 ,   }}>
+            {/* <Appbar.Content onPress={()=> { setCollapsed(!collapsed) }}  title={shopName} titleStyle={{  color: 'white' , fontWeight: 'bold' , fontSize: shopName?.length > 10 ? 12 : shopName?.length > 5 ? 24 : 25  }}  /> */}
             <View>
-                <Appbar.Action color='white' icon="bell-outline" onPress={() => { props.navigation.navigate('Notifications')}}  />
+                <Appbar.Action color={colors.title} icon="bell-outline" onPress={() => { props.navigation.navigate('Notifications')}}  />
                 {
                     isalarm && <Badge size={ 8 } style={{ position: 'absolute' , right: 9 , top : 9  }}/>
                 }
             </View>
-            <Appbar.Action color='white'  icon="cog-outline" onPress={() => { props.navigation.navigate('MyPage',{ name: shopName , picture: picture })}} />
+            <Appbar.Action color={colors.title}  icon="cog-outline" onPress={() => { props.navigation.navigate('MyPage',{ name: shopName , picture: picture })}} />
         </Appbar.Header>  
+        <CustomBar.B title={shopName} />
         
         {/* 커버사진 */}
         {/* <Collapsible 
@@ -294,6 +300,6 @@ export default function( props ) {
         </Collapsible> */}
 
         <TabViews navigation={props.navigation}/>
-        </>
+        </View>
     );
 }

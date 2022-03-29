@@ -1,7 +1,7 @@
 import React from 'react' ;
 import styled from 'styled-components';
 import { Avatar , Card , Title , 
-    Paragraph , Button , Banner , ActivityIndicator, IconButton, Appbar } from 'react-native-paper';
+    Paragraph , Button , Banner , ActivityIndicator, IconButton, Appbar , Text , Badge } from 'react-native-paper';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import database from '@react-native-firebase/database';
@@ -11,14 +11,14 @@ import { Alert, Image } from 'react-native';
 import server from '../../../server/server';
 import { useIsFocused } from '@react-navigation/native';
 import AppContext from '../../../storage/AppContext';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import colors from '../../../color/colors';
 // server
 import API from '../../../server/API';
 // pages 
 import ChatDetailPage from './ChatDetailPage';
 import ProgressPage from './ProgressPage';
-import colors from '../../../color/colors';
-import fetch from '../../../storage/fetch';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import CarePage from './CarePage';
 // analytics
 import analytics from '@react-native-firebase/analytics'
 
@@ -32,13 +32,27 @@ const styles = {
 const View = styled.SafeAreaView``;
 const Stack = createStackNavigator() ; 
 
+const CView = styled.TouchableOpacity`
+    width: 95%;
+    height: 85px;
+    flex-direction: row;
+    align-items: center;
+    border: 3px ${colors.submain};
+    border-radius: 10px;
+    align-self: center;
+    margin: 5px;
+`;
+
 const ImageView = styled.View`
-    width: 50px ;
-    height: 50px ;
-    /* border:1px black; */
+    width: 60px ;
+    height: 60px ;
+    border: 2px ${colors.main};
+    margin: 10px;
     border-radius: 50px;
+    border-bottom-right-radius: 10px;
     align-items: center;
     overflow: hidden;
+    top: -15
 `;
 
 const state = {
@@ -47,6 +61,12 @@ const state = {
     CAR_EXAMINATION_FIN : '신차검수 완료' ,
     CONSTRUCTING : '시공진행' ,
     CONSTRUCTION_COMPLETED : '시공완료/출고'
+}
+
+const care_state = {
+    PRE_CONSTRUCTING: '시공 전' ,
+    CONSTRUCTING: '시공 중' ,
+    CONSTRUCTION_COMPLETED: '출고 대기'
 }
 
 const testData = [
@@ -141,28 +161,52 @@ const ChatView = ( props  ) =>   {
  
     // 한명의 고객
     function RenderItem({ item , i }) {
+        let detail = JSON.parse(item.detail) ;
         return (
-                <Card 
-                    key = {i} // key로 구분
-                    onPress={ () => { props.navigation.navigate('ProgressPage' , { id : item.id , data: item, imageUrl : item.userResponseDto.profileImage.includes('https') ? item.userResponseDto.profileImage : item.userResponseDto.profileImage.replace('http','https') })  } }>
-                    <Card.Title title={`${item.userResponseDto.nickname} 고객`} subtitle={state[item.state]} 
-                                titleStyle={{ margin: 10 , color: 'black' }} subtitleStyle= {{ margin: 10 }}
-                                left={ props => <ImageView><Image source={{ uri: item.userResponseDto.profileImage.includes('https') ? item.userResponseDto.profileImage : item.userResponseDto.profileImage.replace('http','https') }} style={{ width: '100%', height: '100%' }} /></ImageView>  } 
-                                right={ props => temp[item.id] > 0 && <Avatar.Text {...props} label={temp[item.id]} style={{ marginRight: 10  , backgroundColor : colors.main }} /> }
-                    />
-                </Card>
+                <CView
+                key={i}
+                onPress={ () => { 
+                    detail.kind == 'Care' ? 
+                    props.navigation.navigate('CarePage', { data: item })
+                    :
+                    props.navigation.navigate('ProgressPage' , { id : item.id , data: item, imageUrl : item.userResponseDto.profileImage.includes('https') ? item.userResponseDto.profileImage : item.userResponseDto.profileImage.replace('http','https') })  
+                }} >
+                <ImageView><Image source={{ uri: item.userResponseDto.profileImage.includes('https') ? item.userResponseDto.profileImage : item.userResponseDto.profileImage.replace('http','https') }} style={{ width: '100%', height: '100%' , borderRadius: 50 ,borderBottomRightRadius: 10  }} /></ImageView>
+                <View style={{  }}>
+                    <View style={{ flexDirection: 'row' , alignItems: 'center' }}>
+                        <Text style={{ margin: 7 ,color: 'black' , fontWeight: 'bold' , fontSize: 17 }}>{`${item.userResponseDto.nickname} 고객`}</Text>
+                        <Text style={{ marginLeft: 3 , marginBottom: 1.5 , alignSelf: 'center' , fontSize: 15 , color: detail.kind == 'Care'? colors.care : colors.main }}>{ detail.kind == 'Care' ? '케어' : '신차'}</Text>
+                    </View>
+                    <Text style={{ marginLeft: 7 , color: 'lightgray' }}>{`[ ${detail.carName} ] `}{detail.kind == 'Care' ?  care_state[item.state] : state[item.state]}</Text>
+                </View>
+                { temp[item.id] > 0 && <Avatar.Text size={30} {...props} label={temp[item.id]} labelStyle={{ color: 'white' }} style={{  position: 'absolute' , right: 0 , marginRight: 10  , backgroundColor : colors.main }} /> }
+                </CView>
+                // <Card 
+                //     key = {i} // key로 구분
+                //     onPress={ () => { 
+                //         detail.kind == 'Care' ? 
+                //         props.navigation.navigate('CarePage', { data: item })
+                //         :
+                //         props.navigation.navigate('ProgressPage' , { id : item.id , data: item, imageUrl : item.userResponseDto.profileImage.includes('https') ? item.userResponseDto.profileImage : item.userResponseDto.profileImage.replace('http','https') })  
+                //     }}>
+                //     <Card.Title title={`${item.userResponseDto.nickname} 고객`} subtitle={ detail.kind == 'Care' ?  care_state[item.state] : state[item.state]} 
+                //                 titleStyle={{ margin: 10 , color: 'black' }} subtitleStyle= {{ margin: 10 }}
+                //                 left={ props => <ImageView><Image source={{ uri: item.userResponseDto.profileImage.includes('https') ? item.userResponseDto.profileImage : item.userResponseDto.profileImage.replace('http','https') }} style={{ width: '100%', height: '100%' }} /></ImageView>  } 
+                //                 right={ props => temp[item.id] > 0 && <Avatar.Text {...props} label={temp[item.id]} style={{ marginRight: 10  , backgroundColor : colors.main }} /> }
+                //     />
+                // </Card>
         )
     }
 
     return(
-    <KeyboardAwareScrollView>
+    <KeyboardAwareScrollView style={{ backgroundColor: 'white' }}>
         {
         data == null  ?
             <ActivityIndicator color={'black'}  size='large' style={{ marginTop: 100 }} /> 
         :
         <>
             <Appbar.Header style={{ backgroundColor: 'white' , elevation: 0 }}>
-                <Appbar.Content title='시공 관리' />
+                <Appbar.Content titleStyle={{ fontFamily: 'NotoSansKR-Medium' }} title='시공 관리' />
                 <Appbar.Action icon='refresh' onPress={() => { reloadClients() }} />
             </Appbar.Header>
             {
@@ -186,6 +230,7 @@ export default function() {
             <Stack.Screen name='ChatList' component={ChatView} options={{ headerShown: false  }}/>
             <Stack.Screen name='ProgressPage' component={ProgressPage} options = {{ headerShown : false }}/>
             <Stack.Screen name='ChatDetail' component = {ChatDetailPage} options={{ headerShown : false }} />
+            <Stack.Screen name='CarePage' component = {CarePage} options={{ headerShown : false }} />
         </Stack.Navigator>
    </NavigationContainer>
     );

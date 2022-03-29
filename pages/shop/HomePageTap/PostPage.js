@@ -32,7 +32,8 @@ const styles= {
     } ,
     title : {
         fontSize: 15 , 
-        fontWeight: 'bold'
+        fontWeight: 'bold' ,
+        fontFamily: 'NotoSansKR-Medium'
     } ,
     text : {
         marginTop: 5 ,
@@ -44,6 +45,7 @@ const styles= {
         fontWeight: 'bold',
         marginLeft: 15 ,
         marginRight: 15 ,
+        fontFamily: 'NotoSansKR-Medium'
     }
 
 }
@@ -55,11 +57,11 @@ export default function( props ) {
     const handleDeleteMsg = () => {
         Alert.alert('삭제하시겠습니까?','',[
             {
+                text: '취소'
+            } ,
+            {
                 text: '확인' ,
                 onPress: () =>  { requestDelete() }
-            },
-            {
-                text: '취소'
             }
         ])
     }

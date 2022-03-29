@@ -110,7 +110,12 @@ export default function() {
                                     <Title style={{ padding: 5 , fontSize: 13 , marginLeft: 12 , color: 'gray'  }}>{ row.createdTime }</Title>
                                     </>
                                 }
-                                <BidList.A item={item} />
+                                {
+                                    item.kind == 'Care' ?
+                                    <BidList.Care_A item={item}/>
+                                    :
+                                    <BidList.A item={item} />
+                                }
                             </List.Section>
                         )
                     })

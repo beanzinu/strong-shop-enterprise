@@ -165,7 +165,7 @@ export default function( props ){
     return(
         <BottomSheetModalProvider>
         <View style={{ flex: 1 , backgroundColor: 'white' }}>
-            <View style={{  height: 50  }}>
+            {/* <View style={{  height: 50  }}>
             <ScrollView horizontal={true} style={{ height : 70}} showsHorizontalScrollIndicator={false}>
                 {
                     options.map((item,i)=>{
@@ -177,6 +177,19 @@ export default function( props ){
                     })
                 }
             </ScrollView> 
+            </View> */}
+            <View style={{ height: 60 }}> 
+                    <ScrollView horizontal={true}  style={{ height : 80  , backgroundColor: 'transparent'  }} showsHorizontalScrollIndicator={false}>
+                        {
+                            options.map((item,i)=>{
+                                return(
+                                    <Button key={i} style={{ ...styles.button , elevation: 0 }} labelStyle={{ fontFamily: 'NotoSansKR-Medium' , fontSize: value == i+1 ? 16 : 13 , color: value == i+1 ? 'black' : colors.title , fontWeight: value == i+1 ? 'bold' : 'normal' }} color='transparent' onPress={ () => { setValue(i+1) }} mode = { value == i+1 ? 'contained' : 'text' }>
+                                        {'#'}{item.name}
+                                    </Button>
+                                )
+                            })
+                        }
+                    </ScrollView>
             </View>   
             
             <AddButton onPress={() => {  add(1); } }>
@@ -278,18 +291,18 @@ export default function( props ){
                             onPress={() => { Alert.alert('삭제하시겠습니까?','',
                             [
                                 {
+                                    text : '취소' ,
+                                    onPress : () =>  {
+                                        handleDismissModalPress()
+                                    }
+                                } ,
+                                {
                                     text : '확인' ,
                                     onPress : () =>  {
                                         remove();
                                         handleDismissModalPress();
                                     }
-                                } ,
-                                {
-                                    text : '취소' ,
-                                    onPress : () =>  {
-                                        handleDismissModalPress()
-                                    }
-                                }
+                                } 
                             ]
                             ) }}
                         >

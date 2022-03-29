@@ -8,10 +8,12 @@ import {
 from 'react-native-paper';
 import { ScrollView } from 'react-native-gesture-handler';
 import colors from '../../../color/colors';
-import { Alert } from 'react-native';
+import { Alert , Image } from 'react-native';
 import { RefreshControl } from 'react-native';
 import { FlatList } from 'react-native';
 import Collapsible from 'react-native-collapsible';
+import CustomBar from '../../../components/CustomBar';
+import commonStyles from '../../../components/commonStyles';
 // storage
 import API from '../../../server/API';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -70,18 +72,18 @@ export default function ( props ) {
         return (
             <Provider>
             {/* // 입찰 전 */}
-                
+                <View style={{ ...commonStyles.view }}>
                 {/* <Divider style={{  height: 8 , backgroundColor: 'rgb(230,230,230)' }} /> */}
-                <Row>
-                <Button labelStyle={{ fontWeight: 'bold'}} style={{ padding: 3,  margin: 5  }} color={ filter == '전체' ? 'black' : 'lightgray' } onPress={ () => { handleFilter('전체') } }>
-                    전체
-                </Button>
-                <Button labelStyle={{ fontWeight: 'bold'}} style={{ padding: 3, margin: 5  }} color={ filter == '신차' ? 'black' : 'lightgray' } onPress={ () => { handleFilter('신차') } }>
-                    신차패키지
-                </Button>
-                <Button labelStyle={{ fontWeight: 'bold'}} style={{ padding: 3 , margin: 5 }} color={ filter == '케어' ? 'black' : 'lightgray' } onPress={ () => { handleFilter('케어') } }>
-                    케어
-                </Button>
+                <Row style={{ ...commonStyles.titleRow , height: 40 }}>
+                    <Button labelStyle={{ fontWeight: 'bold' , fontFamily: 'Jua-Regular'}} style={{ flex: 1  }} color={ filter == '전체' ? 'black' : 'lightgray' } onPress={ () => { handleFilter('전체') } }>
+                        전체
+                    </Button>
+                    <Button labelStyle={{ fontWeight: 'bold' , fontFamily: 'Jua-Regular'}} style={{ flex: 1   }} color={ filter == '신차' ? 'black' : 'lightgray' } onPress={ () => { handleFilter('신차') } }>
+                        신차패키지
+                    </Button>
+                    <Button labelStyle={{ fontWeight: 'bold' , fontFamily: 'Jua-Regular'}} style={{ flex: 1}} color={ filter == '케어' ? 'black' : 'lightgray' } onPress={ () => { handleFilter('케어') } }>
+                        케어
+                    </Button>
                 </Row>
                 {
                     data.length == 0 ? (
@@ -90,9 +92,9 @@ export default function ( props ) {
                                 refreshing={refresh}
                                 onRefresh={ () => { requestOrders() } }
                             />}
-                            contentContainerStyle={{ height: Dimensions.get('screen').height*0.6 , justifyContent: 'center' , alignItems: 'center'  }}
+                            contentContainerStyle={{ height: Dimensions.get('screen').height*0.5 , justifyContent: 'center' , alignItems: 'center'  }}
                         >   
-                            <Title style={{ fontSize: 15 }}>{'아직 입찰요청이 없어요.'}</Title>
+                            <Title style={{ fontSize: 15 , fontFamily: 'NotoSansKR-Medium' }}>{'아직 입찰요청이 없어요.'}</Title>
                         </ScrollView>
                     ) :
                     (
@@ -112,7 +114,8 @@ export default function ( props ) {
                         </View>  
                         </>              
                     )
-                }     
+                } 
+                </View>    
             </Provider>
         )
     }
@@ -178,7 +181,6 @@ export default function ( props ) {
 
         API.get(`/api/orders?regions=${tmp}`)
         .then( res => {
-            // console.log(res.data.data);
             let rawData = res.data.data;
             // 새로운 데이터 X
             if ( rawData.length == 0 ) setData([]);
@@ -209,43 +211,89 @@ export default function ( props ) {
     }
 
     
+    const [appbarExtended,setAppbarExtended] = React.useState(true);
 
     return (
     <Provider>
-        <Appbar.Header style={{ backgroundColor: 'white' , elevation: 0   }}>
+        <Appbar.Header style={{ backgroundColor: colors.main , elevation: 0  , height: 70 }}>
             {
-                region.length == 0 ? 
-                <ActivityIndicator color='black' style={{ marginLeft: 20 }} />
-                :
-                <IconButton icon='car-multiple' size={25} color={'black'}/>
+                !appbarExtended &&
+                <>
+                    <Image source={require('../../../resource/carIcon.png')} style={{ width: 35 , height: 35 , padding: 5 , margin: 10 }} />
+                    <Text style={{ marginLeft: 10 , fontSize: 30 , fontWeight: 'bold' , color: colors.title , fontFamily: 'Jua-Regular' }}>{region}</Text>
+                </>
             }
-            <Text style={{ marginLeft: 10 , fontSize: 27 , fontWeight: 'bold' , color: 'black' }}>{region}</Text>
+            <Appbar.Action onPress={() => {setAppbarExtended(!appbarExtended)}} icon={appbarExtended ? 'chevron-up' : 'chevron-down'} color={colors.title} style={{ position: 'absolute' , right: 0 , padding: 5}} />
             {/* <Appbar.Content title={shopName} titleStyle={{ fontWeight: 'bold' , fontSize: 22 , color: 'lightgray' , alignSelf: 'center' , margin: 5 }} /> */}
         </Appbar.Header>   
-        <Tab.Navigator  sceneContainerStyle={{ backgroundColor: 'white' }} screenOptions={{ tabBarStyle: { } , tabBarActiveTintColor: 'black' , tabBarInactiveTintColor: 'lightgray' , tabBarIndicatorStyle: { backgroundColor: 'black' , borderWidth: 2 , borderColor: 'black' } , tabBarLabelStyle: { fontWeight: 'bold' , fontSize: 17 }   }}    initialRouteName={BidBefore}>
+        {
+            appbarExtended && <CustomBar.C title={region} />
+        }
+        <View style={{ backgroundColor: 'white' , flex: 1 }}>
+        <Tab.Navigator  
+            sceneContainerStyle={{ backgroundColor: 'white' }} screenOptions={(props)=>(  { tabBarStyle: { height: 45 } , tabBarActiveTintColor: 'black' , tabBarInactiveTintColor: '#d18b60' , tabBarIndicatorStyle: { backgroundColor: 'transparent' , borderWidth: 2 , borderColor: 'transparent' } , tabBarLabelStyle: { fontFamily: 'NotoSansKR-Medium' , fontWeight: props.navigation.isFocused() ? 'bold' : 'normal' , fontSize: props.navigation.isFocused() ? 17 : 14 }   })}    initialRouteName={BidBefore}>
             <Tab.Screen name="BidBefore" component={BidBefore} options={{ title: '입찰 전' }} />
             <Tab.Screen name="BidRegister_current" component={BidRegister_current} options={{ title: '입찰 중'  }}/>
             <Tab.Screen name="BidRegister_history" component={BidRegister_history} options={{ title: '입찰결과' }}/>
         </Tab.Navigator>
+        </View>
     </Provider>
     );
 }
+
+function countCareItems( item ){
+    let count = 0 ;
+    let flag = false; 
+    let firstItem = "";
+    
+    if ( item.carWash ) { if ( !flag ) { flag = true; firstItem = "세차" } count += 1 } ;
+    if ( item.inside ) { if ( !flag ) { flag = true; firstItem = "내부" } count += 1 } ;
+    if ( item.outside ) { if ( !flag ) { flag = true; firstItem = "외부" } count += 1 } ;
+    if ( item.scratch ) { if ( !flag ) { flag = true; firstItem = "스크레치" } count += 1 } ;
+    if ( item.etc ) { if ( !flag ) { flag = true; firstItem = "기타" } count += 1 } ;
+    
+    return firstItem + " 등 " + count + "건";
+}
+
 // 케어
 function CareItem( { navigation , item , id , imageUrls }) {
     const [expanded,setExpanded] = React.useState(true) ;
     return(
         <>
-        <RowItem onPress={ () => { setExpanded(!expanded) }}>
-            <Text style={{fontWeight : 'bold' , fontFamily: 'DoHyeon-Regular' , fontSize: 25 , marginLeft: 20  }}>{item.carName}</Text>
-            <Badge size={ 30 } style={{ alignSelf: 'center' , marginLeft: 10 , backgroundColor: colors.care , color: 'white' , paddingLeft: 10 , paddingRight: 10 }}>케어</Badge>
-            <Badge size={ 30 } style={{ alignSelf: 'center' , marginLeft: 10 , backgroundColor: 'black' , color: 'white' , paddingLeft: 10 , paddingRight: 10 }}>딜러</Badge>
-            <Row style={{ right: 5 , position: 'absolute' }}>
-            <Text>{translate('region',item.region)}</Text>
-            <IconButton icon={ expanded ? 'chevron-down' : 'chevron-up' } />
-            </Row>
-        </RowItem>
+        {
+            expanded &&
+            <View style={{ ...commonStyles.view , borderWidth: 0.5 , backgroundColor: 'white' }}>
+            <RowItem onPress={ () => { setExpanded(!expanded) }}>
+                <Text style={{fontWeight : 'bold' , fontFamily: 'DoHyeon-Regular' , fontSize: 25 , marginLeft: 20  }}>{item.carName}</Text>
+                <Badge size={ 25 } style={{ alignSelf: 'center' , marginLeft: 20 , backgroundColor: colors.care , color: 'white' , paddingLeft: 10 , paddingRight: 10 }}>케어</Badge>
+                {
+                    item.role == "DEALER" && <Badge size={ 25 } style={{ alignSelf: 'center' , marginLeft: 10 , backgroundColor: 'black' , color: 'white' , paddingLeft: 10 , paddingRight: 10 }}>딜러</Badge>
+                }
+                <Row style={{ right: 5 , position: 'absolute' }}>
+                <Text>{translate('region',item.region)}</Text>
+                <IconButton icon={ expanded ? 'chevron-down' : 'chevron-up' } />
+                </Row>
+            </RowItem>  
+            <Divider style={{ alignSelf: 'center' , width: '90%' , borderColor: 'rgb(231,207,192)' , borderWidth: 0.5 }} />
+            {
+                expanded &&
+                <Text style={{ alignSelf: 'center' , fontWeight: 'bold' , margin: 20 }}>{countCareItems(item.options)}</Text>
+            }
+            </View>
+        }
+        
         <Collapsible collapsed={expanded} duration={100}>
-                <View style={{ backgroundColor: 'white' , margin: 10 , borderWidth: 1 , borderRadius: 10 , borderColor: 'lightgray' }}>
+                <View style={{ ...commonStyles.view , backgroundColor: 'white' }}>
+                    {
+                        !expanded &&
+                        <>
+                        <ButtonRow style={commonStyles.titleRow} onPress={ () => { setExpanded(!expanded) }}>
+                            <Text style={{fontWeight : 'bold' , fontFamily: 'DoHyeon-Regular' , fontSize: 20 }}>{item.carName}(케어)</Text>
+                            <IconButton icon={ expanded ? 'chevron-down' : 'chevron-up' } style={{ position: 'absolute' , right: 5 }} />
+                        </ButtonRow>
+                        <Divider style={{ alignSelf: 'center' , width: '90%' , borderColor: 'rgb(231,207,192)' , borderWidth: 0.5 }} />
+                        </>
+                    }
                     { item.options.carWash && 
                         <>
                             <List.Item titleStyle={styles.listStyle} title ='세차' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
@@ -298,12 +346,14 @@ function CareItem( { navigation , item , id , imageUrls }) {
                             </ScrollView>
                     </> }
                     
-                    <Divider style={{ marginTop: 5 }} />
+                    <List.Item titleStyle={styles.listStyle}  title ='요청사항:' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
                     <List.Item 
-                        // style={{ borderWidth: 1 ,borderColor: 'lightgray'}}
-                        titleStyle={{  fontWeight: 'bold' }} 
-                        descriptionStyle={{ paddingTop: 5 , fontWeight: 'bold' , fontSize: 17 }}
-                        title='요청사항:' description={item.require} />
+                        style={{ ...commonStyles.view , backgroundColor: 'white' , borderRadius: 5 }}
+                        titleStyle={{   }} 
+                        // descriptionStyle={{fontWeight: 'bold' , fontSize: 17 }}
+                        title={item.require} 
+                        // description={item.require} 
+                    />
                     <Button 
                             icon='account-cash' 
                             mode='outlined' 
@@ -318,23 +368,62 @@ function CareItem( { navigation , item , id , imageUrls }) {
         </>
     );
 }
+
+function countNcpItems( item ){
+    let count = 0 ;
+    let flag = false; 
+    let firstItem = "";
+    
+    if ( item.tinting ) { if ( !flag ) { flag = true; firstItem = "틴팅" } count += 1 } ;
+    if ( item.ppf ) { if ( !flag ) { flag = true;  firstItem = "PPF" } count += 1 } ;
+    if ( item.blackbox) { if ( !flag ) { flag = true; firstItem = "블랙박스" } count += 1 } ;
+    if ( item.battery ) { if ( !flag ) { flag = true; firstItem = "보조배터리" } count += 1 } ;
+    if ( item.afterblow ) { if ( !flag ) { flag = true; firstItem = "애프터블로우" } count += 1 } ;
+    if ( item.soundproof ) { if ( !flag ) { flag = true; firstItem = "방음" } count += 1 } ;
+    if ( item.wrapping ) { if ( !flag ) { flag = true; firstItem = "랩핑" } count += 1 } ;
+    if ( item.glasscoating ) { if ( !flag ) { flag = true; firstItem = "유리막코팅" } count += 1 } ;
+    if ( item.bottomcoating ) { if ( !flag ) { flag = true; firstItem = "하부코팅" } count += 1 } ;
+    return firstItem + " 등 " + count + "건";
+}
 // 신차패키지
 // 각각의 입찰요청항목
 function Item ( { item , navigation , id , shopName } ) {
     const [expanded,setExpanded] = React.useState(true) ;
     return( 
                 <>
-                <RowItem onPress={ () => { setExpanded(!expanded) }}>
-                    <Text style={{fontWeight : 'bold' , fontFamily: 'DoHyeon-Regular' , fontSize: 25 , marginLeft: 20  }}>{item.carName}</Text>
-                    <Badge size={ 30 } style={{ alignSelf: 'center' , marginLeft: 10 , backgroundColor: colors.main , color: 'white' , paddingLeft: 10 , paddingRight: 10  }}>신차</Badge>
-                    <Badge size={ 30 } style={{ alignSelf: 'center' , marginLeft: 10 , backgroundColor: 'black' , color: 'white' , paddingLeft: 10 , paddingRight: 10}}>딜러</Badge>
-                    <Row style={{ right: 5 , position: 'absolute' }}>
-                    <Text>{translate('region',item.region)}</Text>
-                    <IconButton icon={ expanded ? 'chevron-down' : 'chevron-up' } />
-                    </Row>
-                </RowItem>
+                {
+                    expanded &&
+                    <View style={{ ...commonStyles.view , borderWidth: 0.5 , backgroundColor: 'white' }}>
+                    <RowItem style={{ ...commonStyles.titleRow , backgroundColor: 'white' , borderRadius: 10 }} onPress={ () => { setExpanded(!expanded) }}>
+                        <Text style={{fontWeight : 'bold' , fontFamily: 'DoHyeon-Regular' , fontSize: 25 , marginLeft: 20  }}>{item.carName}</Text>
+                        <Badge size={ 25 } style={{ alignSelf: 'center' , marginLeft: 20 , backgroundColor: colors.main , color: 'white' , paddingLeft: 10 , paddingRight: 10  }}>신차</Badge>
+                        {
+                            item.role == "DEALER" && <Badge size={ 25 } style={{ alignSelf: 'center' , marginLeft: 10 , backgroundColor: 'black' , color: 'white' , paddingLeft: 10 , paddingRight: 10 }}>딜러</Badge>
+                        }
+                        <Row style={{ right: 5 , position: 'absolute' }}>
+                        <Text>{translate('region',item.region)}</Text>
+                        <IconButton icon={ expanded ? 'chevron-down' : 'chevron-up' } />
+                        </Row>
+                    </RowItem>
+                    <Divider style={{ alignSelf: 'center' , width: '90%' , borderColor: 'rgb(231,207,192)' , borderWidth: 0.5 }} />
+                    {
+                        expanded &&
+                        <Text style={{ alignSelf: 'center' , fontWeight: 'bold' , margin: 20 }}>{countNcpItems(item.options)}</Text>
+                    }
+                    </View>
+                }
                 <Collapsible collapsed={expanded} duration={100}>
-                <View style={{ backgroundColor: 'white' , margin: 10 , borderWidth: 1 , borderRadius: 10 , borderColor: 'lightgray' }}>
+                <View style={{ ...commonStyles.view , backgroundColor: 'white' }}>
+                    {
+                        !expanded &&
+                        <>
+                        <ButtonRow style={commonStyles.titleRow} onPress={ () => { setExpanded(!expanded) }}>
+                            <Text style={{fontWeight : 'bold' , fontFamily: 'DoHyeon-Regular' , fontSize: 20 }}>{item.carName}(신차)</Text>
+                            <IconButton icon={ expanded ? 'chevron-down' : 'chevron-up' } style={{ position: 'absolute' , right: 5 }} />
+                        </ButtonRow>
+                        <Divider style={{ alignSelf: 'center' , width: '90%' , borderColor: 'rgb(231,207,192)' , borderWidth: 0.5 }} />
+                        </>
+                    }
                     { item.options.tinting && 
                         <>
                             <List.Item titleStyle={styles.listStyle} title ='틴팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
@@ -439,12 +528,14 @@ function Item ( { item , navigation , id , shopName } ) {
                             </ScrollView>
                         </>
                     }
-                    <Divider style={{ marginTop: 5 }} />
+                    <List.Item titleStyle={styles.listStyle}  title ='요청사항:' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
                     <List.Item 
-                        // style={{ borderWidth: 1 ,borderColor: 'lightgray'}}
-                        titleStyle={{  fontWeight: 'bold' }} 
-                        descriptionStyle={{ paddingTop: 5 , fontWeight: 'bold' , fontSize: 17 }}
-                        title='요청사항:' description={item.require} />
+                        style={{ ...commonStyles.view , backgroundColor: 'white' , borderRadius: 5 }}
+                        titleStyle={{   }} 
+                        // descriptionStyle={{fontWeight: 'bold' , fontSize: 17 }}
+                        title={item.require} 
+                        // description={item.require} 
+                    />
                     <Button 
                             icon='account-cash' 
                             mode='outlined' 
@@ -463,6 +554,10 @@ function Item ( { item , navigation , id , shopName } ) {
 const View = styled.SafeAreaView``;
 const BidBeforeView = styled.TouchableOpacity``;
 const Row = styled.View`
+    align-items: center;
+    flex-direction: row;
+`;
+const ButtonRow = styled.TouchableOpacity`
     align-items: center;
     flex-direction: row;
 `;
@@ -487,16 +582,20 @@ const styles = {
         padding : 20 ,
     }  ,
     chipStyle : {
-        backgroundColor: 'rgb(230,230,230)',
-        // backgroundColor: colors.main ,
-        color: 'white' ,
+        // backgroundColor: 'rgb(230,230,230)',
+        backgroundColor: colors.submain ,
+        color: 'black' ,
+        borderColor: colors.main,
+        borderWidth: 0.5 ,
+        borderRadius: 10 ,
         margin : 3 ,
-        marginLeft: 10 
+        marginLeft: 10 ,
     } ,
     scrollChipStyle : {
         margin: 5 , padding: 3 , borderWidth: 1 ,borderColor: 'lightgray' , borderRadius : 20  , backgroundColor: 'white' , justifyContent: 'center' , alignItems: 'center'
     } ,
     chipTextStyle : {
+        // fontWeight: 'bold' ,
     } , 
     title : {
         fontWeight: 'bold' , 

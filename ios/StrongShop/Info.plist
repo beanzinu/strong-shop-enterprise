@@ -120,6 +120,8 @@
 		<string>DoHyeon-Regular.ttf</string>
 		<string>MaterialIcons.ttf</string>
 		<string>MaterialCommunityIcons.ttf</string>
+		<string>Jua-Regular.ttf</string>
+		<string>NotoSansKR-Medium.otf</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>

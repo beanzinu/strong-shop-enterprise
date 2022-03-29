@@ -4,7 +4,7 @@ import {
     BottomSheetModal,
     BottomSheetModalProvider,
   } from '@gorhom/bottom-sheet';
-import { Title , Button , Text, TextInput , Provider , Modal , Portal , RadioButton , IconButton } from 'react-native-paper';
+import { Title , Button , Text, TextInput , Provider , Modal , Portal , RadioButton , IconButton, Appbar, Divider } from 'react-native-paper';
 import colors from '../../color/colors';
 import axios from 'axios';
 import { ActivityIndicator, Alert, ScrollView } from 'react-native';
@@ -25,11 +25,14 @@ import fetch from '../../storage/fetch';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 // analytics
 import analytics from '@react-native-firebase/analytics'
+import API from '../../server/API';
+import CustomBar from '../../components/CustomBar';
 
 
 const View = styled.View`
-    flex : 1 ;
+    flex: 1;
 `;
+const CustomView = styled.View``;
 const styles = {
     title : {
         padding: 10 ,
@@ -39,8 +42,9 @@ const styles = {
     mainTitle : {
         color: 'white',
         padding: 10 ,
-        fontSize: 30 ,
+        fontSize: 35 ,
         fontFamily: 'DoHyeon-Regular' ,
+        textAlign: 'center'
     } ,
     description : {
         fontSize: 17 , 
@@ -55,11 +59,13 @@ const styles = {
         borderColor: 'white'
     } ,
     loginButton : {
-        width: '70%' ,
-        borderWidth: 1 ,
+        width: '65%' ,
+        borderWidth: 2 ,
         margin: 20 ,
-        padding: 5,
-        borderColor: 'white'
+        padding: 7,
+        borderColor: colors.main ,
+        borderRadius: 15 ,
+        backgroundColor: 'white'
     } ,
     guideButton: { 
         alignSelf: 'flex-start', 
@@ -67,14 +73,18 @@ const styles = {
         borderWidth: 1 , 
         borderColor: 'black' , 
         margin: 5
+    } ,
+    textInput : {
+        backgroundColor: 'white' , width: '95%' , alignSelf: 'center'
     }
 
 }
 
+
   
 
 export default function NewRegister({getMain}) {
-    const snapPoints = React.useMemo(() => ['90%'], []);
+    const snapPoints = React.useMemo(() => ['95%'], []);
     const [loginMethod,setLoginMethod] = React.useState('kakao');
     const [name,setName] = React.useState('');
     const [businessNumber,setBusinessNumber] = React.useState('');
@@ -131,7 +141,7 @@ export default function NewRegister({getMain}) {
     // API Request
    // 도로명 주소 -> 좌표로 변환
    function getCoord(address){
-    return new Promise(resolve=>{
+    return new Promise((resolve,reject)=>{
         axios({
             method: 'GET' ,
             url : `https://api.vworld.kr/req/address?service=address&request=getCoord&key=98C4A0B1-90CD-30F6-B7D0-9F5A0DC9F18B&address=${address}&type=ROAD` ,
@@ -140,11 +150,13 @@ export default function NewRegister({getMain}) {
             const point = res.data.response.result.point ;
             latitude = point.y ;
             longitude = point.x ;
-            resolve();
-        }
-        )
+            resolve('success');
+        })
         .catch(e => {
-            //
+            latitude = 37.5 ;
+            longitude = 126.9 ;
+
+            reject(e);
         } ) ;
     }) ;
 
@@ -244,6 +256,9 @@ export default function NewRegister({getMain}) {
                         getMain(true);
                         // setEnabled(false);
                     })
+                    .catch( e => {
+                        // alert('정보등록 실패');
+                    })
                 }
                 // cache 성공 시 -> 메인화면
                 catch {
@@ -264,7 +279,13 @@ export default function NewRegister({getMain}) {
         return new Promise(async(resolve)=>{
 
             // 주소 변환 
-            await getCoord(address) ;
+            await getCoord(address)
+            .then( res => {
+                // alert(res);
+            })
+            .catch( e =>  {
+                // alert( e ) ;
+            }) ;
 
             axios({
                 method: 'POST',
@@ -390,6 +411,67 @@ export default function NewRegister({getMain}) {
         }
     }
 
+    async function handleTest(){
+
+        let FCM_Token ;
+        
+        await messaging().getToken().then( res =>{
+            FCM_Token = res ;
+        })
+
+        axios({
+            method: 'POST' ,
+            url : `${server.url}/api/login/test/company` ,
+            headers: { FCM : FCM_Token }
+        })
+        .then( async (res) => {
+            const auth = res.headers.auth;
+
+            await store('auth',{ auth : auth });
+
+            if( res.data.statusCode == 201 ){
+                try {
+                    // 업체정보 post
+                    axios.post(`${server.url}/api/companyinfo`,{
+                        introduction : "업체 소개를 해주세요." ,
+                        contact: "" ,
+                        blogUrl : "" ,
+                        siteUrl : "" ,
+                        snsUrl : "" ,
+                        address: "부산 영도구 중리북로 5" , 
+                        detailAddress: "101동" , 
+                        latitude: 37.5, 
+                        longitude: 126.9
+                    }, { headers: { Auth: auth }  })
+                    .then ( async (res) => {
+                        await store('Info',res.data.data) ;
+                        getMain(true);
+                        // setEnabled(false);
+                    })
+                    .catch( e =>  {
+                        console.log(e);
+                    })
+                }
+                catch {
+                    // cache 저장 에러
+                    console.log('cache 에러');
+                }
+            }
+            else if ( res.data.statusCode == 200 ) {
+                // cache 성공 시 -> 메인화면
+                await fetch('auth')
+                .then( res => {
+                    if ( res != null ) getMain(true);
+                })
+                .catch ( e => { 
+                    //
+                })
+            }
+        })
+        .catch( e => {})
+
+    }
+
 
 
     React.useEffect(() => {
@@ -401,29 +483,39 @@ export default function NewRegister({getMain}) {
         
     },[]);
 
+
     return(
         <Provider>
         <BottomSheetModalProvider>
              
-        <View style={{ backgroundColor: colors.main , flex: 1 , justifyContent: 'center' , alignItems: 'center' }}>
-            {/* <ImageBackground source={{ uri: 'https://picsum.photos/1' }} resizeMode='cover' style={{ justifyContent:'center' , alignItems: 'center' , flex: 1   }}> */}
-                <Title style={styles.mainTitle}>카# (업체용)</Title>
-                <Text style={{ color: 'white'}}>나만의 샵을 관리해요.</Text>
-                <Button style={styles.loginButton} color='white' icon='chat' onPress={handleKakaoLogin}>
-                    카카오로 시작하기
-                </Button>
-                <Button style={styles.loginButton} color='white' icon='alpha-n-box' onPress={() => handleNaverLogin(initials) }>
-                    네이버로 시작하기
-                </Button>
-                <Button style={styles.loginButton} color='black' icon='flask-empty' onPress={() => handlePresentModalPress()}>
-                   테스트
-                </Button>
+        <View style={{ backgroundColor: colors.submain }}>
+                <CustomBar.Default subtitle={'나만의 샵을 관리해요.'} />
+
+                <CustomView style={{ justifyContent: 'flex-end' , alignItems: 'center' , flex: 1 , marginBottom: 50 }}>
+                    <Button labelStyle={{ fontSize: 17 , fontFamily: 'NotoSansKR-Medium'}} style={styles.loginButton} color='black' icon='chat' onPress={handleKakaoLogin}>
+                        카카오로 시작하기
+                    </Button>
+                    <Button labelStyle={{ fontSize: 17 , fontFamily: 'NotoSansKR-Medium'}}  style={styles.loginButton} color='black' icon='alpha-n-box' onPress={() => handleNaverLogin(initials) }>
+                        네이버로 시작하기
+                    </Button>
+                    <Button labelStyle={{ fontSize: 17 , fontFamily: 'NotoSansKR-Medium'}}  style={styles.loginButton} color='black' icon='flask-empty' onPress={ handleTest }>
+                    아임포트 테스트
+                    </Button>
+                    <Button labelStyle={{ fontSize: 17 , fontFamily: 'NotoSansKR-Medium'}}  style={styles.loginButton} color='black' icon='flask-empty' onPress={ () => { handlePresentModalPress() } }>
+                        테스트
+                    </Button>
+
+                </CustomView>
+
+
             {/* </ImageBackground> */}
 
             {/* BottomSheet 모달  */}
             <BottomSheetModal
                 ref={bottomSheetModalRef}
                 snapPoints={snapPoints}
+                handleStyle={{ backgroundColor: colors.main , borderColor: 'white' }}
+                handleIndicatorStyle={{ backgroundColor: 'white' }}
                 // enablePanDownToClose={false}
             >
             <KeyboardAwareScrollView>
@@ -431,13 +523,16 @@ export default function NewRegister({getMain}) {
                     bottomPage == 1 && (
                     <>
                     {/* <Button style={styles.guideButton} color='black' icon='information-outline'>이용가이드</Button>                     */}
-                    <Title style={styles.title}>나만의 샵을 등록해요. (1/2)</Title>
+                    <CustomBar.A subtitle={'1.나만의 샵을 등록해요.'} />
                     
+                    <CustomView style={{ borderWidth: 1 , borderColor: colors.main , backgroundColor: colors.submain , paddingBottom: 30 , marginLeft: 10 , paddingRight: 10 , borderRadius: 5 }}>
                     <Text style={styles.description}>사업자등록번호</Text>
-                    <TextInput theme={{  colors: { primary : colors.main  }   }}
-                        style={{ backgroundColor: 'white' }}
+                    <TextInput 
+                        theme={{  colors: { primary : colors.main  }   }}
+                        outlineColor={colors.main }
+                        style={styles.textInput}
                         value={businessNumber}
-                        mode='flat'
+                        mode='outlined'
                         onChangeText={value=>{setBusinessNumber(value)}}
                         onEndEditing={() => { }}
                         keyboardType='number-pad'
@@ -445,30 +540,38 @@ export default function NewRegister({getMain}) {
                     />
                     
                     <Text style={styles.description}>개업일자</Text>
-                    <TextInput theme={{ colors: { primary : colors.main   }   }}
-                        style={{ backgroundColor: 'white' }}
+                    <TextInput 
+                        theme={{  colors: { primary : colors.main  }   }}
+                        outlineColor={colors.main}
+                        style={styles.textInput}
                         value={openDate}
-                        mode='flat'
+                        mode='outlined'
                         onChangeText={value=>{setOpenDate(value)}}
                         keyboardType='number-pad'
                         placeholder='YYYYMMDD (예) 2021년 9월 27일 -> 20210927'
                     />
                     <Text style={styles.description}>대표자성명</Text>
-                    <TextInput theme={{ colors: { primary : colors.main   }  }}
-                        style={{ backgroundColor: 'white' }}
+                    <TextInput 
+                        theme={{  colors: { primary : colors.main  }   }}
+                        outlineColor={colors.main}
+                        style={styles.textInput}
                         // value={bossName}
-                        mode='flat'
+                        mode='outlined'
                         // onFocus={() => { this.scrollView.scrollToPosition(0,this.scrollView.state.keyboardSpace+10)  }}
                         onChangeText={value=>{setBossName(value)}}
                         placeholder='홍길동'
                     />
-                    <Button style={{ margin: 10 , marginTop: 30 , height: 50 , justifyContent: 'center'  }} 
+                    </CustomView>
+                    <Button 
+                        style={{ margin: 10 , marginTop: 20 , height: 50 , justifyContent: 'center' , borderColor: colors.main , borderWidth: 2 , borderRadius: 10 , width: '50%', alignSelf: 'center'  }} 
                         onPress={() => {verify()}}
+                        labelStyle={{ color: businessNumber.length&&openDate.length&&bossName.length ? 'white' : colors.main }}
                         mode={businessNumber.length&&openDate.length&&bossName.length ? 'contained' : 'outlined'}  
                         color={colors.main}>
+
                         다음
                     </Button>
-                    <Button style={{ margin: 10 , marginTop: 30 , height: 50 , justifyContent: 'center'  }} 
+                    <Button style={{ margin: 10 , marginTop: 10 , height: 50 , justifyContent: 'center'  }} 
                         onPress={() => { test() }}
                         mode = 'contained'
                         color={'lightgray'}>
@@ -478,31 +581,6 @@ export default function NewRegister({getMain}) {
                     </>
                     )
                 }
-                {/* {
-                    bottomPage == 2 && (
-                        <>
-                        <Title style={styles.title}> {bossName}님으로 인증할게요.(2/3)</Title>
-                        <View style={{ width: '100%' , height: 700 }}>
-                        
-                        <IMP.Certification
-                        userCode={'imp01457748'}  // 가맹점 식별코드
-                        // tierCode={'AAA'}      // 티어 코드: agency 기능 사용자에 한함
-                        data = {{
-                            merchant_uid: `mid_${new Date().getTime()}`,
-                            company: 'imaport',
-                            carrier: '',
-                            name: '',
-                            phone: '',
-                            min_age: '',
-                        }
-                        }
-                        loading={<ActivityIndicator />} // 로딩 컴포넌트
-                        callback={phoneAuth}   // 본인인증 종료 후 콜백
-                      />  
-                      </View>
-                      </>
-                    )
-                } */}
                 {
                     bottomPage == 3 && (
                         <>
@@ -514,6 +592,7 @@ export default function NewRegister({getMain}) {
                             contentContainerStyle= {{ alignItems : 'center' , justifyContent: 'center'   }}
                             >
                             <KeyboardAwareScrollView>
+                                <IconButton style={{ alignSelf: 'flex-end'}} icon='close' color='white' onPress={() => { setVisible(false)}} />
                                 <Postcode
                                 style={{ width : 300 , height: 500   }}
                                 jsOptions={{ animated: true }}
@@ -565,37 +644,47 @@ export default function NewRegister({getMain}) {
                             </Modal>
                         </Portal>
 
-                        <Title style={styles.title}> 업체에 대해 알려주세요.(2/2)</Title>
-                        <View style = {{ width: '100%' , height: 700 }}>
+                        <CustomBar.A subtitle={'2.업체 정보를 알려주세요.'} />
+                        <CustomView style={{ borderWidth: 1 , borderColor: colors.main , backgroundColor: colors.submain , paddingBottom: 30 , marginLeft: 10 , paddingRight: 10 , borderRadius: 5 , marginBottom: 20 }}>
                             <Text style={styles.description}>업체명</Text>
-                            <TextInput theme={{ colors: { primary : colors.main }  }}
-                            // value={bossName}
-                            style={{ backgroundColor: 'white' }}
-                            mode='flat'
-                            onChangeText={value=>{setName(value)}}
-                            placeholder='카#'
+                            <TextInput 
+                                theme={{  colors: { primary : colors.main  }   }}
+                                outlineColor={colors.main}
+                                style={styles.textInput}
+                                // value={bossName}
+                                mode='outlined'
+                                onChangeText={value=>{setName(value)}}
+                                placeholder='카#'
                             />
                             <Text style={styles.description}>주소</Text>
-                            <TextInput  left={<TextInput.Icon icon='home' size={24}/>}
-                            placeholder='주소를 선택하세요'
-                            style={{ backgroundColor: 'white' }}
-                            theme={{ colors: { primary: colors.main  }}}
-                            editable={false}
-                            right= {<TextInput.Icon color={colors.main} name='magnify' onPress={ () => { setVisible(true) } }/>}
-                            value={address}
-                            onChangeText={ value=> setAddress(value)}
+                            <TextInput  
+                                left={<TextInput.Icon icon='home' color={colors.main} size={24}/>}
+                                placeholder='주소를 선택하세요'
+                                theme={{  colors: { primary : colors.main  }   }}
+                                mode ='outlined'
+                                outlineColor={colors.main}
+                                style={styles.textInput}
+                                editable={false}
+                                onTouchEnd={() => { setVisible(true) }}
+                                right= {<TextInput.Icon color={colors.main} name='magnify' onPress={ () => { setVisible(true) } }/>}
+                                value={address}
+                                onChangeText={ value=> setAddress(value)}
                             />
                             <TextInput  
                                 placeholder='상세주소'
-                                style={{ backgroundColor: 'white' }}
-                                theme={{ colors: { primary: colors.main , background: 'white' }}}
+                                theme={{  colors: { primary : colors.main  }   }}
+                                outlineColor={colors.main}
+                                mode='outlined'
+                                style={styles.textInput}    
                                 // value={detailAddress}
                                 onChangeText={ value=> setDetailAddress(value) }
                             />
                             <Text style={styles.description}>입찰지역</Text>
                             <Text style={{ marginLeft: 10 , padding: 3 , color: 'gray' }}>{'* 설정한 입찰지역은 이후 변경하실 수 없습니다.\n( 업체 주소이전의 경우 고객센터를 통해 변경가능 )'}</Text>
+                            <Text style={styles.description}>입찰지역 1.</Text>
                             <Button
-                                style={{ marginTop: 10 , height: 50 , justifyContent: 'center'  }} 
+                                theme={{  colors: { primary : colors.main  }   }}
+                                style={{ ...styles.textInput , height: 50 , borderColor: colors.main , justifyContent: 'center' }}
                                 labelStyle={{ fontWeight: 'bold' , fontSize: 17 }}
                                 onPress={() => { setRegion1Visible(true) }}
                                 mode='outlined'
@@ -604,8 +693,10 @@ export default function NewRegister({getMain}) {
                             >
                                 {region1}
                             </Button>
+                            <Text style={styles.description}>입찰지역 2.</Text>
                             <Button
-                                style={{ marginTop: 10 , height: 50 , justifyContent: 'center'  }} 
+                                theme={{  colors: { primary : colors.main  }   }}
+                                style={{ ...styles.textInput , height: 50 , borderColor: colors.main , justifyContent: 'center' }}
                                 labelStyle={{ fontWeight: 'bold' , fontSize: 17 }}
                                 onPress={() => { setRegion2Visible(true) }}
                                 mode='outlined'
@@ -614,18 +705,19 @@ export default function NewRegister({getMain}) {
                             >
                                 {region2}
                             </Button>
-                                <Button style={{ margin: 10 , marginTop: 30 , height: 50 , justifyContent: 'center' , elevation: 0  }} 
-                                onPress={() => { requestSignIn() }}
-                                mode='contained'
-                                disabled={!enabled}
-                                labelStyle={{ color: 'white' }}
-                                color={  name.length && address.length && detailAddress.length  ? colors.main : 'white' }
-                                // disabled={ name.length && address.length && detailAddress.length ? false : true }
-                                // color={colors.main}
-                                >
-                                가입하기
-                                </Button>
-                            </View>
+                        </CustomView>
+                        <Button 
+                            style={{ margin: 20 , marginTop: 10 , height: 50 , justifyContent: 'center' , borderColor: colors.main , borderWidth: 2 , borderRadius: 10 , width: '50%', alignSelf: 'center'  }} 
+                            onPress={() => { requestSignIn() }}
+                            disabled={!enabled}
+                            mode='contained'
+                            labelStyle={{ color: name.length && address.length && detailAddress.length  ? 'white' : colors.main }}
+                            color={  name.length && address.length && detailAddress.length  ? colors.main : 'white' }
+                            // disabled={ name.length && address.length && detailAddress.length ? false : true }
+                            // color={colors.main}
+                        >
+                            가입하기
+                        </Button>
                             
                 
                         </>

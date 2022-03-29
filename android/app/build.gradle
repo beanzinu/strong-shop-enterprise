@@ -134,8 +134,8 @@ android {
         applicationId "com.mobile.strongshop"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 10
-        versionName "1.0.1"
+        versionCode 12
+        versionName "1.0.3"
     }
     splits {
         abi {

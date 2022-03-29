@@ -17,11 +17,12 @@ import server from '../../../server/server';
 import AppContext from '../../../storage/AppContext';
 
 const Input = styled.TextInput`
-    border: 3px black;
+    border: 2px ${colors.main};
     height : 200px;
     font-size : 15px;
     padding: 10px;
     margin: 10px;
+    border-radius: 10px;
 `;
 
 const Row = styled.View`
@@ -35,8 +36,8 @@ const styles = {
         fontWeight : 'bold' ,
         padding: 10 ,
         // marginTop: 10 ,
-        color : 'black' , 
-        fontFamily : 'DoHyeon-Regular' ,
+        color : colors.main , 
+        fontFamily : 'Jua-Regular' ,
         fontSize: 27
     } ,
     textInput : {
@@ -62,7 +63,7 @@ export default function( props ) {
     // API Request
    // 도로명 주소 -> 좌표로 변환
     function getCoord(address){
-        return new Promise(resolve=>{
+        return new Promise((resolve,reject)=>{
             axios({
                 method: 'GET' ,
                 url : `https://api.vworld.kr/req/address?service=address&request=getCoord&key=98C4A0B1-90CD-30F6-B7D0-9F5A0DC9F18B&address=${address}&type=ROAD` ,
@@ -75,7 +76,10 @@ export default function( props ) {
             }
             )
             .catch(e => {
-                //
+                latitude = 37.5 ;
+                longitude = 126.9 ;
+
+                reject(e);
             } ) ;
         }) ;
     
@@ -89,7 +93,7 @@ export default function( props ) {
             return;
         }
 
-        if ( address != null ) await getCoord(address) ;
+        if ( address != null ) await getCoord(address).catch( e => { }) ;
 
         let data = {
             introduction : info ,
@@ -156,9 +160,9 @@ export default function( props ) {
                     </KeyboardAwareScrollView>
                 </Modal>
             </Portal>
-            <Appbar.Header style={{ backgroundColor: colors.main  }}>
+            <Appbar.Header style={{ backgroundColor: colors.main , elevation : 0 }}>
                 <Appbar.BackAction color='white' size={20} onPress={() => { props.navigation.goBack() }}/>
-                {/* <Appbar.Content title='업체 소개'  style={{ flex:1 }} titleStyle={{ color: 'white' , alignSelf: 'center' }} /> */}
+                {/* <Appbar.Content title='업체 소개'  style={{ flex:1 }} titleStyle={{ color: 'white' }} /> */}
                 <View style={{ right: 0 , position: 'absolute' }}>
                     <Button color='white' labelStyle={{ fontSize: 17 }}  onPress={addInfo} >수정하기</Button>
                 </View>
