@@ -3,7 +3,7 @@ import { Title , Card , Button , IconButton , FAB, Avatar, ActivityIndicator } f
 import styled from 'styled-components';
 import { ScrollView } from 'react-native-gesture-handler';
 import colors from '../../../color/colors';
-import { FlatList } from 'react-native';
+import { FlatList , Image } from 'react-native';
 // storage
 import API from '../../../server/API';
 import AppContext from '../../../storage/AppContext';
@@ -41,14 +41,18 @@ export default function( props ) {
                 <>
                 <Row style={commonStyles.titleRow}>
                     <Title style= {{ fontSize: 23 , fontFamily: 'Jua-Regular'  }}> 취급상품 </Title>
-                    <Button icon='pencil-plus-outline' 
-                        style={{ right: 0 ,position: 'absolute' }}
-                        labelStyle={{ fontSize: 15 , fontFamily: 'Jua-Regular' }}
-                        color={colors.main}
-                        onPress={ () => { props.navigation.navigate('ProductRegister',{ data : DATA}) }}
+                    <ButtonRow 
+                        style={{ right: 0 , position: 'absolute' }}
+                        onPress={ () => { props.navigation.navigate('ProductRegister',{ data : DATA }) }}
                         >
-                        작성하기
-                    </Button>
+                        <Image resizeMode='contain' source={require('../../../resource/product_icon.png')}  style={{ width: 15, height: 15, alignSelf: 'center', marginBottom: 2 }} />
+                        <Button 
+                            labelStyle={{ fontSize: 15 , fontFamily: 'Jua-Regular' }}
+                            color={colors.main}
+                            >
+                            등록하기
+                        </Button>
+                    </ButtonRow>
                 </Row>
                 <View style={{ height: 60 }}> 
                     <ScrollView horizontal={true}  style={{ height : 80  , backgroundColor: 'transparent'  }} showsHorizontalScrollIndicator={false}>
@@ -122,7 +126,7 @@ function Product( {DATA, listControl} ) {
         {
             DATA == null || DATA.length == 0 ? (
                 <View style={{ backgroundColor: 'transparent' , justifyContent: 'center' , alignItems: 'center' , flex: 1}}>
-                    <Avatar.Icon icon='note-plus' style={{ backgroundColor: 'transparent'}} color={colors.main}/>
+                        <Image resizeMode='contain' source={require('../../../resource/product_icon.png')}  style={{ width: 50, height: 50, alignSelf: 'center', margin: 10 }} />
                     <Title style={{ fontSize: 14 , color: 'black' }}>취급상품을 등록해보세요.</Title>
                 </View>
             ) :
@@ -190,6 +194,10 @@ const styles = {
 
 const Row = styled.View`
     flex-direction: row;
+`;
+const ButtonRow = styled.TouchableOpacity`
+    flex-direction: row;
+    align-items: center;
 `;
 const TouchableRow = styled.TouchableOpacity`
     flex-direction: row;

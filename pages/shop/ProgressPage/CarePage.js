@@ -4,7 +4,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import Collapsible from 'react-native-collapsible';
 import styled from 'styled-components';
 import * as Progress from 'react-native-progress';
-import { Dimensions , FlatList , SectionList } from 'react-native';
+import { Dimensions , FlatList , SectionList, Image } from 'react-native';
 import colors from '../../../color/colors';
 import FastImage from 'react-native-fast-image';
 import Swiper from 'react-native-swiper';
@@ -356,7 +356,7 @@ export default function CarePage( props ){
                 <Row style={commonStyles.titleRow}>
                     <Title style={{ fontFamily: 'Jua-Regular' }}>{titles[state-1].title}</Title>
                 </Row>
-                <Title style={{ marginLeft: 10 , paddingLeft: 10 , color : 'gray' , marginBottom : 20 , fontSize: 15 , fontFamily: 'NotoSansKR-Medium' }}>    
+                <Title style={{ marginBottom: 20 , marginTop: 10 , paddingLeft: 15 , color : 'gray' , fontSize: 17 , fontFamily: 'NotoSansKR-Medium' }}>    
                     {titles[state-1].description}             
                 </Title> 
                 {/* <Progress.Bar progress={state/3} width={ Dimensions.get('screen').width *0.9 } 
@@ -371,20 +371,32 @@ export default function CarePage( props ){
                 <Row style={{ width: '100%' }}>
                     
                     <View style={{ flex: 2 , alignItems: 'center' }}>
-                        <IconButton icon='car' size={30} color={state == 1 ? colors.main : colors.title} style={{ borderWidth: 2, borderColor: state == 1 ? colors.main : colors.title , backgroundColor: state == 1  ? 'white' : 'rgb(128,128,128)' }}/>
-                        <Text style={{ fontSize: 11 , color: state >=1 ? colors.main : 'lightgray' }}>{'시공 전'}</Text>
+                        {
+                            state == 1 ?
+                            <Image resizeMode='contain' source={require('../../../resource/progress_2_on.png')}  style={{ width: 40 , height: 40   }} /> :
+                            <Image resizeMode='contain' source={require('../../../resource/progress_2_off.png')}  style={{ width: 40 , height: 40  , overlayColor: 'red' }} />
+                        }
+                        <Text style={{ marginTop: 5 , fontSize: 13 , color: state ==1 ? colors.main : 'lightgray' }}>{'시공 전'}</Text>
                     </View>
                     <Divider style={{ borderWidth:2, borderColor: colors.main, flex: 0.2}}/>
 
                     <View style={{ flex: 2 , alignItems: 'center' }}>
-                        <IconButton icon='car' size={30} color={state == 2 ? colors.main : colors.title} style={{ borderWidth: 2, borderColor: state == 2 ? colors.main : colors.title , backgroundColor: state == 2  ? 'white' : 'rgb(128,128,128)' }}/>
-                        <Text style={{ fontSize: 11 , color: state >=2 ? colors.main : 'lightgray' }}>{'시공 진행'}</Text>
+                        {
+                            state == 2 ?
+                            <Image resizeMode='contain' source={require('../../../resource/progress_4_on.png')}  style={{ width: 40 , height: 40   }} /> :
+                            <Image resizeMode='contain' source={require('../../../resource/progress_4_off.png')}  style={{ width: 40 , height: 40  , overlayColor: 'red' }} />
+                        }
+                        <Text style={{ marginTop: 5 , fontSize: 13 , color: state ==2 ? colors.main : 'lightgray' }}>{'시공 진행'}</Text>
                     </View>
                     <Divider style={{ borderWidth:2, borderColor: colors.main, flex: 0.2}}/>
 
                     <View style={{ flex: 2 , alignItems: 'center' }}>
-                        <IconButton icon='car' size={30} color={state == 3 ? colors.main : colors.title} style={{ borderWidth: 2, borderColor: state == 3 ? colors.main : colors.title , backgroundColor: state == 3  ? 'white' : 'rgb(128,128,128)' }}/>
-                        <Text style={{ fontSize: 11 , color: state >=3 ? colors.main : 'lightgray' }}>{'출고 대기'}</Text>
+                        {
+                            state == 3 ?
+                            <Image resizeMode='contain' source={require('../../../resource/progress_5_on.png')}  style={{ width: 40 , height: 40   }} /> :
+                            <Image resizeMode='contain' source={require('../../../resource/progress_5_off.png')}  style={{ width: 40 , height: 40  , overlayColor: 'red' }} />
+                        }
+                        <Text style={{ marginTop: 5 , fontSize: 13 , color: state ==3 ? colors.main : 'lightgray' }}>{'출고 대기'}</Text>
                     </View>
                     
                 </Row>

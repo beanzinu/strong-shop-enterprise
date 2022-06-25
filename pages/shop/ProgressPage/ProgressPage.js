@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Title  , ProgressBar, Avatar , Appbar , List , Badge , Button , IconButton , Modal , Portal , Provider , FAB , Divider , Text }  
 from 'react-native-paper';
-import { Alert, Dimensions, FlatList , ScrollView , SectionList } from 'react-native';
+import { Image, Alert, Dimensions, FlatList , ScrollView , SectionList } from 'react-native';
 import colors from '../../../color/colors';
 import _ from 'lodash';
 import MultipleImagePicker from '@baronha/react-native-multiple-image-picker';
@@ -84,7 +84,9 @@ export default function( props ) {
 
         setData( props.route.params.data) ;
         // 서버로부터 받은 현재 시공단계
+        // 수정필요
         setState(states[props.route.params.data.state]);
+
 
     },[]);
 
@@ -347,7 +349,7 @@ export default function( props ) {
                     <Title style={{ fontFamily: 'Jua-Regular' }}>시공 진행상황</Title>
                 </Row>
 
-                <Title style={{ marginLeft: 10 , paddingLeft: 10 , color : 'gray' , marginBottom : 20 , fontSize: 15 , fontFamily: 'NotoSansKR-Medium' }}>    
+                <Title style={{ marginBottom: 20 , marginTop: 10 , paddingLeft: 15 , color : 'gray' , fontSize: 17 , fontFamily: 'NotoSansKR-Medium' }}>    
                 {(state == 1 ? TEXT.first : state == 2 ? TEXT.second : state == 3 ? TEXT.third : state == 4? TEXT.fourth : TEXT.fifth ) 
                 }                    
                 </Title> 
@@ -364,32 +366,52 @@ export default function( props ) {
                 <Row style={{ width: '100%' }}>
                 
                     <View style={{ flex: 2 , alignItems: 'center' }}>
-                        <IconButton icon='car' size={30} color={state == 1 ? colors.main : colors.title} style={{ borderWidth: 2, borderColor: state == 1 ? colors.main : colors.title , backgroundColor: state == 1  ? 'white' : 'rgb(128,128,128)' }}/>
-                        <Text style={{ fontSize: 11 , color: state >=1 ? colors.main : 'lightgray' }}>{'출고지 지정'}</Text>
+                        {
+                            state == 1 ?
+                            <Image resizeMode='contain' source={require('../../../resource/progress_1_on.png')}  style={{ width: 40 , height: 40   }} /> :
+                            <Image resizeMode='contain' source={require('../../../resource/progress_1_off.png')}  style={{ width: 40 , height: 40  , overlayColor: 'red' }} />
+                        }
+                        <Text style={{ marginTop: 5 , fontSize: 11 , color: state ==1 ? colors.main : 'lightgray' }}>{'출고지 지정'}</Text>
                     </View>
-                    <Divider style={{ borderWidth:2, borderColor: colors.main, flex: 0.2}}/>                    
+                    <Divider style={{ borderWidth:2, borderColor: colors.main, flex: 0.2 , top: -2 }}/>                    
                     
                     <View style={{ flex: 2 , alignItems: 'center' }}>
-                        <IconButton icon='car' size={30} color={state == 2 ? colors.main : colors.title} style={{ borderWidth: 2, borderColor: state == 2 ? colors.main : colors.title , backgroundColor: state == 2  ? 'white' : 'rgb(128,128,128)' }}/>
-                        <Text style={{ fontSize: 11 , color: state >=2 ? colors.main : 'lightgray'  }}>신차검수</Text>
+                        {
+                            state == 2 ?
+                            <Image resizeMode='contain' source={require('../../../resource/progress_2_on.png')}  style={{ width: 40 , height: 40   }} /> :
+                            <Image resizeMode='contain' source={require('../../../resource/progress_2_off.png')}  style={{ width: 40 , height: 40  , overlayColor: 'red' }} />
+                        }
+                        <Text style={{ marginTop: 5 ,fontSize: 11 , color: state ==2 ? colors.main : 'lightgray'  }}>신차검수</Text>
                     </View>
-                    <Divider style={{ borderWidth:2, borderColor: colors.main, flex: 0.2}}/>
+                    <Divider style={{ borderWidth:2, borderColor: colors.main, flex: 0.2 , top: -2 }}/>
 
                     <View style={{ flex: 2 , alignItems: 'center' }}>
-                        <IconButton icon='car' size={30} color={state == 3 ? colors.main : colors.title} style={{ borderWidth: 2, borderColor: state == 3 ? colors.main : colors.title , backgroundColor: state == 3  ? 'white' : 'rgb(128,128,128)' }}/>
-                        <Text style={{ fontSize: 11 , color: state >=3 ? colors.main : 'lightgray'   }}>검수완료</Text>
+                        {
+                            state == 3 ?
+                            <Image resizeMode='contain' source={require('../../../resource/progress_3_on.png')}  style={{ width: 40 , height: 40   }} /> :
+                            <Image resizeMode='contain' source={require('../../../resource/progress_3_off.png')}  style={{ width: 40 , height: 40  , overlayColor: 'red' }} />
+                        }                        
+                        <Text style={{ marginTop: 5 ,fontSize: 11 , color: state ==3 ? colors.main : 'lightgray'   }}>검수완료</Text>
                     </View>
-                    <Divider style={{ borderWidth:2, borderColor: colors.main, flex: 0.2}}/>
+                    <Divider style={{ borderWidth:2, borderColor: colors.main, flex: 0.2 , top: -2 }}/>
 
                     <View style={{ flex: 2 , alignItems: 'center' }}>
-                        <IconButton icon='car' size={30} color={state == 4 ? colors.main : colors.title} style={{ borderWidth: 2, borderColor: state == 4 ? colors.main : colors.title , backgroundColor: state == 4  ? 'white' : 'rgb(128,128,128)' }}/>
-                        <Text style={{ fontSize: 11 , color: state >=4 ? colors.main : 'lightgray'   }}>시공진행</Text>
+                        {
+                            state == 4 ?
+                            <Image resizeMode='contain' source={require('../../../resource/progress_4_on.png')}  style={{ width: 40 , height: 40   }} /> :
+                            <Image resizeMode='contain' source={require('../../../resource/progress_4_off.png')}  style={{ width: 40 , height: 40  , overlayColor: 'red' }} />
+                        } 
+                        <Text style={{ marginTop: 5, fontSize: 11 , color: state ==4 ? colors.main : 'lightgray'   }}>시공진행</Text>
                     </View>
-                    <Divider style={{ borderWidth:2, borderColor: colors.main, flex: 0.2}}/>
+                    <Divider style={{ borderWidth:2, borderColor: colors.main, flex: 0.2 , top: -2 }}/>
 
                     <View style={{ flex: 2 , alignItems: 'center' }}>
-                        <IconButton icon='car' size={30} color={state == 5 ? colors.main : colors.title} style={{ borderWidth: 2, borderColor: state == 5 ? colors.main : colors.title , backgroundColor: state == 5  ? 'white' : 'rgb(128,128,128)' }}/>
-                        <Text style={{ fontSize: 11 , color: state >=5 ? colors.main : 'lightgray'  }}>출고대기</Text>
+                        {
+                            state == 5 ?
+                            <Image resizeMode='contain' source={require('../../../resource/progress_5_on.png')}  style={{ width: 40 , height: 40   }} /> :
+                            <Image resizeMode='contain' source={require('../../../resource/progress_5_off.png')}  style={{ width: 40 , height: 40  , overlayColor: 'red' }} />
+                        } 
+                        <Text style={{ marginTop: 5 ,fontSize: 11 , color: state ==5 ? colors.main : 'lightgray'  }}>출고대기</Text>
                     </View>
                 </Row>
 
@@ -450,7 +472,7 @@ export default function( props ) {
                                 {
                                     ( item.value == 3 || item.value == 5 ) && state == item.value && (
                                         <CView style={{  alignItems: 'center', justifyContent: 'center' ,  height: 300 }}>
-                                            <LottieView source={require('./1.json')} autoPlay={true} loop={true} style={{  width: '100%' }} />
+                                            <LottieView source={require('./1.json')} autoPlay={true} loop={true} style={{  width: '100%' , marginBottom: 100 }} />
                                         </CView>
                                     )
                                 }

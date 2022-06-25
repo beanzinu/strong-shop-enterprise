@@ -5,7 +5,10 @@ import { Image } from 'react-native';
 import colors from '../color/colors';
 
 const CustomView = styled.View``;
-
+const Row = styled.View`
+    flex-direction: row;
+    align-items: center;
+`;
 const styles = {
     title : {
         padding: 10 ,
@@ -13,7 +16,7 @@ const styles = {
         fontFamily: 'Jua-Regular' ,
     } ,
     mainTitle : {
-        fontSize: 30 ,
+        fontSize: 27 ,
         fontFamily: 'Jua-Regular' ,
         textAlign: 'center' ,
         color: 'white'
@@ -25,12 +28,12 @@ const styles = {
 function Default( { subtitle } ){
     return(
         <>
-        <Appbar.Header style={{ backgroundColor: colors.main, borderTopWidth: 1 , borderColor: 'rgb(203,115,62)' , width: '90%' , alignSelf: 'center' , elevation: 0 }}>
+        <Appbar.Header style={{ backgroundColor: colors.main, borderTopWidth: 1 , borderColor: 'rgb(203,115,62)' , width: '90%' , alignSelf: 'center' , elevation: -1 }}>
 
         </Appbar.Header>
                 <CustomView style={{ 
                     alignItems: 'center' , 
-                    height: 40 , 
+                    height: 100 , 
                     backgroundColor: colors.main,
                     borderColor: 'rgb(240,206,184)' ,
                     borderBottomStartRadius: 1000 ,
@@ -40,14 +43,17 @@ function Default( { subtitle } ){
                     top: - 20 ,
 
                 }}>
-                        <CustomView style={{ flex: 1 }}>
-                            <Title style={{ ...styles.mainTitle }}>
-                                {'카# (업체용)'}
-                            </Title>
-                            <Title style={{ ...styles.mainTitle , color: 'rgb(103,53,25)' ,fontSize: 23 , fontWeight: 'bold' }}>{subtitle}</Title>
+                        <CustomView style={{ flex: 1  }}>
+                            <Row>
+                                <Image resizeMode='contain' source={require('../resource/logo.png')} style={{ width: 50 , height: 40 , margin: 5 }} />
+                                <Title style={{ ...styles.mainTitle , fontSize: 27 }}>
+                                    {'카#(업체용)'}
+                                </Title>
+                            </Row>
+                            <Title style={{ ...styles.mainTitle , color: 'rgb(103,53,25)' ,fontSize: 27 , fontWeight: 'bold' , top: 10  }}>{subtitle}</Title>
                         </CustomView>
                 </CustomView>    
-                <CustomView style={{ justifyContent: 'flex-end' , alignItems: 'center', height: 60 , width: '100%' , zIndex: -2 , borderRadius: 1000 , top: -10 }}>
+                <CustomView style={{ justifyContent: 'flex-end' , alignItems: 'center', height: 80 , width: '100%' , zIndex: -2 , borderRadius: 1000 , top: -10  }}>
                     <CustomView style={{ width: 900 , height: 900, borderRadius: 1000 , backgroundColor: colors.main  , zIndex: -1 , alignSelf: 'center' , borderColor: 'rgb(239,206,183)' , borderWidth: 12 }}  />
                 </CustomView>
         </>
@@ -98,8 +104,8 @@ function B({ title }){
                     top: - 20 ,
                 }}>
                         <CustomView style={{ flex: 1 }}>
-                            <Image source={require('../resource/logo.png')} style={{ width: 60 , height: 60 , top: - 20 , alignSelf: 'center'  }} />
-                            <Title style={{ ...styles.mainTitle , color: colors.title }}>
+                            <Image resizeMode='contain' source={require('../resource/logo.png')} style={{ width: 60 , height: 60 , top: - 20 , alignSelf: 'center'  }} />
+                            <Title style={{ ...styles.mainTitle , color: colors.title  }}>
                                 {title}
                             </Title>
                             {/* <Title style={{ ...styles.mainTitle , color: 'rgb(103,53,25)' ,fontSize: 23 , fontWeight: 'bold' }}>{subtitle}</Title> */}
@@ -126,7 +132,7 @@ function C({ title }){
                     top: - 20 ,
                 }}>
                         <CustomView style={{ flex: 1 }}>
-                            <Image source={require('../resource/carIcon.png')} style={{ width: 50 , height: 55 , top: - 20 , alignSelf: 'center'  }} />
+                            <Image resizeMode='contain' source={require('../resource/car_logo.png')} style={{ width: 100 , height: 55 , top: - 20 , alignSelf: 'center'  }} />
                             <Title style={{ ...styles.mainTitle , color: colors.title }}>
                                 {title}
                             </Title>

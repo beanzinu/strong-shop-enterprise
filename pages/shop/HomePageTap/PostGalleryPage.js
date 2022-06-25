@@ -18,6 +18,10 @@ const Row = styled.View`
     flex-direction: row;
     align-items: center;
 `;
+const ButtonRow = styled.TouchableOpacity`
+    flex-direction: row;
+    align-items: center;
+`;
 const PostButton = styled.TouchableOpacity`
     width: 33.3%;
     height: 120px;
@@ -94,21 +98,25 @@ export default function( props ) {
                 <>
                     <Row style={commonStyles.titleRow}>
                         <Title style= {{ fontSize: 23 , fontFamily: 'Jua-Regular'  }}> 작업갤러리 </Title>
-                        <Button icon='pencil-plus-outline' 
-                            style={{ position: 'absolute',right: 0 }}
-                            labelStyle={{ fontSize: 15 , fontFamily: 'Jua-Regular' }}
-                            color={colors.main}
+                        <ButtonRow 
+                            style={{ right: 0 , position: 'absolute' }}
                             onPress={ () =>  { props.navigation.navigate('PostRegister', { data : props.data ,  name : shopName , imageUrl: imageUrl  }) }}
-                            >
-                            작성하기
-                        </Button>
+                        >
+                            <Image resizeMode='contain' source={require('../../../resource/gallery_icon.png')}  style={{ width: 15, height: 15, alignSelf: 'center', marginBottom: 2 }} />
+                            <Button
+                                labelStyle={{ fontSize: 15 , fontFamily: 'Jua-Regular' }}
+                                color={colors.main}
+                                >
+                                등록하기
+                            </Button>
+                        </ButtonRow>
                     </Row>
                 {
                     postData.length == 0 ? (
                         <PostView style={{ backgroundColor: 'transparent' , justifyContent: 'center' , alignItems: 'center' , flex: 1}}
                             onPress={() => { props.navigation.navigate('PostRegister', { data : props.data ,  name : shopName , imageUrl : imageUrl   }) }}
                         >
-                            <Avatar.Icon icon='camera-plus' style={{ backgroundColor: 'transparent'}} color={colors.main}/>
+                            <Image resizeMode='contain' source={require('../../../resource/gallery_icon.png')}  style={{ width: 50, height: 50, alignSelf: 'center', margin: 10 }} />
                             <Title style={{ color: colors.emptyTitle }}>시공사진을 등록해보세요.</Title>
                         </PostView>
                     ) :

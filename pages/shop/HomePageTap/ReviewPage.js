@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import colors from "../../../color/colors";
 import React from "react";
-import { FlatList, KeyboardAvoidingView } from "react-native";
+import { FlatList, KeyboardAvoidingView, Image } from "react-native";
 import { Card , Avatar , Divider , Button, ActivityIndicator , Title, IconButton  } from "react-native-paper";
 import { Alert } from "react-native";
 import moment from "moment";
@@ -93,7 +93,7 @@ export default function( props ) {
                         <View
                             style={{ flex: 1 , alignItems: 'center' , justifyContent: 'center' , backgroundColor: 'transparent' }}
                         >
-                            <IconButton icon='alert' color={colors.emptyTitle} />
+                            <Image resizeMode='contain' source={require('../../../resource/review_icon.png')}  style={{ width: 50, height: 50, alignSelf: 'center', margin: 10 }} />
                             <Title style={{ color: colors.emptyTitle }}>현재 리뷰가 없어요.</Title>
                         </View>
                     ):

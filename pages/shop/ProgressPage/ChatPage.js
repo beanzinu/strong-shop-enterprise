@@ -1,7 +1,7 @@
 import React from 'react' ;
 import styled from 'styled-components';
 import { Avatar , Card , Title , 
-    Paragraph , Button , Banner , ActivityIndicator, IconButton, Appbar , Text , Badge } from 'react-native-paper';
+    Paragraph , Button , Banner , ActivityIndicator, IconButton, Appbar , Text , Badge, Divider } from 'react-native-paper';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import database from '@react-native-firebase/database';
@@ -37,7 +37,9 @@ const CView = styled.TouchableOpacity`
     height: 85px;
     flex-direction: row;
     align-items: center;
-    border: 3px ${colors.submain};
+    /* border: 1px ${colors.main}; */
+    /* border-bottom-width: 0.5px ; */
+    /* border-color: lightgray; */
     border-radius: 10px;
     align-self: center;
     margin: 5px;
@@ -46,13 +48,13 @@ const CView = styled.TouchableOpacity`
 const ImageView = styled.View`
     width: 60px ;
     height: 60px ;
-    border: 2px ${colors.main};
+    /* border: 2px ${colors.main}; */
     margin: 10px;
-    border-radius: 50px;
-    border-bottom-right-radius: 10px;
+    /* border-radius: 30px; */
+    /* border-bottom-right-radius: 5px; */
     align-items: center;
     overflow: hidden;
-    top: -15
+    /* top: -15 */
 `;
 
 const state = {
@@ -171,11 +173,17 @@ const ChatView = ( props  ) =>   {
                     :
                     props.navigation.navigate('ProgressPage' , { id : item.id , data: item, imageUrl : item.userResponseDto.profileImage.includes('https') ? item.userResponseDto.profileImage : item.userResponseDto.profileImage.replace('http','https') })  
                 }} >
-                <ImageView><Image source={{ uri: item.userResponseDto.profileImage.includes('https') ? item.userResponseDto.profileImage : item.userResponseDto.profileImage.replace('http','https') }} style={{ width: '100%', height: '100%' , borderRadius: 50 ,borderBottomRightRadius: 10  }} /></ImageView>
+                <ImageView><Image source={{ uri: item.userResponseDto.profileImage.includes('https') ? item.userResponseDto.profileImage : item.userResponseDto.profileImage.replace('http','https') }} style={{ width: '100%', height: '100%' , borderRadius: 25 }} /></ImageView>
                 <View style={{  }}>
                     <View style={{ flexDirection: 'row' , alignItems: 'center' }}>
-                        <Text style={{ margin: 7 ,color: 'black' , fontWeight: 'bold' , fontSize: 17 }}>{`${item.userResponseDto.nickname} 고객`}</Text>
-                        <Text style={{ marginLeft: 3 , marginBottom: 1.5 , alignSelf: 'center' , fontSize: 15 , color: detail.kind == 'Care'? colors.care : colors.main }}>{ detail.kind == 'Care' ? '케어' : '신차'}</Text>
+                        <Text style={{ margin: 7 ,color: 'black' , fontSize: 17 , fontFamily: 'NotoSansKR-Medium' }}>{`${item.userResponseDto.nickname} 고객`}</Text>
+                        {
+                            detail.kind == 'Care' ? 
+                            <Badge size={ 25 } style={{ alignSelf: 'center' , marginLeft: 5 , backgroundColor: colors.care , color: 'white' , paddingLeft: 10 , paddingRight: 10 }}>케어</Badge>
+                            :
+                            <Badge size={ 25 } style={{ alignSelf: 'center' , marginLeft: 5 , backgroundColor: colors.main , color: 'white' , paddingLeft: 10 , paddingRight: 10 }}>신차</Badge>
+                        }
+                        {/* <Text style={{ marginLeft: 3 , marginBottom: 1.5 , alignSelf: 'center' , fontSize: 15 , color: detail.kind == 'Care'? colors.care : colors.main }}>{ detail.kind == 'Care' ? '케어' : '신차'}</Text> */}
                     </View>
                     <Text style={{ marginLeft: 7 , color: 'lightgray' }}>{`[ ${detail.carName} ] `}{detail.kind == 'Care' ?  care_state[item.state] : state[item.state]}</Text>
                 </View>
@@ -209,6 +217,7 @@ const ChatView = ( props  ) =>   {
                 <Appbar.Content titleStyle={{ fontFamily: 'NotoSansKR-Medium' }} title='시공 관리' />
                 <Appbar.Action icon='refresh' onPress={() => { reloadClients() }} />
             </Appbar.Header>
+            <Divider />
             {
                 data.map( ( item , i ) =>  {
                     return (

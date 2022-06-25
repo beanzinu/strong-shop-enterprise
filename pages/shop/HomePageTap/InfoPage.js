@@ -1,5 +1,6 @@
 import React from 'react';
 import NaverMapView , { Marker } from 'react-native-nmap';
+import { Image } from 'react-native';
 import styled from 'styled-components';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Button , Title , ActivityIndicator, Avatar, IconButton } from 'react-native-paper';
@@ -16,6 +17,10 @@ import commonStyles from '../../../components/commonStyles';
 
 const View = styled.View``;
 const Row = styled.View`
+    flex-direction: row;
+    align-items: center;
+`;
+const ButtonRow = styled.TouchableOpacity`
     flex-direction: row;
     align-items: center;
 `;
@@ -149,14 +154,18 @@ export default function( props ) {
             <View style={commonStyles.view}>
                 <Row style={commonStyles.titleRow}>
                     <Title style= {{ fontSize: 23 , fontFamily: 'Jua-Regular'  }}> 업체 소개 </Title>
-                    <Button 
-                        icon='hammer' style={{ right: 0 , position: 'absolute' }}
-                        labelStyle={{ fontSize: 15 , fontFamily: 'Jua-Regular' }}
+                    <ButtonRow 
+                        style={{ right: 0 , position: 'absolute' }}
                         onPress={ () => { props.navigation.navigate('InfoRegister',{ data : data  }) }}
-                        color={colors.main}
                     >
-                        정보수정
-                    </Button>
+                        <Image resizeMode='contain' source={require('../../../resource/info_icon.png')}  style={{ width: 15, height: 15, alignSelf: 'center', marginBottom: 2 }} />
+                        <Button 
+                            labelStyle={{ fontSize: 15 , fontFamily: 'Jua-Regular' }}
+                            color={colors.main}
+                        >
+                            정보수정
+                        </Button>
+                    </ButtonRow>
                 </Row>
             <Text style={{ alignSelf: 'center' , margin: 5 , fontFamily: 'NotoSansKR-Medium' }}>{data?.introduction == null ? '업체 소개를 해주세요.' : data?.introduction }</Text>
             
@@ -177,6 +186,7 @@ export default function( props ) {
                 <Button style={{ borderBottomWidth: data?.snsUrl != null ? 1 : 0  , backgroundColor: data?.snsUrl != null &&'rgb(247,247,247)' }}  uppercase={false} color={'black'} onPress={()=> { data?.snsUrl != null && Linking.openURL('http://instagram.com/'+data.snsUrl) }}>{ data?.snsUrl != null && '@'}{data?.snsUrl}</Button>
             </Row>
             <Row style={{ justifyContent: 'center' , marginTop: 10 }}>
+                <Image resizeMode='contain' source={require('../../../resource/map_icon.png')}  style={{ width: 25  , height: 25, alignSelf: 'center' , margin: 5 }} />
                 <Title style= {{ fontSize: 23 , fontFamily: 'Jua-Regular' }}> 위치 </Title>
             </Row>
             <Row style={{ marginTop: 10 , ...styles.row , marginBottom: 20 }}>

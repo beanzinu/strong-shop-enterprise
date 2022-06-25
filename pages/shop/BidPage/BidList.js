@@ -1,6 +1,6 @@
 import React from 'react';
 import { List, Divider, Text, IconButton , Badge  } from "react-native-paper";
-import { View } from 'react-native';
+import { View , Image } from 'react-native';
 import Collapsible from 'react-native-collapsible';
 import styled from 'styled-components';
 import colors from '../../../color/colors';
@@ -48,6 +48,13 @@ const styles = {
         margin: 5, borderWidth: 3, borderColor: 'lightgray', borderRadius: 10
     }
 }
+
+function ListIcon(){
+    return(
+        <Image resizeMode='contain' source={require('../../../resource/list_icon.png')} style={{ padding: 5 , width: 15 , height: 15 , alignSelf: 'center'}}  />
+    )
+}
+
 function countNcpItems( item ){
     let count = 0 ;
     let flag = false; 
@@ -110,7 +117,7 @@ function Care_A({ item }){
             {
                 item.carwash != null && (
                     <>
-                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='세차' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='세차' left={props => <ListIcon />} />
                         <List.Item style={styles.itemStyle} titleStyle={styles.listStyle}
                             title ={" -  -  -  -  -  -  -  "} 
                             left={props =>  <Text style={styles.itemText}>{item.carwash}</Text>} 
@@ -122,7 +129,7 @@ function Care_A({ item }){
             {
                 item.inside != null && (
                     <>
-                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='내부' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='내부' left={props => <ListIcon />} />
                         <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} 
                             title ={" -  -  -  -  -  -  -  "} 
                             left={props =>  <Text style={styles.itemText}>{item.inside}</Text>} 
@@ -134,7 +141,7 @@ function Care_A({ item }){
             {
                 item.outside != null && (
                     <>
-                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='외부' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='외부' left={props => <ListIcon />} />
                         <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} 
                             title ={" -  -  -  -  -  -  -  "} 
                             left={props =>  <Text style={styles.itemText}>{item.outside}</Text>} 
@@ -146,7 +153,7 @@ function Care_A({ item }){
             {
                 item.scratch != null && (
                     <>
-                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='스크레치' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='스크레치' left={props => <ListIcon />} />
                         <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} 
                             title ={" -  -  -  -  -  -  -  "} 
                             left={props =>  <Text style={styles.itemText}>{item.scratch}</Text>} 
@@ -158,7 +165,7 @@ function Care_A({ item }){
             {
                 item.etc != null && (
                     <>
-                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='기타' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='기타' left={props => <ListIcon />} />
                         <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} 
                             title ={" -  -  -  -  -  -  -  "} 
                             left={props =>  <Text style={styles.itemText}>{item.etc}</Text>} 
@@ -167,7 +174,7 @@ function Care_A({ item }){
                     </>
                 )
             }
-            <Divider style={{ margin: 5, borderWidth: 1 , borderColor: 'lightgray' }} />
+            <Divider style={{ margin: 5, borderWidth: 0.5 , borderColor: colors.main }} />
             <List.Item style={styles.itemStyle}  titleStyle={{...styles.listStyle, fontWeight: 'bold'}} right={props => <Text style={{...styles.itemText, fontWeight: 'bold' }}>{'최종가격:  '}{item.totalPrice}{' 만원'}</Text>}/>
             </View>
 
@@ -218,7 +225,7 @@ function A({ item }){
             {
                 item.tinting != null && (
                     <>
-                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='틴팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='틴팅' left={props => <ListIcon /> } />
                         <List.Item  style={styles.itemStyle} titleStyle={styles.listStyle} 
                             title ={" -  -  -  -  -  -  -  "} 
                             left={props =>  <Text style={styles.itemText}>{item.tinting}</Text>} 
@@ -230,7 +237,7 @@ function A({ item }){
             {
                 item.ppf != null && (
                     <>
-                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='PPF' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='PPF' left={props => <ListIcon />} />
                         <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} 
                             title ={" -  -  -  -  -  -  -  "} 
                             left={props =>  <Text style={styles.itemText}>{item.ppf}</Text>} 
@@ -242,7 +249,7 @@ function A({ item }){
             {
                 item.blackbox != null && (
                     <>
-                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='블랙박스' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='블랙박스' left={props => <ListIcon />} />
                         <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle}
                             title ={" -  -  -  -  -  -  -  "} 
                             left={props =>  <Text style={styles.itemText}>{item.blackbox}</Text>} 
@@ -254,7 +261,7 @@ function A({ item }){
             {
                 item.battery != null && (
                     <>
-                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='보조배터리' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='보조배터리' left={props => <ListIcon />} />
                         <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} 
                         title ={" -  -  -  -  -  -  -  "} 
                         left={props =>  <Text style={styles.itemText}>{item.battery}</Text>} 
@@ -266,7 +273,7 @@ function A({ item }){
             {
                 item.afterblow != null && (
                     <>
-                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='애프터블로우' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='애프터블로우' left={props => <ListIcon />} />
                         <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} 
                             title ={" -  -  -  -  -  -  -  "} 
                             left={props =>  <Text style={styles.itemText}>{item.afterblow}</Text>} 
@@ -278,7 +285,7 @@ function A({ item }){
             {
                 item.soundproof != null && (
                     <>
-                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='방음' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='방음' left={props => <ListIcon />} />
                         <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} 
                             title ={" -  -  -  -  -  -  -  "} 
                             left={props =>  <Text style={styles.itemText}>{item.soundproof}</Text>} 
@@ -290,7 +297,7 @@ function A({ item }){
             {
                 item.wrapping != null && (
                     <>
-                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='랩핑' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='랩핑' left={props => <ListIcon />} />
                         <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} 
                             title ={" -  -  -  -  -  -  -  "} 
                             left={props =>  <Text style={styles.itemText}>{item.wrapping}</Text>} 
@@ -302,7 +309,7 @@ function A({ item }){
             {
                 item.glasscoating != null && (
                     <>
-                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='유리막코팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='유리막코팅' left={props => <ListIcon />} />
                         <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} 
                             title ={" -  -  -  -  -  -  -  "} 
                             left={props =>  <Text style={styles.itemText}>{item.glasscoating}</Text>} 
@@ -314,7 +321,7 @@ function A({ item }){
             {
                 item.bottomcoating != null && (
                     <>
-                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='하부코팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='하부코팅' left={props => <ListIcon />} />
                         <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} 
                             title ={" -  -  -  -  -  -  -  "} 
                             left={props =>  <Text style={styles.itemText}>{item.bottomcoating}</Text>} 
@@ -379,7 +386,7 @@ function Care_B( { item,row } ){
                 {
                 item.carwash != null && (
                     <>
-                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='세차' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='세차' left={props => <ListIcon />} />
                         <List.Item style={styles.itemStyle} titleStyle={styles.listStyle}
                             title ={" -  -  -  -  -  -  -  "} 
                             left={props =>  <Text style={styles.itemText}>{item.carwash}</Text>} 
@@ -391,7 +398,7 @@ function Care_B( { item,row } ){
                 {
                     item.inside != null && (
                         <>
-                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='내부' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='내부' left={props => <ListIcon />} />
                             <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} 
                                 title ={" -  -  -  -  -  -  -  "} 
                                 left={props =>  <Text style={styles.itemText}>{item.inside}</Text>} 
@@ -403,7 +410,7 @@ function Care_B( { item,row } ){
                 {
                     item.outside != null && (
                         <>
-                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='외부' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='외부' left={props => <ListIcon />} />
                             <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} 
                                 title ={" -  -  -  -  -  -  -  "} 
                                 left={props =>  <Text style={styles.itemText}>{item.outside}</Text>} 
@@ -415,7 +422,7 @@ function Care_B( { item,row } ){
                 {
                     item.scratch != null && (
                         <>
-                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='스크레치' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='스크레치' left={props => <ListIcon />} />
                             <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} 
                                 title ={" -  -  -  -  -  -  -  "} 
                                 left={props =>  <Text style={styles.itemText}>{item.scratch}</Text>} 
@@ -427,7 +434,7 @@ function Care_B( { item,row } ){
                 {
                     item.etc != null && (
                         <>
-                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='기타' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='기타' left={props => <ListIcon />} />
                             <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} 
                                 title ={" -  -  -  -  -  -  -  "} 
                                 left={props =>  <Text style={styles.itemText}>{item.etc}</Text>} 
@@ -436,7 +443,7 @@ function Care_B( { item,row } ){
                         </>
                     )
                 }
-            <Divider style={{ margin: 5, borderWidth: 1 , borderColor: 'lightgray' }} />
+            <Divider style={{ margin: 5, borderWidth: 0.5 , borderColor: colors.main }} />
             <List.Item style={styles.itemStyle}  titleStyle={{...styles.listStyle, fontWeight: 'bold'}} right={props => <Text style={{...styles.itemText, fontWeight: 'bold' }}>{'최종가격:  '}{item.totalPrice}{' 만원'}</Text>}/>
             </View>
             </Collapsible>
@@ -492,7 +499,7 @@ function B( {item,row} ){
                 {
                 item.tinting != null && (
                     <>
-                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='틴팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='틴팅' left={props => <ListIcon />} />
                         <List.Item  style={styles.itemStyle} titleStyle={styles.listStyle} 
                             title ={" -  -  -  -  -  -  -  "} 
                             left={props =>  <Text style={styles.itemText}>{item.tinting}</Text>} 
@@ -504,7 +511,7 @@ function B( {item,row} ){
                 {
                     item.ppf != null && (
                         <>
-                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='PPF' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='PPF' left={props => <ListIcon />} />
                             <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} 
                                 title ={" -  -  -  -  -  -  -  "} 
                                 left={props =>  <Text style={styles.itemText}>{item.ppf}</Text>} 
@@ -516,7 +523,7 @@ function B( {item,row} ){
                 {
                     item.blackbox != null && (
                         <>
-                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='블랙박스' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='블랙박스' left={props => <ListIcon />} />
                             <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle}
                                 title ={" -  -  -  -  -  -  -  "} 
                                 left={props =>  <Text style={styles.itemText}>{item.blackbox}</Text>} 
@@ -528,7 +535,7 @@ function B( {item,row} ){
                 {
                     item.battery != null && (
                         <>
-                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='보조배터리' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='보조배터리' left={props => <ListIcon />} />
                             <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} 
                             title ={" -  -  -  -  -  -  -  "} 
                             left={props =>  <Text style={styles.itemText}>{item.battery}</Text>} 
@@ -540,7 +547,7 @@ function B( {item,row} ){
                 {
                     item.afterblow != null && (
                         <>
-                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='애프터블로우' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='애프터블로우' left={props => <ListIcon />} />
                             <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} 
                                 title ={" -  -  -  -  -  -  -  "} 
                                 left={props =>  <Text style={styles.itemText}>{item.afterblow}</Text>} 
@@ -552,7 +559,7 @@ function B( {item,row} ){
                 {
                     item.soundproof != null && (
                         <>
-                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='방음' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='방음' left={props => <ListIcon />} />
                             <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} 
                                 title ={" -  -  -  -  -  -  -  "} 
                                 left={props =>  <Text style={styles.itemText}>{item.soundproof}</Text>} 
@@ -564,7 +571,7 @@ function B( {item,row} ){
                 {
                     item.wrapping != null && (
                         <>
-                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='랩핑' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='랩핑' left={props => <ListIcon />} />
                             <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} 
                                 title ={" -  -  -  -  -  -  -  "} 
                                 left={props =>  <Text style={styles.itemText}>{item.wrapping}</Text>} 
@@ -576,7 +583,7 @@ function B( {item,row} ){
                 {
                     item.glasscoating != null && (
                         <>
-                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='유리막코팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='유리막코팅' left={props => <ListIcon />} />
                             <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} 
                                 title ={" -  -  -  -  -  -  -  "} 
                                 left={props =>  <Text style={styles.itemText}>{item.glasscoating}</Text>} 
@@ -588,7 +595,7 @@ function B( {item,row} ){
                 {
                     item.bottomcoating != null && (
                         <>
-                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='하부코팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='하부코팅' left={props => <ListIcon />} />
                             <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} 
                                 title ={" -  -  -  -  -  -  -  "} 
                                 left={props =>  <Text style={styles.itemText}>{item.bottomcoating}</Text>} 
@@ -597,7 +604,7 @@ function B( {item,row} ){
                         </>
                     )
                 }
-            <Divider style={{ margin: 5, borderWidth: 1 , borderColor: 'lightgray' }} />
+            <Divider style={{ margin: 5, borderWidth: 0.5 , borderColor: colors.main }} />
             <List.Item style={styles.itemStyle}  titleStyle={{...styles.listStyle, fontWeight: 'bold'}} right={props => <Text style={{...styles.itemText, fontWeight: 'bold' }}>{'최종가격:  '}{item.totalPrice}{' 만원'}</Text>}/>
             </View>
             </Collapsible>
@@ -612,7 +619,7 @@ function Care_C({item}){
             {
                 item.carwash != null && (
                     <>
-                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='세차' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='세차' left={props => <ListIcon />} />
                         <List.Item style={styles.itemStyle} titleStyle={styles.listStyle}
                             title ={" -  -  -  -  -  -  -  "} 
                             left={props =>  <Text style={styles.itemText}>{item.carwash}</Text>} 
@@ -624,7 +631,7 @@ function Care_C({item}){
                 {
                     item.inside != null && (
                         <>
-                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='내부' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='내부' left={props => <ListIcon />} />
                             <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} 
                                 title ={" -  -  -  -  -  -  -  "} 
                                 left={props =>  <Text style={styles.itemText}>{item.inside}</Text>} 
@@ -636,7 +643,7 @@ function Care_C({item}){
                 {
                     item.outside != null && (
                         <>
-                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='외부' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='외부' left={props => <ListIcon />} />
                             <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} 
                                 title ={" -  -  -  -  -  -  -  "} 
                                 left={props =>  <Text style={styles.itemText}>{item.outside}</Text>} 
@@ -648,7 +655,7 @@ function Care_C({item}){
                 {
                     item.scratch != null && (
                         <>
-                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='스크레치' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='스크레치' left={props => <ListIcon />} />
                             <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} 
                                 title ={" -  -  -  -  -  -  -  "} 
                                 left={props =>  <Text style={styles.itemText}>{item.scratch}</Text>} 
@@ -660,7 +667,7 @@ function Care_C({item}){
                 {
                     item.etc != null && (
                         <>
-                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='기타' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='기타' left={props => <ListIcon />} />
                             <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} 
                                 title ={" -  -  -  -  -  -  -  "} 
                                 left={props =>  <Text style={styles.itemText}>{item.etc}</Text>} 
@@ -669,7 +676,7 @@ function Care_C({item}){
                         </>
                     )
                 }
-            <Divider style={{ margin: 5, borderWidth: 1 , borderColor: 'lightgray' }} />
+            <Divider style={{ margin: 5, borderWidth: 0.5 , borderColor: colors.main }} />
             <List.Item style={styles.itemStyle}  titleStyle={{...styles.listStyle, fontWeight: 'bold'}} right={props => <Text style={{...styles.itemText, fontWeight: 'bold' }}>{'최종가격:  '}{item.totalPrice}{' 만원'}</Text>}/>
             </View>
     )
@@ -681,7 +688,7 @@ function C({item}){
             {
                 item.tinting != null && (
                     <>
-                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='틴팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                        <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='틴팅' left={props => <ListIcon />} />
                         <List.Item  style={styles.itemStyle} titleStyle={styles.listStyle} 
                             title ={" -  -  -  -  -  -  -  "} 
                             left={props =>  <Text style={styles.itemText}>{item.tinting}</Text>} 
@@ -693,7 +700,7 @@ function C({item}){
                 {
                     item.ppf != null && (
                         <>
-                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='PPF' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='PPF' left={props => <ListIcon />} />
                             <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} 
                                 title ={" -  -  -  -  -  -  -  "} 
                                 left={props =>  <Text style={styles.itemText}>{item.ppf}</Text>} 
@@ -705,7 +712,7 @@ function C({item}){
                 {
                     item.blackbox != null && (
                         <>
-                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='블랙박스' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='블랙박스' left={props => <ListIcon />} />
                             <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle}
                                 title ={" -  -  -  -  -  -  -  "} 
                                 left={props =>  <Text style={styles.itemText}>{item.blackbox}</Text>} 
@@ -717,7 +724,7 @@ function C({item}){
                 {
                     item.battery != null && (
                         <>
-                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='보조배터리' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='보조배터리' left={props => <ListIcon />} />
                             <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} 
                             title ={" -  -  -  -  -  -  -  "} 
                             left={props =>  <Text style={styles.itemText}>{item.battery}</Text>} 
@@ -729,7 +736,7 @@ function C({item}){
                 {
                     item.afterblow != null && (
                         <>
-                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='애프터블로우' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='애프터블로우' left={props => <ListIcon />} />
                             <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} 
                                 title ={" -  -  -  -  -  -  -  "} 
                                 left={props =>  <Text style={styles.itemText}>{item.afterblow}</Text>} 
@@ -741,7 +748,7 @@ function C({item}){
                 {
                     item.soundproof != null && (
                         <>
-                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='방음' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='방음' left={props => <ListIcon />} />
                             <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} 
                                 title ={" -  -  -  -  -  -  -  "} 
                                 left={props =>  <Text style={styles.itemText}>{item.soundproof}</Text>} 
@@ -753,7 +760,7 @@ function C({item}){
                 {
                     item.wrapping != null && (
                         <>
-                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='랩핑' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='랩핑' left={props => <ListIcon />} />
                             <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} 
                                 title ={" -  -  -  -  -  -  -  "} 
                                 left={props =>  <Text style={styles.itemText}>{item.wrapping}</Text>} 
@@ -765,7 +772,7 @@ function C({item}){
                 {
                     item.glasscoating != null && (
                         <>
-                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='유리막코팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='유리막코팅' left={props => <ListIcon />} />
                             <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} 
                                 title ={" -  -  -  -  -  -  -  "} 
                                 left={props =>  <Text style={styles.itemText}>{item.glasscoating}</Text>} 
@@ -777,7 +784,7 @@ function C({item}){
                 {
                     item.bottomcoating != null && (
                         <>
-                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='하부코팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <List.Item style={styles.labelStyle}  titleStyle={styles.listStyle1} title ='하부코팅' left={props => <ListIcon />} />
                             <List.Item style={styles.itemStyle}  titleStyle={styles.listStyle} 
                                 title ={" -  -  -  -  -  -  -  "} 
                                 left={props =>  <Text style={styles.itemText}>{item.bottomcoating}</Text>} 
@@ -786,7 +793,7 @@ function C({item}){
                         </>
                     )
                 }
-            <Divider style={{ margin: 5, borderWidth: 1 , borderColor: 'lightgray' }} />
+            <Divider style={{ margin: 5, borderWidth: 0.5 , borderColor: colors.main }} />
             <List.Item style={styles.itemStyle}  titleStyle={{...styles.listStyle, fontWeight: 'bold'}} right={props => <Text style={{...styles.itemText, fontWeight: 'bold' }}>{'최종가격:  '}{item.totalPrice}{' 만원'}</Text>}/>
             </View>
     )

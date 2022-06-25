@@ -155,7 +155,7 @@ function TabViews({ navigation  }) {
         renderTabBar={ props => 
             <TabBar {...props}
             indicatorStyle={{ backgroundColor: 'white' , borderWidth: 2 , borderColor: 'transparent' }}
-            style={{ backgroundColor: 'white'  }}
+            style={{ backgroundColor: 'white' , elevation: 0  }}
             renderLabel={ 
                 props => 
                 <Text 
@@ -250,7 +250,7 @@ export default function( props ) {
 
     return (
         <View style={{ backgroundColor: 'white' , flex: 1}}>
-        <Appbar.Header style={{ backgroundColor: colors.main , justifyContent: 'flex-end' , height: 70 ,   }}>
+        <Appbar.Header style={{ backgroundColor: colors.main , justifyContent: 'flex-end' , height: 70 , elevation: 0  }}>
             {/* <Appbar.Content onPress={()=> { setCollapsed(!collapsed) }}  title={shopName} titleStyle={{  color: 'white' , fontWeight: 'bold' , fontSize: shopName?.length > 10 ? 12 : shopName?.length > 5 ? 24 : 25  }}  /> */}
             <View>
                 <Appbar.Action color={colors.title} icon="bell-outline" onPress={() => { props.navigation.navigate('Notifications')}}  />

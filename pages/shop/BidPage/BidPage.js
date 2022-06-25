@@ -219,7 +219,7 @@ export default function ( props ) {
             {
                 !appbarExtended &&
                 <>
-                    <Image source={require('../../../resource/carIcon.png')} style={{ width: 35 , height: 35 , padding: 5 , margin: 10 }} />
+                    <Image resizeMode='contain' source={require('../../../resource/car_logo.png')} style={{ width: 50 , height: 50 , padding: 5 , margin: 10 }} />
                     <Text style={{ marginLeft: 10 , fontSize: 30 , fontWeight: 'bold' , color: colors.title , fontFamily: 'Jua-Regular' }}>{region}</Text>
                 </>
             }
@@ -262,24 +262,27 @@ function CareItem( { navigation , item , id , imageUrls }) {
         <>
         {
             expanded &&
+            <>
             <View style={{ ...commonStyles.view , borderWidth: 0.5 , backgroundColor: 'white' }}>
-            <RowItem onPress={ () => { setExpanded(!expanded) }}>
-                <Text style={{fontWeight : 'bold' , fontFamily: 'DoHyeon-Regular' , fontSize: 25 , marginLeft: 20  }}>{item.carName}</Text>
-                <Badge size={ 25 } style={{ alignSelf: 'center' , marginLeft: 20 , backgroundColor: colors.care , color: 'white' , paddingLeft: 10 , paddingRight: 10 }}>케어</Badge>
+                <RowItem style={{ ...commonStyles.titleRow , backgroundColor: 'white' , borderRadius: 10 }} onPress={ () => { setExpanded(!expanded) }}>
+                    <Text style={{fontWeight : 'bold' , fontFamily: 'DoHyeon-Regular' , fontSize: 22 , marginLeft: 20  }}>{item.carName}</Text>
+                    <Badge size={ 25 } style={{ alignSelf: 'center' , marginLeft: 20 , backgroundColor: colors.care , color: 'white' , paddingLeft: 10 , paddingRight: 10  }}>케어</Badge>
+                    {
+                        item.role == "DEALER" && <Badge size={ 25 } style={{ alignSelf: 'center' , marginLeft: 10 , backgroundColor: 'black' , color: 'white' , paddingLeft: 10 , paddingRight: 10 }}>딜러</Badge>
+                    }
+                    <Row style={{ right: 5 , position: 'absolute' }}>
+                    <Text>{translate('region',item.region)}</Text>
+                    <IconButton icon={ expanded ? 'chevron-down' : 'chevron-up' } />
+                    </Row>
+                </RowItem>
+                <Divider style={{ alignSelf: 'center' , width: '90%' , borderColor: 'rgb(231,207,192)' , borderWidth: 0.5 }} />
                 {
-                    item.role == "DEALER" && <Badge size={ 25 } style={{ alignSelf: 'center' , marginLeft: 10 , backgroundColor: 'black' , color: 'white' , paddingLeft: 10 , paddingRight: 10 }}>딜러</Badge>
+                    expanded &&
+                    <Text style={{ alignSelf: 'center' , fontWeight: 'bold' , margin: 20 }}>{countCareItems(item.options)}</Text>
                 }
-                <Row style={{ right: 5 , position: 'absolute' }}>
-                <Text>{translate('region',item.region)}</Text>
-                <IconButton icon={ expanded ? 'chevron-down' : 'chevron-up' } />
-                </Row>
-            </RowItem>  
-            <Divider style={{ alignSelf: 'center' , width: '90%' , borderColor: 'rgb(231,207,192)' , borderWidth: 0.5 }} />
-            {
-                expanded &&
-                <Text style={{ alignSelf: 'center' , fontWeight: 'bold' , margin: 20 }}>{countCareItems(item.options)}</Text>
-            }
             </View>
+
+            </>
         }
         
         <Collapsible collapsed={expanded} duration={100}>
@@ -296,7 +299,7 @@ function CareItem( { navigation , item , id , imageUrls }) {
                     }
                     { item.options.carWash && 
                         <>
-                            <List.Item titleStyle={styles.listStyle} title ='세차' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <List.Item titleStyle={styles.listStyle} title ='세차' left={props => <ListIcon />} />
                             <ScrollView horizontal={true}>
                             {
                                 _.map(item.options.detailCarWash,(value,key) => { 
@@ -307,7 +310,7 @@ function CareItem( { navigation , item , id , imageUrls }) {
                     </> }
                     { item.options.inside && 
                         <>
-                            <List.Item titleStyle={styles.listStyle} title ='내부' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <List.Item titleStyle={styles.listStyle} title ='내부' left={props => <ListIcon />} />
                             <ScrollView horizontal={true}>
                             {
                                 _.map(item.options.detailInside,(value,key) => { 
@@ -318,7 +321,7 @@ function CareItem( { navigation , item , id , imageUrls }) {
                     </> }
                     { item.options.outside && 
                         <>
-                            <List.Item titleStyle={styles.listStyle} title ='외부' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <List.Item titleStyle={styles.listStyle} title ='외부' left={props => <ListIcon />} />
                             <ScrollView horizontal={true}>
                             {
                                 _.map(item.options.detailOutside,(value,key) => { 
@@ -329,7 +332,7 @@ function CareItem( { navigation , item , id , imageUrls }) {
                     </> }
                     { item.options.scratch && 
                         <>
-                            <List.Item titleStyle={styles.listStyle} title ='스크레치' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <List.Item titleStyle={styles.listStyle} title ='스크레치' left={props => <ListIcon />} />
                             <ScrollView horizontal={true}>
                             {
                                 _.map(item.options.detailScratch,(value,key) => { 
@@ -340,13 +343,13 @@ function CareItem( { navigation , item , id , imageUrls }) {
                     </> }
                     { item.options.etc && 
                         <>
-                            <List.Item titleStyle={styles.listStyle} title ='기타' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <List.Item titleStyle={styles.listStyle} title ='기타' left={props => <ListIcon />} />
                             <ScrollView horizontal={true}>
                                 <Chip style={styles.chipStyle} textStyle={styles.chipTextStyle}>{item.options.detailEtc}</Chip>  
                             </ScrollView>
                     </> }
                     
-                    <List.Item titleStyle={styles.listStyle}  title ='요청사항:' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                    <List.Item titleStyle={styles.listStyle}  title ='요청사항:' left={props => <ListIcon />} />
                     <List.Item 
                         style={{ ...commonStyles.view , backgroundColor: 'white' , borderRadius: 5 }}
                         titleStyle={{   }} 
@@ -395,7 +398,7 @@ function Item ( { item , navigation , id , shopName } ) {
                     expanded &&
                     <View style={{ ...commonStyles.view , borderWidth: 0.5 , backgroundColor: 'white' }}>
                     <RowItem style={{ ...commonStyles.titleRow , backgroundColor: 'white' , borderRadius: 10 }} onPress={ () => { setExpanded(!expanded) }}>
-                        <Text style={{fontWeight : 'bold' , fontFamily: 'DoHyeon-Regular' , fontSize: 25 , marginLeft: 20  }}>{item.carName}</Text>
+                        <Text style={{fontWeight : 'bold' , fontFamily: 'DoHyeon-Regular' , fontSize: 22 , marginLeft: 20  }}>{item.carName}</Text>
                         <Badge size={ 25 } style={{ alignSelf: 'center' , marginLeft: 20 , backgroundColor: colors.main , color: 'white' , paddingLeft: 10 , paddingRight: 10  }}>신차</Badge>
                         {
                             item.role == "DEALER" && <Badge size={ 25 } style={{ alignSelf: 'center' , marginLeft: 10 , backgroundColor: 'black' , color: 'white' , paddingLeft: 10 , paddingRight: 10 }}>딜러</Badge>
@@ -413,7 +416,7 @@ function Item ( { item , navigation , id , shopName } ) {
                     </View>
                 }
                 <Collapsible collapsed={expanded} duration={100}>
-                <View style={{ ...commonStyles.view , backgroundColor: 'white' }}>
+                <View style={{ ...commonStyles.view , backgroundColor: 'white'  }}>
                     {
                         !expanded &&
                         <>
@@ -426,7 +429,7 @@ function Item ( { item , navigation , id , shopName } ) {
                     }
                     { item.options.tinting && 
                         <>
-                            <List.Item titleStyle={styles.listStyle} title ='틴팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <List.Item titleStyle={styles.listStyle} title ='틴팅' left={props => <ListIcon />} />
                             <ScrollView horizontal={true}>
                                 {
                                     _.map(item.options.detailTinting,(value,key) => { 
@@ -438,7 +441,7 @@ function Item ( { item , navigation , id , shopName } ) {
                         </> }
                     {item.options.ppf && 
                         <>
-                            <List.Item titleStyle={styles.listStyle}  title ='PPF' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <List.Item titleStyle={styles.listStyle}  title ='PPF' left={props => <ListIcon />} />
                             <ScrollView horizontal={true}>
                                 {
                                     _.map(item.options.detailPpf,(value,key) => { 
@@ -514,10 +517,10 @@ function Item ( { item , navigation , id , shopName } ) {
                             </ScrollView>
                         </>
                     }
-                    {item.options.glasscoating && <><List.Item titleStyle={styles.listStyle}  title ='유리막코팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} /></>} 
+                    {item.options.glasscoating && <><List.Item titleStyle={styles.listStyle}  title ='유리막코팅' left={props => <ListIcon />} /></>} 
                     {item.options.bottomcoating && 
                         <>
-                            <List.Item titleStyle={styles.listStyle}  title ='하부코팅' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                            <List.Item titleStyle={styles.listStyle}  title ='하부코팅' left={props => <ListIcon />} />
                             <ScrollView horizontal={true}>
                                 {
                                     _.map(item.options.detailBottomcoating,(value,key) => { 
@@ -528,7 +531,7 @@ function Item ( { item , navigation , id , shopName } ) {
                             </ScrollView>
                         </>
                     }
-                    <List.Item titleStyle={styles.listStyle}  title ='요청사항:' left={props => <List.Icon {...props} icon='clipboard-check-outline' style={{ margin: 0}} size={10} />} />
+                    <List.Item titleStyle={styles.listStyle}  title ='요청사항:' left={props => <ListIcon />} />
                     <List.Item 
                         style={{ ...commonStyles.view , backgroundColor: 'white' , borderRadius: 5 }}
                         titleStyle={{   }} 
@@ -548,6 +551,12 @@ function Item ( { item , navigation , id , shopName } ) {
                 </View>
                 </Collapsible>
                 </>
+    )
+}
+
+function ListIcon(){
+    return(
+        <Image resizeMode='contain' source={require('../../../resource/list_icon.png')} style={{ padding: 5 , width: 15 , height: 15 , alignSelf: 'center'}}  />
     )
 }
 

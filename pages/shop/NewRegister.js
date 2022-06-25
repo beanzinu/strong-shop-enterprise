@@ -7,7 +7,7 @@ import {
 import { Title , Button , Text, TextInput , Provider , Modal , Portal , RadioButton , IconButton, Appbar, Divider } from 'react-native-paper';
 import colors from '../../color/colors';
 import axios from 'axios';
-import { ActivityIndicator, Alert, ScrollView } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView , Image } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import InputScrollView from 'react-native-input-scroll-view';
 import ImageBackground from 'react-native/Libraries/Image/ImageBackground';
@@ -31,6 +31,11 @@ import CustomBar from '../../components/CustomBar';
 
 const View = styled.View`
     flex: 1;
+`;
+const ButtonRow = styled.TouchableOpacity`
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
 `;
 const CustomView = styled.View``;
 const styles = {
@@ -492,18 +497,25 @@ export default function NewRegister({getMain}) {
                 <CustomBar.Default subtitle={'나만의 샵을 관리해요.'} />
 
                 <CustomView style={{ justifyContent: 'flex-end' , alignItems: 'center' , flex: 1 , marginBottom: 50 }}>
-                    <Button labelStyle={{ fontSize: 17 , fontFamily: 'NotoSansKR-Medium'}} style={styles.loginButton} color='black' icon='chat' onPress={handleKakaoLogin}>
-                        카카오로 시작하기
-                    </Button>
-                    <Button labelStyle={{ fontSize: 17 , fontFamily: 'NotoSansKR-Medium'}}  style={styles.loginButton} color='black' icon='alpha-n-box' onPress={() => handleNaverLogin(initials) }>
+                    <ButtonRow style={styles.loginButton} onPress={handleKakaoLogin}>
+                        <Button labelStyle={{ fontSize: 17 , fontFamily: 'NotoSansKR-Medium'}} color='black' icon='chat' >
+                            카카오로 시작하기
+                        </Button>
+                    </ButtonRow>
+
+                    <ButtonRow style={styles.loginButton} onPress={() => handleNaverLogin(initials) }>
+                    <Image resizeMode='contain' source={require('../../resource/naver_icon.png')} style={{ width: 15 , height: 15 }} />
+                    <Button labelStyle={{ fontSize: 17 , fontFamily: 'NotoSansKR-Medium'}} color='black' >
                         네이버로 시작하기
                     </Button>
-                    <Button labelStyle={{ fontSize: 17 , fontFamily: 'NotoSansKR-Medium'}}  style={styles.loginButton} color='black' icon='flask-empty' onPress={ handleTest }>
+                    </ButtonRow>
+
+                    {/* <Button labelStyle={{ fontSize: 17 , fontFamily: 'NotoSansKR-Medium'}}  style={styles.loginButton} color='black' icon='flask-empty' onPress={ handleTest }>
                     아임포트 테스트
                     </Button>
                     <Button labelStyle={{ fontSize: 17 , fontFamily: 'NotoSansKR-Medium'}}  style={styles.loginButton} color='black' icon='flask-empty' onPress={ () => { handlePresentModalPress() } }>
                         테스트
-                    </Button>
+                    </Button> */}
 
                 </CustomView>
 
